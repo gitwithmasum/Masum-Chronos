@@ -1,5 +1,6 @@
 """Validate the official VSCE VSIX packaging output and Marketplace presentation."""
 import re, sys, json
+from xml.etree import ElementTree as ET
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -17,6 +18,12 @@ for item in ['vscode/extension.js','vscode/sync-bridge.js','web/index.html','web
 vsix=Path(sys.argv[1] if len(sys.argv)>1 else root/'dist/masum-chronos-1.2.2.vsix')
 with ZipFile(vsix) as z:
     paths=set(z.namelist())
+    manifest=ET.fromstring(z.read('extension.vsixmanifest'))
+    referenced={el.attrib['Path'] for el in manifest.iter() if el.tag.split('}')[-1]=='Asset' and 'Path' in el.attrib}
+    license_values={el.text for el in manifest.iter() if el.tag.split('}')[-1]=='License' and el.text}
+    assert referenced and referenced <= paths, f'Broken Marketplace asset paths: {referenced-paths}'
+    assert license_values and license_values <= paths, f'Broken Marketplace license declaration: {license_values-paths}'
+    assert 'extension/LICENSE.txt' in paths, 'Marketplace requires canonical LICENSE.txt packaging'
     required={'extension.vsixmanifest','extension/package.json','extension/SUPPORT.md',
       'extension/vscode/extension.js','extension/vscode/sync-bridge.js',
       'extension/web/index.html','extension/web/styles.css','extension/web/app.js','extension/web/icon-192.png'}

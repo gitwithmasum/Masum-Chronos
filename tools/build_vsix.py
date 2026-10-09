@@ -14,6 +14,7 @@ FILES = [
     'vscode/extension.js', 'vscode/sync-bridge.js',
     'web/index.html', 'web/styles.css', 'web/app.js', 'web/icon-192.png'
 ]
+PACKAGED_NAME = {'README.md':'readme.md', 'CHANGELOG.md':'changelog.md', 'LICENSE':'LICENSE.txt'}
 CONTENT_TYPES = '''<?xml version="1.0" encoding="utf-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="json" ContentType="application/json"/>
@@ -36,6 +37,7 @@ MANIFEST = f'''<?xml version="1.0" encoding="utf-8"?>
   <Tags>timer,pomodoro,countdown,stopwatch,focus,productivity</Tags>
   <Categories>Other</Categories>
   <GalleryFlags>Public</GalleryFlags>
+  <License>extension/LICENSE.txt</License>
   <Properties>
    <Property Id="Microsoft.VisualStudio.Code.Engine" Value="{escape(DATA['engines']['vscode'])}" />
    <Property Id="Microsoft.VisualStudio.Code.ExtensionDependencies" Value="" />
@@ -46,10 +48,10 @@ MANIFEST = f'''<?xml version="1.0" encoding="utf-8"?>
  <Dependencies />
  <Assets>
   <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
-  <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/README.md" Addressable="true" />
-  <Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE" Addressable="true" />
+  <Asset Type="Microsoft.VisualStudio.Services.Content.Details" Path="extension/readme.md" Addressable="true" />
+  <Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE.txt" Addressable="true" />
   <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" Path="extension/web/icon-192.png" Addressable="true" />
-  <Asset Type="Microsoft.VisualStudio.Services.Content.Changelog" Path="extension/CHANGELOG.md" Addressable="true" />
+  <Asset Type="Microsoft.VisualStudio.Services.Content.Changelog" Path="extension/changelog.md" Addressable="true" />
  </Assets>
 </PackageManifest>'''
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
@@ -57,5 +59,5 @@ with ZipFile(OUTPUT, 'w', compression=ZIP_DEFLATED, compresslevel=9) as z:
     z.writestr('[Content_Types].xml', CONTENT_TYPES)
     z.writestr('extension.vsixmanifest', MANIFEST)
     for name in FILES:
-        z.write(ROOT / name, 'extension/' + name)
+        z.write(ROOT / name, 'extension/' + PACKAGED_NAME.get(name,name))
 print(f'Created VSIX: {OUTPUT}, {len(FILES)} source files')

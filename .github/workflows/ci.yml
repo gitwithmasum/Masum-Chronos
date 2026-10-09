@@ -31,6 +31,8 @@ jobs:
         run: node tools/vscode_sync_test.cjs
       - name: Offline extension packaging smoke test
         run: python tools/build_vsix.py
+      - name: Validate offline VSIX license and all manifest asset paths
+        run: python tools/marketplace_check.py masum-chronos-1.2.2.vsix
       - name: Install official VS Code Marketplace packager
         run: npm install --no-save --no-package-lock @vscode/vsce
       - name: Official Marketplace VSIX package
