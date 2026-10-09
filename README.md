@@ -106,13 +106,14 @@ git push -u origin main
 
 ### GitHub Pages / Live Chrome app
 
-The **web/** subfolder is the standalone browser app. GitHub Pages branch publishing expects files at the repo root or in `/docs`, not directly from arbitrary `/web`. Therefore this repository includes a ready-to-use **GitHub Actions Pages deployment workflow** for `web/`.
+**Publishing source: Deploy from a branch → `main` → `/ (root)`**. The repository-root `index.html` is now the full CHRONOS app with a `<base href="./web/">` tag, so every script, icon, style and PWA manifest resolves to its real location under `web/` without any redirect or 404. The separate `/web/` app path also works. The redundant custom Pages Actions deployment was removed because two concurrent publishers alternately replaced site contents and produced intermittent 404 responses.
 
-1. GitHub repository → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-2. Push to the `main` branch. The workflow uploads/deploys the contents of `web/` automatically.
-3. Once the deployment succeeds, visit `https://gitwithmasum.github.io/Masum-Chronos/`.
+1. Keep GitHub → Settings → Pages → Build and deployment → Source: **Deploy from a branch**, Branch: **main**, Folder: **/ (root)**.
+2. Branch pushes trigger the built-in `pages build and deployment` job; wait for it to succeed.
+3. Open **https://gitwithmasum.github.io/Masum-Chronos/**. It loads the app at the root URL, not README and not a redirect.
+4. The installed Chrome PWA at `/web/` keeps working. All local tasks and settings use the same site origin; they are not deleted by this deployment change. If an old offline app persists, close and reopen it before trying hard refresh.
 
-The live URL above is **expected**, not a claim that it is already deployed.
+**10 or 20 minutes, same ring behavior:** The timer does *not* ring while counting down. When its deadline is reached and the app is running with audio enabled, it plays the completion ringtone for exactly 10 seconds (Web Audio scheduled stop), then stops automatically. This also applies to any supported custom countdown duration and focus/break timers. Browser suspension, audio permissions and an entirely closed app can prevent an immediate alarm.
 
 ## Storage and privacy
 
@@ -126,7 +127,7 @@ The live URL above is **expected**, not a claim that it is already deployed.
 
 ```text
 masum-chronos/
-├── .github/workflows/pages.yml  # GitHub Pages publishing
+├── index.html                   # GitHub Pages branch-root app entry
 ├── web/index.html               # Both workspaces, shared accessible markup
 ├── web/styles.css               # Responsive space-themed UI + animations
 ├── web/app.js                   # Timer + tasks + migration logic

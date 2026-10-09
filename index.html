@@ -1,39 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Repository-root GitHub Pages entry: asset paths resolve to web/. -->
+  <base href="./web/" />
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="index,follow" />
-  <meta name="theme-color" content="#080e21" />
-  <title>MASUM CHRONOS · Focus Timer + To-Do</title>
-  <meta name="description" content="MASUM CHRONOS — futuristic Pomodoro focus timer, countdown, stopwatch, and to-do mission command center." />
-  <meta http-equiv="refresh" content="0; url=./web/" />
-  <style>
-    :root {color-scheme:dark}
-    * {box-sizing:border-box}
-    body {min-height:100vh;margin:0;display:grid;place-items:center;background:radial-gradient(ellipse at 45% 38%,#20204b,#0a0d23 55%,#050916);color:#e9f2ff;font:16px/1.6 system-ui,Segoe UI,sans-serif;text-align:center;padding:2rem}
-    main {max-width:500px}
-    .orbit {width:84px;height:84px;margin:0 auto 28px;border:3px solid #1a2850;border-top-color:#62dafa;border-right-color:#a076fa;border-radius:50%;animation:spin 1.2s linear infinite;box-shadow:0 0 34px #5149ff2d}
-    h1 {font-size:clamp(1.8rem,4vw,2.5rem);letter-spacing:.17em;margin:0}
-    p {color:#a8b5db}
-    a {color:#7de9ff;text-decoration:none;border:1px solid #5464af;padding:10px 22px;border-radius:999px;display:inline-block;margin-top:14px}
-    a:hover {background:#1a2953}
-    @keyframes spin {to {transform:rotate(360deg)}}
-    @media (prefers-reduced-motion:reduce) {.orbit{animation:none}}
-  </style>
-  <script>
-    // GitHub Pages branch publishing serves the repository root, but the
-    // complete installable PWA lives in web/. Keep all app assets and the
-    // service-worker scope together at /Masum-Chronos/web/.
-    window.location.replace(new URL('./web/', window.location.href).href);
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#080e22" />
+  <meta name="description" content="MASUM CHRONOS — futuristic timers and a complete mission-based To-Do command center." />
+  <title>MASUM CHRONOS // Focus Command Center</title>
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script defer src="./app.js"></script>
 </head>
-<body>
-  <main>
-    <div class="orbit" aria-hidden="true"></div>
-    <h1>MASUM CHRONOS</h1>
-    <p>Opening your Focus Timer &amp; To-Do Mission Command Center…</p>
-    <a href="./web/">Open the app</a>
-  </main>
+<body data-theme="nebula">
+  <svg class="svg-symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z" fill="currentColor" stroke="currentColor" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2.6 6.4M3 4v7h7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="m5 5 10 7-10 7V5ZM19 5v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3v4c0 2 5 5 5 5s5-3 5-5V3M7 21v-4c0-2 5-5 5-5s5 3 5 5v4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-stopwatch" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5l3 2M9 2h6M12 2v3M18 6l2-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 1 2.5 8.5L23 12l-8.5 2.5L12 23l-2.5-8.5L1 12l8.5-2.5L12 1Z" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-9M22 20V7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1M18.4 5.6l-2.1 2.1m-8.6 8.6-2.1 2.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="6" cy="19" rx="3" ry="2" fill="currentColor"/><ellipse cx="17" cy="17" rx="3" ry="2" fill="currentColor"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17h12l-2-3V9a4 4 0 0 0-8 0v5l-2 3ZM10 20h4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7 2v6M17 2v6M3 10h18" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A9 9 0 0 1 9.5 4 9 9 0 1 0 20 14.5Z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 4h6M7 7l1 13h8l1-13M10 10v7M14 10v7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="m4 16-1 5 5-1L20 8a3 3 0 0 0-4-4L4 16Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m14 6 4 4" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4V9ZM17 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </svg>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+  <div class="ambient-halo halo-one" aria-hidden="true"></div>
+  <div class="ambient-halo halo-two" aria-hidden="true"></div>
+  <div class="app-shell">
+    <header class="topbar glass">
+      <div class="brand"><div class="brand-mark"><span class="brand-mark-core"></span></div><div><strong>MASUM<span class="brand-accent">.CHRONOS</span></strong><small>FOCUS + TASK COMMAND CENTER <span class="version">/ V1.1</span></small></div></div>
+      <div class="header-links" role="navigation" aria-label="Workspaces">
+        <button class="header-tab active" data-workspace="timer"><svg><use href="#i-clock" /></svg> Focus Timer</button>
+        <button class="header-tab" data-workspace="tasks"><svg><use href="#i-check" /></svg> To-Do Missions <span id="nav-pending" class="nav-count">0</span></button>
+      </div>
+      <div class="header-actions">
+        <div class="connection"><span class="online-dot"></span><span>ALL SYSTEMS READY</span></div>
+        <span id="header-clock" class="header-clock">--:--</span>
+        <button id="open-settings" class="icon-button" title="Open settings" aria-label="Open settings"><svg><use href="#i-settings" /></svg></button>
+      </div>
+    </header>
+    <div id="timer-mode-switch" class="timer-mode-switch" aria-label="Timer tools">
+      <span class="mini-eyebrow">TIMER MODES /</span>
+      <button data-mode="focus" class="mini-mode active"><svg><use href="#i-spark" /></svg> Pomodoro</button>
+      <button data-mode="countdown" class="mini-mode"><svg><use href="#i-hourglass" /></svg> Countdown</button>
+      <button data-mode="stopwatch" class="mini-mode"><svg><use href="#i-stopwatch" /></svg> Stopwatch</button>
+    </div>
+    <div id="timer-workspace" class="dashboard">
+      <aside class="sidebar-left">
+        <section class="glass panel navigation-panel">
+          <div class="section-eyebrow">NAVIGATION <span>01 / MODES</span></div>
+          <button class="side-tab active" data-mode="focus"><span class="side-icon"><svg><use href="#i-spark" /></svg></span><span>Deep Focus</span><span class="side-tab-arrow">↗</span></button>
+          <button class="side-tab" data-mode="countdown"><span class="side-icon"><svg><use href="#i-hourglass" /></svg></span><span>Countdown</span><span class="side-tab-arrow">↗</span></button>
+          <button class="side-tab" data-mode="stopwatch"><span class="side-icon"><svg><use href="#i-stopwatch" /></svg></span><span>Stopwatch</span><span class="side-tab-arrow">↗</span></button>
+        </section>
+        <section class="glass panel daily-panel">
+          <div class="section-eyebrow">TODAY'S MISSION <svg class="tiny-icon"><use href="#i-chart" /></svg></div>
+          <p class="daily-heading"><span id="daily-sessions">0</span><span class="muted">/ 6</span> <small>SESSIONS</small></p>
+          <div class="meter-track"><div id="daily-progress" class="meter-fill"></div></div>
+          <p class="hint-line" id="daily-hint">Your next focus session is waiting.</p>
+          <div class="daily-divider"></div>
+          <div class="stat-pair"><span><svg><use href="#i-clock" /></svg> Focus today</span><strong id="daily-time">0m</strong></div>
+          <div class="stat-pair"><span><svg><use href="#i-spark" /></svg> Day streak</span><strong id="day-streak">0 days</strong></div>
+        </section>
+        <section class="sidebar-note"><div class="note-orb">✦</div><span>DISCIPLINE IS THE BRIDGE<br />BETWEEN GOALS AND RESULTS.</span><small>— YOUR DAILY REMINDER</small></section>
+        <div class="side-footer">DESIGNED FOR THE FUTURE <span>✳</span></div>
+      </aside>
+      <main class="main-column">
+        <section class="glass hero-panel">
+          <div class="hero-heading"><div><div class="section-eyebrow"><span class="blink-dot"></span> ACTIVE WORKSPACE <span class="heading-line"></span> 001</div><h1 id="hero-title">Enter your <em>flow state.</em></h1><p id="hero-subtitle">One session at a time. Make every second count.</p><div id="focus-target" class="focus-target hidden"></div></div><div class="hero-index"><span>CHRONOS / CORE</span><strong id="current-date">OCT 09, 2026</strong></div></div>
+          <div class="mode-context" id="mode-context"><span class="context-dot"></span><span id="context-text">POMODORO PROTOCOL</span><span id="phase-tag" class="phase-tag">FOCUS SESSION</span></div>
+          <div class="timer-stage">
+            <div class="timer-halo"></div>
+            <div class="orbit orbit-outer"><i></i><i></i><i></i><i></i></div>
+            <div class="orbit orbit-inner"></div>
+            <svg id="timer-svg" class="timer-svg" viewBox="0 0 440 440" aria-hidden="true"><defs><linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#23e5ff"/><stop offset="50%" stop-color="#7878ff"/><stop offset="100%" stop-color="#ed73ff"/></linearGradient><filter id="ringGlow"><feGaussianBlur stdDeviation="5" /></filter></defs><circle cx="220" cy="220" r="178" class="circle-track" /><circle cx="220" cy="220" r="178" class="circle-progress-glow" /><circle id="progress-ring" cx="220" cy="220" r="178" class="circle-progress" /></svg>
+            <div class="timer-center"><div class="timer-icon-wrap"><svg id="timer-icon"><use href="#i-spark" /></svg></div><span id="timer-label" class="timer-caption">YOUR FOCUS TIME</span><div id="timer-display" class="timer-digits" role="timer" aria-live="off">25:00</div><div id="timer-status" class="timer-status"><span class="status-dot"></span><span>READY WHEN YOU ARE</span></div><div id="timer-subtext" class="timer-subtext">Breathe. Focus. Create.</div></div>
+            <span class="orbit-label orbit-label-top">NΞXUS / 001</span><span class="orbit-label orbit-label-bottom">PROTOCOL ACTIVE</span>
+          </div>
+          <div class="timer-controls"><button id="reset-btn" class="circle-control" aria-label="Reset timer" title="Reset (R)"><svg><use href="#i-reset" /></svg></button><button id="primary-btn" class="primary-control" aria-label="Start timer" title="Start or pause (Space)"><svg id="primary-icon"><use href="#i-play" /></svg><span id="primary-label">BEGIN FOCUS</span></button><button id="next-btn" class="circle-control" aria-label="Skip to next focus phase" title="Next phase"><svg><use href="#i-next" /></svg></button></div>
+          <div class="phase-switch" id="phase-switch"><button data-phase="focus" class="phase-button active">Focus <span>25m</span></button><button data-phase="short" class="phase-button">Short break <span>5m</span></button><button data-phase="long" class="phase-button">Long break <span>15m</span></button></div>
+          <div id="countdown-presets" class="countdown-presets hidden"><button data-seconds="300">05 MIN</button><button data-seconds="900" class="active">15 MIN</button><button data-seconds="1800">30 MIN</button><button data-seconds="3600">60 MIN</button><button id="custom-countdown-btn">CUSTOM <svg><use href="#i-settings" /></svg></button></div>
+          <div id="laps-wrap" class="laps-wrap hidden"><div class="laps-heading"><span>RECENT LAPS</span><span id="laps-count">00 TOTAL</span></div><ol id="laps-list" class="laps-list"><li class="empty-state">Start stopwatch and hit Lap to record a split.</li></ol></div>
+        </section>
+        <section class="bottom-grid">
+          <div class="glass panel protocol-card"><div class="card-head"><span class="section-eyebrow">SESSION CONFIGURATION</span><svg><use href="#i-settings" /></svg></div><div class="protocol-content"><div><span class="small-label">CURRENT PROTOCOL</span><strong id="protocol-title">Deep Work / 25:00</strong><p id="protocol-description">A clear mind is your greatest tool.</p></div><button id="configure-btn" class="outline-btn">ADJUST <span>↗</span></button></div></div>
+          <div class="glass panel chart-card"><div class="card-head"><span class="section-eyebrow">FOCUS FREQUENCY</span><span class="chart-tag">LAST 7 DAYS</span></div><div id="week-chart" class="week-chart" aria-label="Last seven days focus sessions"></div><div class="chart-axis"><span>WEEKLY MOMENTUM</span><strong id="week-total">0 SESSIONS</strong></div></div>
+        </section>
+      </main>
+      <aside class="sidebar-right">
+        <section class="glass panel tasks-panel"><div class="card-head"><div><div class="section-eyebrow">YOUR OBJECTIVES</div><h2>Mission queue <span id="task-count" class="task-count">0/0</span></h2></div><svg class="card-head-icon"><use href="#i-check" /></svg></div><div id="tasks" class="task-list"></div><form id="task-form" class="task-form"><input id="task-input" type="text" maxlength="120" autocomplete="off" placeholder="Add a mission..." aria-label="New task" required /><button aria-label="Add task" title="Add task"><svg><use href="#i-plus" /></svg></button></form></section>
+        <section class="glass panel metrics-panel"><div class="section-eyebrow">PERFORMANCE DATA <svg class="tiny-icon"><use href="#i-chart" /></svg></div><div class="metric-grid"><div class="metric"><span>FOCUS TIME</span><strong id="total-time">0<small>h</small> 0<small>m</small></strong><span class="metric-caption">TOTAL TIME INVESTED</span></div><div class="metric"><span>COMPLETED</span><strong id="total-sessions">00</strong><span class="metric-caption">FOCUS SESSIONS</span></div></div></section>
+        <section class="glass panel sound-panel"><div class="card-head"><div class="section-eyebrow">AMBIENT ENGINE</div><svg class="card-head-icon"><use href="#i-music" /></svg></div><h2>Soundscape <span class="live-pill">LIVE</span></h2><div class="sound-select-row"><div class="sound-icon"><svg><use href="#i-volume" /></svg></div><select id="soundscape" aria-label="Select soundscape"><option value="off">Silence / Off</option><option value="space">Deep Space Hum</option><option value="rain">Cosmic Rain</option></select></div><div class="volume-control"><label for="volume">VOLUME</label><input id="volume" type="range" min="0" max="100" value="30" /><span id="volume-value">30%</span></div></section>
+        <div class="tip-card"><span class="tip-icon">✦</span><p>“The future depends on what you do today.”</p><div>YOUR NEXT GREAT IDEA STARTS HERE <span>→</span></div></div>
+        <div class="keyboard-hint"><span><kbd>SPACE</kbd> Play / Pause</span><span><kbd>R</kbd> Reset</span><span><kbd>L</kbd> Lap</span></div>
+      </aside>
+    </div>
+
+    <section id="todo-workspace" class="todo-workspace hidden" aria-label="To-Do Mission Command Center">
+      <header class="glass todo-hero">
+        <div><div class="section-eyebrow"><span class="blink-dot"></span> MISSION CONTROL / 002 <span class="heading-line"></span> PRODUCTIVITY ENGINE</div>
+        <h1>Plan your <em>next mission.</em></h1>
+        <p>Turn ideas into actionable objectives. Prioritize, execute, and track what matters.</p>
+        <div class="todo-hero-label"><span class="online-dot"></span> ALL TASK SYSTEMS OPERATIONAL <span class="hero-split">//</span> LOCAL-FIRST</div>
+        </div>
+        <div class="todo-hero-right"><div class="mission-orbit"><div class="mission-orbit-inner">✦</div></div><button id="todo-jump-timer" class="outline-btn">OPEN FOCUS TIMER <span>↗</span></button></div>
+      </header>
+      <div class="todo-kpis">
+        <div class="glass todo-kpi"><span>TOTAL MISSIONS</span><strong id="todo-kpi-total">00</strong><small>ALL TASKS</small></div>
+        <div class="glass todo-kpi"><span>IN PROGRESS</span><strong id="todo-kpi-active">00</strong><small>OPEN MISSIONS</small></div>
+        <div class="glass todo-kpi"><span>COMPLETED</span><strong id="todo-kpi-done">00</strong><small>OBJECTIVES CLEARED</small></div>
+        <div class="glass todo-kpi kpi-critical"><span>NEEDS ATTENTION</span><strong id="todo-kpi-overdue">00</strong><small>OVERDUE MISSIONS</small></div>
+      </div>
+      <div class="todo-layout">
+        <main class="glass todo-board">
+          <div class="todo-section-heading"><div><div class="section-eyebrow">01 / MISSION CREATOR</div><h2>Deploy a new objective<span class="neon-point">.</span></h2></div><span class="todo-sys-tag">INPUT SYSTEM / ONLINE</span></div>
+          <form id="todo-form" class="todo-creator">
+            <label class="todo-input-label" for="todo-title">MISSION NAME</label>
+            <div class="todo-entry"><svg><use href="#i-plus" /></svg><input id="todo-title" type="text" autocomplete="off" maxlength="120" placeholder="What needs to get done?" required /><button type="submit" class="todo-deploy">+ DEPLOY MISSION</button></div>
+            <div class="todo-form-options">
+              <label>PRIORITY<select id="todo-priority"><option value="medium">◈ Medium</option><option value="high">◆ High</option><option value="critical">⚡ Critical</option><option value="low">◇ Low</option></select></label>
+              <label>CATEGORY<select id="todo-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label>
+              <label>DUE DATE<input id="todo-due" type="date" /></label>
+            </div>
+          </form>
+          <div class="todo-toolbar">
+            <div class="section-eyebrow">02 / MISSION QUEUE <span id="todo-visible-count" class="result-count">0 OBJECTIVES</span></div>
+            <div class="todo-tools"><label class="todo-search-wrap"><svg><use href="#i-search" /></svg><input id="todo-search" type="search" placeholder="Search missions..." aria-label="Search missions" /></label><label class="sr-only" for="todo-sort">Sort missions</label><select id="todo-sort" aria-label="Sort missions"><option value="priority">Priority first</option><option value="due">Due date</option><option value="recent">Newest first</option><option value="oldest">Oldest first</option></select></div>
+          </div>
+          <div class="todo-filters" role="group" aria-label="Filter missions">
+            <button class="todo-filter active" data-task-filter="all">All</button>
+            <button class="todo-filter" data-task-filter="today">Today</button>
+            <button class="todo-filter" data-task-filter="upcoming">Upcoming</button>
+            <button class="todo-filter" data-task-filter="overdue">Overdue</button>
+            <button class="todo-filter" data-task-filter="completed">Completed</button>
+          </div>
+          <div id="todo-items" class="todo-items" aria-live="polite"></div>
+          <div class="todo-list-footer"><span>YOUR PROGRESS IS SAVED ON THIS DEVICE</span><button id="clear-completed" type="button" class="text-action">CLEAR COMPLETED <svg><use href="#i-trash" /></svg></button></div>
+        </main>
+        <aside class="todo-aside">
+          <section class="glass todo-insight"><div class="section-eyebrow">MISSION PROGRESSION</div><div class="progress-wheel" id="todo-progress-wheel"><div><strong id="todo-progress-pct">0%</strong><span>COMPLETE</span></div></div><h3 id="todo-progress-title">Ready to launch</h3><p id="todo-progress-message">Every great project begins with one action.</p><div class="progress-meta"><span>MISSIONS COMPLETED</span><strong id="todo-progress-fraction">0 / 0</strong></div></section>
+          <section class="glass todo-next"><div class="section-eyebrow">NEXT MISSION / PRIORITY</div><div id="todo-next-content" class="todo-next-content"></div><button id="todo-focus-next" class="focus-next-btn">FOCUS ON THIS MISSION <span>↗</span></button></section>
+          <section class="todo-reminder"><span>✦</span><h3>BUILD YOUR FUTURE.<br/>ONE TASK AT A TIME.</h3><p>Small consistent actions create extraordinary results.</p><div>CHRONOS / MISSION SYSTEM 1.1</div></section>
+        </aside>
+      </div>
+    </section>
+    <footer class="footer"><span>MASUM CHRONOS © 2026</span><span>STAY CURIOUS // STAY FOCUSED</span><span id="runtime-label">BROWSER EDITION</span></footer>
+  </div>
+  <aside id="ringtone-banner" class="ringtone-banner" role="status" aria-label="Timer finished, ringtone playing" hidden><span class="ringtone-pulse" aria-hidden="true">♪</span><span>TIME IS UP! <small>RINGING FOR 10 SECONDS</small></span><button id="silence-ringtone" type="button">SILENCE</button></aside>
+  <dialog id="settings-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">CONTROL CENTER / SETTINGS</div><h2>Fine-tune your focus</h2></div><button class="icon-button" value="cancel" aria-label="Close settings"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Focus duration (minutes)<input id="focus-mins" type="number" min="1" max="180" value="25" /></label><label>Short break (minutes)<input id="short-mins" type="number" min="1" max="60" value="5" /></label><label>Long break (minutes)<input id="long-mins" type="number" min="1" max="120" value="15" /></label><label>Long break after rounds<input id="long-every" type="number" min="2" max="12" value="4" /></label></div><div class="theme-select"><div class="section-eyebrow">INTERFACE THEME</div><div class="theme-buttons"><button type="button" data-theme-choice="nebula" class="theme-choice active"><span class="theme-dot nebula-dot"></span>NEBULA</button><button type="button" data-theme-choice="cyber" class="theme-choice"><span class="theme-dot cyber-dot"></span>CYBER</button><button type="button" data-theme-choice="aurora" class="theme-choice"><span class="theme-dot aurora-dot"></span>AURORA</button><button type="button" data-theme-choice="minimal" class="theme-choice"><span class="theme-dot minimal-dot"></span>MINIMAL</button></div></div><div class="setting-toggles"><label><input id="auto-break" type="checkbox" /><span>Automatically start breaks</span></label><label><input id="auto-focus" type="checkbox" /><span>Automatically start focus after breaks</span></label><label><input id="alert-sound" type="checkbox" checked /><span>Play 10-second completion ringtone</span></label></div><section class="local-sync-card" aria-label="Local Chrome and VS Code mission sync">
+    <div class="section-eyebrow">LOCAL LINK / V1.2</div>
+    <h3>Chrome ↔ VS Code Task Sync</h3>
+    <p>Pair these apps on the same laptop. No cloud, login, or internet needed. Tasks sync while VS Code is running with the bridge enabled; timer stats stay local.</p>
+    <div class="local-sync-row">
+      <input id="sync-key" type="password" aria-label="Local sync pairing key" autocomplete="off" placeholder="Paste 64-character pairing key from VS Code" maxlength="64" />
+      <button id="sync-connect" type="button" class="solid-btn">CONNECT</button>
+      <button id="sync-disconnect" type="button" class="outline-btn">DISCONNECT</button>
+    </div>
+    <span class="local-sync-status" id="sync-status" role="status">NOT CONNECTED</span>
+  </section>
+  <div class="modal-actions"><button id="notify-btn" type="button" class="outline-btn"><svg><use href="#i-bell" /></svg> ENABLE NOTIFICATIONS</button><button id="save-settings" type="button" class="solid-btn">SAVE CHANGES</button></div><p id="notification-note" class="modal-note">Notifications are optional and require browser permission.</p></form></dialog>
+  <dialog id="custom-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">CUSTOM COUNTDOWN</div><h2>Set the deadline</h2></div><button class="icon-button" value="cancel" aria-label="Close custom timer"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Hours<input id="custom-hours" type="number" min="0" max="99" value="0" /></label><label>Minutes<input id="custom-minutes" type="number" min="0" max="59" value="15" /></label><label>Seconds<input id="custom-seconds" type="number" min="0" max="59" value="0" /></label></div><div class="modal-actions"><button id="save-custom" type="button" class="solid-btn">SET COUNTDOWN</button></div></form></dialog>
+
+  <dialog id="edit-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">TASK COMMAND CENTER / EDIT</div><h2>Modify your mission</h2></div><button class="icon-button" value="cancel" aria-label="Close task editor"><svg><use href="#i-close" /></svg></button></div><div class="task-editor"><label>MISSION TITLE<input id="edit-task-text" maxlength="120" required /></label><div class="form-grid"><label>PRIORITY<select id="edit-task-priority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label><label>CATEGORY<select id="edit-task-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label><label>DUE DATE<input id="edit-task-due" type="date"/></label></div></div><div class="modal-actions"><button type="button" id="save-edited-task" class="solid-btn">SAVE MISSION</button></div></form></dialog>
+  <dialog id="clear-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">MISSION CONTROL / CLEANUP</div><h2>Clear completed missions?</h2></div><button class="icon-button" value="cancel" aria-label="Cancel clear completed"><svg><use href="#i-close" /></svg></button></div><p id="clear-task-warning" class="modal-note">Completed missions will be permanently removed from this device.</p><div class="modal-actions" style="margin-top:22px"><button class="outline-btn" value="cancel">CANCEL</button><button id="confirm-clear-completed" type="button" class="solid-btn">DELETE COMPLETED</button></div></form></dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
