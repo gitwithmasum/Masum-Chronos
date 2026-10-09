@@ -17,9 +17,11 @@ for item in ['vscode/extension.js','vscode/sync-bridge.js','web/index.html','web
 vsix=Path(sys.argv[1] if len(sys.argv)>1 else root/'dist/masum-chronos-1.2.2.vsix')
 with ZipFile(vsix) as z:
     paths=set(z.namelist())
-    required={'extension.vsixmanifest','extension/package.json','extension/README.md','extension/LICENSE','extension/CHANGELOG.md','extension/SUPPORT.md',
+    required={'extension.vsixmanifest','extension/package.json','extension/SUPPORT.md',
       'extension/vscode/extension.js','extension/vscode/sync-bridge.js',
       'extension/web/index.html','extension/web/styles.css','extension/web/app.js','extension/web/icon-192.png'}
+    for allowed in [{'extension/README.md','extension/readme.md'}, {'extension/CHANGELOG.md','extension/changelog.md'}, {'extension/LICENSE','extension/LICENSE.txt'}]:
+        assert paths & allowed, f'Missing package document: {allowed}'
     missing=required-paths
     assert not missing, f'Missing VSIX files: {missing}'
     forbidden=[n for n in paths if n.startswith('extension/') and (n.startswith(('extension/.git/','extension/.github/','extension/previews/','extension/tools/','extension/releases/','extension/node_modules/')) or n.endswith(('.vsix','.zip','.svg')) or n in ('extension/web/sw.js','extension/web/manifest.webmanifest','extension/web/icon-512.png'))]
@@ -27,6 +29,6 @@ with ZipFile(vsix) as z:
     packaged=json.loads(z.read('extension/package.json'))
     assert packaged['version']==package['version']
     assert packaged['main']=='./vscode/extension.js'
-    md=z.read('extension/README.md').decode('utf-8')
+    md=z.read('extension/readme.md' if 'extension/readme.md' in paths else 'extension/README.md').decode('utf-8')
     assert 'https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/' in md
 print(f'MARKETPLACE: official VSIX asset manifest PASS ({len(paths)} entries; {vsix.stat().st_size:,} bytes)')
