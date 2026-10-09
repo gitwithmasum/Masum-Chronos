@@ -2,21 +2,23 @@
 
 ![MASUM CHRONOS To-Do Mission Control](previews/desktop-v1.1-todo.png)
 
-**v1.2.0 | Open-source futuristic productivity app by Masum Billah.**
+**v1.2.1 | Open-source futuristic productivity app by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
 
-## v1.2 — Chrome ↔ VS Code Local Mission Sync
+## v1.2 — Chrome ↔ VS Code Local Task Sync (opt-in)
 
-Chrome and the VS Code extension can share To-Do Missions on the **same laptop** through an optional, authenticated local bridge. No cloud account, backend, or subscription.
+This feature shares **To-Do Missions only** between the Chrome/PWA app and the VS Code extension **on the same laptop**. No public server, paid API, sign-in or cloud storage. Running timers, history/statistics and themes are intentionally separate.
 
-1. Download and install the v1.2 VSIX (available from GitHub Actions build artifacts or the downloadable source ZIP).
-2. Open CHRONOS in VS Code → Settings → LOCAL LINK → START BRIDGE + COPY KEY.
-3. Open the installed Chrome app → Settings → LOCAL LINK → paste the key → CONNECT.
-4. Keep VS Code running. Tasks update approximately every 2.5 seconds; offline edits merge after reconnect.
-5. Stop via DISCONNECT in Chrome or STOP BRIDGE in VS Code.
+1. Update the VS Code extension by installing `releases/masum-chronos-1.2.1.vsix` (or use `code --install-extension .\releases\masum-chronos-1.2.1.vsix`), then reload VS Code.
+2. Open CHRONOS in VS Code, go to **Settings → LOCAL LINK** and click **START BRIDGE + COPY KEY**. VS Code copies a random pairing key to the clipboard. Alternatively use the Command Palette **CHRONOS: Start Local Task Sync & Copy Pairing Key**.
+3. In the **installed Chrome web app**, open **Settings → LOCAL LINK**, paste the key and click **CONNECT** once. The browser remembers it locally.
+4. Keep VS Code open. While both apps run, missions synchronize roughly every 2.5 seconds; after restarting an app, pending local edits are merged on reconnect.
+5. To stop sharing, click **DISCONNECT** in Chrome and/or **STOP BRIDGE** in VS Code. Disabling sync does **not** delete tasks.
 
-**Safety:** The bridge listens only on 127.0.0.1:46469, checks a 256-bit pairing secret and approved browser origins. Never share the secret. It syncs tasks, not timer progress, themes, or focus statistics. Chrome security settings may require allowing local network access. This feature does not sync across different computers or phones.
+**Limits:** Works only on one computer with the VS Code bridge open on `127.0.0.1:46469`. A paired website origin is `https://gitwithmasum.github.io` (or the supported `localhost:5500` development origin). Some browser policies can block connections from an HTTPS site to a loopback service; if you see OFFLINE, check whether the VS Code bridge is active and Chrome has allowed local network access. Do not share your secret pairing key. This is not cross-device/cloud sync and does not synchronize timers.
+
+**Privacy and security:** The local bridge listens only on the IPv4 loopback interface, enforces a long random pairing key, restricts accepted browser Origins, validates the Host header, and limits requests to 160 KB. It never sends data to GitHub or another public service. The key is stored in VS Code SecretStorage when available and in Chrome's localStorage after pairing.
 
 ## Mission Command Center (new in v1.1)
 
@@ -30,6 +32,10 @@ Chrome and the VS Code extension can share To-Do Missions on the **same laptop**
 - Local-first persistence; automatic migration of existing v1.0 task text/completion states, themes, timer settings, and stats.
 
 ![CHRONOS mobile To-Do layout](previews/mobile-v1.1-todo.png)
+
+## 10-second completion ringtone (v1.2.1)
+
+When Focus, Break, or Countdown reaches zero, CHRONOS plays a repeating futuristic four-note chime for **10 seconds**. It stops automatically (timed by Web Audio) or immediately when you click **SILENCE** on the notification banner. Turn it off in Settings → **Play 10-second completion ringtone**. Chrome/VS Code must allow audio and the app must have been opened and activated at least once; browser autoplay restrictions and fully closed apps prevent reliable sound. Existing app and task data are preserved, and the previous local task-sync system is unchanged.
 
 ## Focus Timer
 
@@ -58,14 +64,14 @@ Chrome and the VS Code extension can share To-Do Missions on the **same laptop**
 
 ## Install the VS Code extension
 
-1. [Download the v1.2.0 VS Code extension](masum-chronos-1.2.0.vsix) (`.vsix` file)।
+1. `masum-chronos-1.2.1.vsix` download করো।
 2. VS Code → `Ctrl+Shift+P` → `Extensions: Install from VSIX...` → downloaded file select করো।
 3. `Ctrl+Shift+P` → **CHRONOS: Open Focus Command Center**, অথবা bottom Status Bar-এর **Chronos**-এ click করো।
 
 Terminal install:
 
 ```powershell
-code --install-extension .\masum-chronos-1.2.0.vsix
+code --install-extension .\masum-chronos-1.2.1.vsix
 ```
 
 To develop/debug the extension: open the repository in VS Code and press `F5`, then open the command in **Extension Development Host**.
@@ -79,18 +85,31 @@ vsce package --no-dependencies
 
 The included `tools/build_vsix.py` can generate a VSIX offline without npm.
 
-## GitHub repository
+## GitHub repository setup
 
-**Repository:** https://github.com/gitwithmasum/Masum-Chronos
+Recommended repository name: **`Masum-Chronos`**.
 
-GitHub Pages publishes `web/` via the included `.github/workflows/pages.yml` workflow. The packaged VS Code installer is available under [`masum-chronos-1.2.0.vsix`](masum-chronos-1.2.0.vsix). Repository source changes trigger CI syntax, Webview, and extension-packaging checks. Releases uploaded to VS Code Marketplace must be published separately.
+Suggested GitHub description:
+
+> A futuristic all-in-one productivity app featuring a smart To-Do List, Pomodoro Timer, Countdown, Stopwatch, task analytics, and neon UI. Built for Chrome, Windows, and VS Code.
+
+Create an empty **public** GitHub repository at `https://github.com/new` with this name (no README/license auto-initialization, since the project already includes both). Then run in the *extracted `masum-chronos` folder*:
+
+```powershell
+git init
+git branch -M main
+git add .
+git commit -m "feat: release CHRONOS v1.1 timer and mission control"
+git remote add origin https://github.com/gitwithmasum/Masum-Chronos.git
+git push -u origin main
+```
 
 ### GitHub Pages / Live Chrome app
 
 The **web/** subfolder is the standalone browser app. GitHub Pages branch publishing expects files at the repo root or in `/docs`, not directly from arbitrary `/web`. Therefore this repository includes a ready-to-use **GitHub Actions Pages deployment workflow** for `web/`.
 
-1. Repository **Settings → Pages → Build and deployment → Source: GitHub Actions** (if GitHub Pages is not enabled yet).
-2. Commits to the `main` branch automatically trigger the workflow which publishes the contents of `web/`.
+1. GitHub repository → **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+2. Push to the `main` branch. The workflow uploads/deploys the contents of `web/` automatically.
 3. Once the deployment succeeds, visit `https://gitwithmasum.github.io/Masum-Chronos/`.
 
 The live URL above is **expected**, not a claim that it is already deployed.

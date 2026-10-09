@@ -1,5 +1,5 @@
 /* Minimal offline cache for local PWA; no external requests. */
-const CACHE = 'masum-chronos-v1.2.0';
+const CACHE = 'masum-chronos-v1.2.1';
 const ASSETS = ['./', './index.html', './styles.css', './app.js', './icon.svg', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));

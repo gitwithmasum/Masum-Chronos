@@ -64,3 +64,14 @@ body[data-theme="minimal"]{--bg:#0c1220;--glass:rgba(23,32,49,.92);--glass-stron
 .local-sync-row button{white-space:nowrap}
 .local-sync-status{display:inline-flex;margin-top:12px;font-size:.72rem;font-weight:700;letter-spacing:.045em;color:#bbc4dc}
 .local-sync-status[data-connected="true"]{color:#62e8bc}
+
+/* v1.2.1 timer completion ringtone banner */
+.ringtone-banner[hidden]{display:none!important}
+.ringtone-banner{position:fixed;right:20px;bottom:20px;z-index:500;display:flex;align-items:center;gap:16px;padding:15px 18px;border:1px solid rgba(89,229,255,.6);border-radius:15px;background:linear-gradient(135deg,rgba(11,27,59,.96),rgba(42,25,77,.96));color:#effcff;box-shadow:0 10px 35px rgba(10,10,40,.5),0 0 24px rgba(69,211,247,.15);font:700 13px Consolas,monospace;letter-spacing:1px}
+.ringtone-banner small{display:block;margin-top:5px;font:10px Consolas,monospace;letter-spacing:.5px;color:#9adced}
+.ringtone-pulse{display:grid;place-items:center;width:36px;height:36px;flex-shrink:0;color:#06202b;background:#62e5f6;border-radius:50%;font-size:21px;animation:ringtone-pulse 900ms ease-in-out infinite}
+.ringtone-banner button{margin-left:6px;padding:10px 13px;color:#e9f9ff;font:700 10px Consolas,monospace;letter-spacing:.8px;background:rgba(47,79,135,.4);border:1px solid rgba(137,209,243,.5);border-radius:9px;cursor:pointer}
+.ringtone-banner button:hover{background:rgba(63,126,174,.6)}
+@keyframes ringtone-pulse{50%{transform:scale(1.15);box-shadow:0 0 23px rgba(98,229,246,.5)}}
+@media(max-width:540px){.ringtone-banner{left:12px;right:12px;bottom:12px;gap:10px;padding:13px;font-size:11px}.ringtone-banner button{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){.ringtone-pulse{animation:none}}

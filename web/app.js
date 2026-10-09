@@ -1,10 +1,10 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '1.2.0';
+  const VERSION = '1.2.1';
+  const STORAGE_KEY = 'masum-chronos-v1';
   const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
   const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
-  const STORAGE_KEY = 'masum-chronos-v1';
   const CIRCUMFERENCE = 2 * Math.PI * 178;
   const $ = (id) => document.getElementById(id);
   const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -13,6 +13,9 @@
   const inVSCode = Boolean(vscode);
   let audioCtx;
   let soundNodes = [];
+  let ringtoneVoices = [];
+  let ringtoneTimeout = null;
+  const RINGTONE_SECONDS = 10;
   let toastTimeout;
   let lastRenderedSecond = -1;
   let lastTitle = '';
@@ -93,7 +96,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -132,7 +135,7 @@
       sendHost('snapshot', { state });
     }
   }
-  // Missions sync only; running timers and statistics stay device-local.
+  // Missions sync; running timers and statistics remain device-local.
   function applySyncedMissions(remote) {
     if (!remote || !Array.isArray(remote.tasks) || remote.tasks.length > 300) return;
     const taskMap = new Map(state.tasks.map(t => [t.id, sanitizeTask(t)]));
@@ -176,14 +179,14 @@
           body:JSON.stringify({tasks:state.tasks,deletedTasks:state.deletedTasks})
         });
       } finally {clearTimeout(timeout);}
-      if(!response.ok) throw new Error(response.status===401?'Pairing key is incorrect':'Bridge returned '+response.status);
+      if(!response.ok) throw new Error(response.status===401?'Pairing key is incorrect':`Bridge returned ${response.status}`);
       const payload=await response.json();
       if(!payload.ok) throw new Error('Invalid sync response');
       applySyncedMissions(payload);
       syncStatus('CONNECTED · Tasks sync every 2.5 seconds',true);
       return true;
     } catch(err) {
-      syncStatus('OFFLINE · '+(err.message || 'Bridge unavailable'));
+      syncStatus(`OFFLINE · ${err.message || 'Bridge unavailable'}`);
       return false;
     } finally {syncBusy=false;}
   }
@@ -266,21 +269,47 @@
     }
     if (audioCtx?.state === 'suspended') audioCtx.resume().catch(() => {});
   }
-  function beep() {
+  // AudioContext notes are scheduled on the audio clock, not JS intervals.
+  // They therefore stop at exactly 10 seconds even in throttled background tabs.
+  function stopCompletionRingtone() {
+    if (ringtoneTimeout !== null) { clearTimeout(ringtoneTimeout); ringtoneTimeout = null; }
+    for (const voice of ringtoneVoices) {
+      try { voice.stop(); } catch {}
+      try { voice.disconnect(); } catch {}
+    }
+    ringtoneVoices = [];
+    const banner = $('ringtone-banner');
+    if (banner) banner.hidden = true;
+  }
+  function playCompletionRingtone() {
+    stopCompletionRingtone();
     if (!state.settings.alertSound) return;
     unlockAudio();
     if (!audioCtx) return;
-    const now = audioCtx.currentTime;
-    [0, .2, .42].forEach((delay, i) => {
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = 'sine'; o.frequency.value = [659.25, 783.99, 987.77][i];
-      g.gain.setValueAtTime(0, now + delay);
-      g.gain.linearRampToValueAtTime(.09, now + delay + .028);
-      g.gain.exponentialRampToValueAtTime(.0001, now + delay + .22);
-      o.connect(g).connect(audioCtx.destination);
-      o.start(now + delay); o.stop(now + delay + .24);
-    });
+    const start = audioCtx.currentTime + .015;
+    const finish = start + RINGTONE_SECONDS;
+    const loudness = .10 + .13 * Math.max(0, Math.min(100, state.settings.volume)) / 100;
+    // A melodic four-note chime, repeating once per second for 10 seconds.
+    const notes = [659.25, 783.99, 987.77, 783.99];
+    for (let second = 0; second < RINGTONE_SECONDS; second++) {
+      for (let j = 0; j < notes.length; j++) {
+        const when = start + second + j * .24;
+        const until = Math.min(finish, when + .28);
+        const voice = audioCtx.createOscillator();
+        const envelope = audioCtx.createGain();
+        voice.type = 'sine'; voice.frequency.setValueAtTime(notes[j], when);
+        envelope.gain.setValueAtTime(0.0001, when);
+        envelope.gain.linearRampToValueAtTime(loudness, when + .018);
+        envelope.gain.exponentialRampToValueAtTime(0.0001, until);
+        voice.connect(envelope).connect(audioCtx.destination);
+        voice.start(when); voice.stop(until);
+        ringtoneVoices.push(voice);
+      }
+    }
+    const banner = $('ringtone-banner');
+    if (banner) banner.hidden = false;
+    // Only UI cleanup uses a JS timer; the actual sound ends on the audio clock.
+    ringtoneTimeout = setTimeout(stopCompletionRingtone, RINGTONE_SECONDS * 1000 + 100);
   }
   function notify(message) {
     if (!inVSCode && 'Notification' in window && Notification.permission === 'granted') {
@@ -315,7 +344,8 @@
         autoStart = state.settings.autoFocus;
       }
     }
-    beep(); notify(message); safeToast(message);
+    if (Date.now() - completedDeadline < 30_000) playCompletionRingtone();
+    notify(message); safeToast(message);
     sendHost('finished', { deadline: completedDeadline, message });
     if (autoStart) state.timers.focus.endsAt = Date.now() + state.timers.focus.remainingMs;
     persist(); render();
@@ -624,6 +654,7 @@
     state.settings.autoBreak = $('auto-break').checked;
     state.settings.autoFocus = $('auto-focus').checked;
     state.settings.alertSound = $('alert-sound').checked;
+    if (!state.settings.alertSound) stopCompletionRingtone();
     if (!state.timers.focus.endsAt) {
       const duration = phaseDuration();
       state.timers.focus.durationMs = duration; state.timers.focus.remainingMs = duration;
@@ -721,6 +752,7 @@
     $$('[data-seconds]').forEach((b) => b.addEventListener('click', () => setCountdown(Number(b.dataset.seconds))));
     $('primary-btn').addEventListener('click', toggleTimer);
     $('reset-btn').addEventListener('click', resetTimer);
+    $('silence-ringtone').addEventListener('click', stopCompletionRingtone);
     $('next-btn').addEventListener('click', doNext);
     $('configure-btn').addEventListener('click', () => state.mode === 'countdown' ? $('custom-dialog').showModal() : openSettings());
     $('custom-countdown-btn').addEventListener('click', () => $('custom-dialog').showModal());
@@ -772,7 +804,7 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);
@@ -780,7 +812,7 @@
         syncStatus(event.data.connected ? 'BRIDGE ONLINE · Pair Chrome in Settings' : 'BRIDGE OFFLINE',Boolean(event.data.connected));
       }
     });
-    window.addEventListener('beforeunload', () => stopSound());
+    window.addEventListener('beforeunload', () => { stopSound(); stopCompletionRingtone(); });
   }
   $('sync-connect').textContent = inVSCode ? 'START BRIDGE + COPY KEY' : 'CONNECT';
   $('sync-disconnect').textContent = inVSCode ? 'STOP BRIDGE' : 'DISCONNECT';

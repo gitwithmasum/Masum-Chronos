@@ -15,11 +15,11 @@ let lastNotifiedDeadline = 0;
 const SNAPSHOT_KEY = 'masumChronos.snapshot.v1';
 const ALERT_KEY = 'masumChronos.lastAlert.v1';
 const PAIR_KEY_STORAGE = 'masumChronos.localSyncKey.v1';
-const VERSION = '1.2.0';
+const VERSION = '1.2.1';
 let bridge = null;
 
 function activeTimer() {
-  if (!snapshot || !['1.0.0','1.1.0', VERSION].includes(snapshot.version)) return null;
+  if (!snapshot || !['1.0.0','1.1.0','1.2.0', VERSION].includes(snapshot.version)) return null;
   if (snapshot.mode === 'stopwatch' && Number.isFinite(snapshot.stopwatch?.startedAt)) {
     const elapsed = (snapshot.stopwatch?.elapsedMs || 0) + Date.now() - snapshot.stopwatch.startedAt;
     return { mode: 'stopwatch', seconds: Math.max(0, Math.floor(elapsed / 1000)) };
@@ -95,7 +95,7 @@ async function startBridge(context) {
   }
   const candidate=new SyncBridge({key,initial:{tasks:snapshot?.tasks||[],deletedTasks:snapshot?.deletedTasks||{}},onChange:receiveSharedTasks});
   try { await candidate.start();bridge=candidate; }
-  catch(err){void vscode.window.showErrorMessage('CHRONOS local bridge could not start: '+err.message);return;}
+  catch(err){void vscode.window.showErrorMessage(`CHRONOS local bridge couldn't start: ${err.message}`);return;}
   announceBridgeStatus();
   await showPairingKey();
 }
@@ -118,12 +118,12 @@ function bindPanel(panel, context) {
   const receiver = panel.webview.onDidReceiveMessage(async (message) => {
     if (!message || typeof message !== 'object') return;
     if (message.type === 'ready') {
-      if (['1.0.0','1.1.0', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
+      if (['1.0.0','1.1.0','1.2.0', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
       if(bridge) await panel.webview.postMessage({type:'sync-tasks',payload:bridge.getData()});
       announceBridgeStatus();
     } else if (message.type === 'snapshot') {
       const candidate = message.state;
-      if (!candidate || !['1.0.0','1.1.0', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
+      if (!candidate || !['1.0.0','1.1.0','1.2.0', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
       if (!snapshot || candidate.updatedAt >= snapshot.updatedAt) {
         snapshot = candidate;
         if(bridge) {

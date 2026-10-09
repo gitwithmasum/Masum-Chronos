@@ -2,7 +2,7 @@
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
   "description": "Futuristic Pomodoro timer, countdown, stopwatch and To-Do Missions with opt-in local Chrome-to-VS-Code task sync.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {

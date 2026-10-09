@@ -21,12 +21,11 @@ jobs:
         run: npm run lint
       - name: VS Code webview smoke test
         run: node tools/vscode_smoke.cjs
-      - name: Local sync security and merge tests
+      - name: 10-second completion ringtone tests
+        run: node tools/ringtone_test.cjs
+      - name: Local sync protocol and security tests
         run: node tools/sync_test.cjs
+      - name: VS Code to Chrome sync integration test
+        run: node tools/vscode_sync_test.cjs
       - name: Extension packaging smoke test
         run: python tools/build_vsix.py
-      - name: Upload installable VSIX
-        uses: actions/upload-artifact@v4
-        with:
-          name: masum-chronos-1.2.0-vsix
-          path: masum-chronos-1.2.0.vsix

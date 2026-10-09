@@ -1,8 +1,19 @@
-## v1.2.0 — Local Task Sync
-- Opt-in Chrome ↔ VS Code mission sync on the same computer.
-- Secure localhost-only pairing key, deletion tombstones, conflict-aware merge.
-- Backward compatible with v1.0/v1.1 saved tasks; timers and stats remain separate.
-- Start/stop bridge in Settings or via Command Palette.
+## v1.2.1 — 10-second Completion Ringtone
+
+- Play a gentle, futuristic four-note ringtone for precisely 10 seconds when Pomodoro focus, breaks, or Countdown finishes.
+- Preserve the existing opt-in completion sound setting and app volume; no external sound files needed.
+- Show a compact neon "TIME IS UP" alert with a SILENCE button while the ringtone is playing.
+- Schedule audio on Web Audio time, rather than on throttled background-tab JavaScript timers.
+- Do not play a delayed ringtone when an expired timer is rediscovered more than 30 seconds later.
+- Keep the v1.2 local Chrome ↔ VS Code task sync, all tasks, timer statistics, settings, and themes.
+
+## v1.2.0 — Local Sync Link
+
+- Opt-in, localhost-only, 256-bit pairing key to sync To-Do Missions between Chrome/PWA and VS Code on the same laptop.
+- Per-task modification timestamps and deletion tombstones for conflict-aware merging; v1.0/v1.1 data preserved.
+- Chrome syncs roughly every 2.5 seconds while running; sync bridge stays alive when VS Code webview closes, provided VS Code is running.
+- Independent Chrome and VS Code timer progress, theme and analytics intentionally remain local.
+- Explicit start/stop/copy-key VS Code commands; strict allowed Origins, private loopback bind, authentication, request size limits and safe Webview CSP.
 
 # Changelog
 
