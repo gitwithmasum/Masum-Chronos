@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#080e21" />
+  <title>MASUM CHRONOS · Focus Timer + To-Do</title>
+  <meta name="description" content="MASUM CHRONOS — futuristic Pomodoro focus timer, countdown, stopwatch, and to-do mission command center." />
+  <meta http-equiv="refresh" content="0; url=./web/" />
+  <style>
+    :root {color-scheme:dark}
+    * {box-sizing:border-box}
+    body {min-height:100vh;margin:0;display:grid;place-items:center;background:radial-gradient(ellipse at 45% 38%,#20204b,#0a0d23 55%,#050916);color:#e9f2ff;font:16px/1.6 system-ui,Segoe UI,sans-serif;text-align:center;padding:2rem}
+    main {max-width:500px}
+    .orbit {width:84px;height:84px;margin:0 auto 28px;border:3px solid #1a2850;border-top-color:#62dafa;border-right-color:#a076fa;border-radius:50%;animation:spin 1.2s linear infinite;box-shadow:0 0 34px #5149ff2d}
+    h1 {font-size:clamp(1.8rem,4vw,2.5rem);letter-spacing:.17em;margin:0}
+    p {color:#a8b5db}
+    a {color:#7de9ff;text-decoration:none;border:1px solid #5464af;padding:10px 22px;border-radius:999px;display:inline-block;margin-top:14px}
+    a:hover {background:#1a2953}
+    @keyframes spin {to {transform:rotate(360deg)}}
+    @media (prefers-reduced-motion:reduce) {.orbit{animation:none}}
+  </style>
+  <script>
+    // GitHub Pages branch publishing serves the repository root, but the
+    // complete installable PWA lives in web/. Keep all app assets and the
+    // service-worker scope together at /Masum-Chronos/web/.
+    window.location.replace(new URL('./web/', window.location.href).href);
+  </script>
+</head>
+<body>
+  <main>
+    <div class="orbit" aria-hidden="true"></div>
+    <h1>MASUM CHRONOS</h1>
+    <p>Opening your Focus Timer &amp; To-Do Mission Command Center…</p>
+    <a href="./web/">Open the app</a>
+  </main>
+</body>
+</html>
