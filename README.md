@@ -1,12 +1,16 @@
 # MASUM CHRONOS // Timer + To-Do Mission Command Center
 
-[![MASUM CHRONOS To-Do Mission Control](https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/desktop-v1.1-todo.png)](https://gitwithmasum.github.io/Masum-Chronos/)
+[![MASUM CHRONOS — futuristic Focus Timer and To-Do Mission Command Center](https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/masum-chronos-timer-todo-banner.jpg)](https://gitwithmasum.github.io/Masum-Chronos/)
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
 **v1.2.2 | Open-source futuristic productivity app by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
+
+### Visual identity — Timer × To-Do
+
+The CHRONOS icon combines a luminous clock face and completed-mission checklist to represent both workspaces. The matching galaxy-themed README banner showcases the **Focus Timer** and **To-Do Mission Command Center** together. Marketplace icon: [`web/icon-192.png`](web/icon-192.png); Chrome PWA icon: [`web/icon-512.png`](web/icon-512.png). These replace the previous clock-only icon; timer state and saved missions remain unchanged.
 
 ## VS Code Marketplace edition (v1.2.2)
 

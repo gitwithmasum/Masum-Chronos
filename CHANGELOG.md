@@ -1,3 +1,10 @@
+## v1.2.2 — Marketplace Visual Identity Refresh
+
+- Replace clock-only icon with the user-approved futuristic Timer + To-Do combination icon (192px Marketplace / 512px PWA).
+- Introduce a matching Timer + To-Do galaxy banner as the first image in the Marketplace README.
+- Match browser favicon to the new combined icon and refresh the PWA cache.
+- No changes to running timers, missions, ringtone, local sync or stored data.
+
 ## v1.2.2 — Marketplace Release Candidate
 
 - Added publisher-ready metadata: repository, homepage, bug tracker, publisher banner and author.

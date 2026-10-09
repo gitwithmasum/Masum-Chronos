@@ -30,5 +30,7 @@ with ZipFile(vsix) as z:
     assert packaged['version']==package['version']
     assert packaged['main']=='./vscode/extension.js'
     md=z.read('extension/readme.md' if 'extension/readme.md' in paths else 'extension/README.md').decode('utf-8')
-    assert 'https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/' in md
+    assert 'https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/masum-chronos-timer-todo-banner.jpg' in md
+    assert z.read('extension/web/icon-192.png') == (root/'web/icon-192.png').read_bytes(), 'VSIX icon differs from branded source'
+    assert (root/'previews/masum-chronos-timer-todo-banner.jpg').stat().st_size > 20_000, 'Missing README hero banner'
 print(f'MARKETPLACE: official VSIX asset manifest PASS ({len(paths)} entries; {vsix.stat().st_size:,} bytes)')
