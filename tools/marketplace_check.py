@@ -8,6 +8,7 @@ package=json.loads((root/'package.json').read_text(encoding='utf8'))
 assert package['version']=='1.2.2' and package['publisher']=='gitwithmasum'
 assert package['repository']['url'].startswith('https://github.com/gitwithmasum/Masum-Chronos')
 assert package['galleryBanner']=={'color':'#080E21','theme':'dark'}
+assert not (root/'.vscodeignore').exists(), 'VSCE does not allow package.json files and .vscodeignore together'
 readme=(root/'README.md').read_text(encoding='utf8')
 for u in re.findall(r'!\[[^\]]*\]\(([^)]+)\)',readme):
     assert u.startswith('https://') and not u.endswith('.svg'), f'unsafe README image: {u}'
