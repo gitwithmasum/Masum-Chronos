@@ -171,7 +171,7 @@
       let response;
       try {
         response = await fetch(SYNC_URL,{
-          method:'POST',mode:'cors',cache:'no-store',signal:controller.signal,
+          method:'POST',mode:'cors',targetAddressSpace:'loopback',cache:'no-store',signal:controller.signal,
           headers:{'Content-Type':'application/json','X-Chronos-Key':key},
           body:JSON.stringify({tasks:state.tasks,deletedTasks:state.deletedTasks})
         });
