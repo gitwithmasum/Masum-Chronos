@@ -1,0 +1,8 @@
+node_modules/
+*.vsix
+*.zip
+__pycache__/
+.pytest_cache/
+.DS_Store
+Thumbs.db
+previews/current-todo-temp.png

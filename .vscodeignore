@@ -1,0 +1,6 @@
+.git/**
+.vscode/**
+*.vsix
+*.zip
+node_modules/**
+start-chrome.bat

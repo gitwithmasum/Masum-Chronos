@@ -1,0 +1,57 @@
+{
+  "name": "masum-chronos",
+  "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
+  "description": "Futuristic Pomodoro timer, countdown, stopwatch and intelligent mission-based to-do manager for VS Code.",
+  "version": "1.1.0",
+  "publisher": "gitwithmasum",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "timer",
+    "pomodoro",
+    "stopwatch",
+    "countdown",
+    "focus",
+    "productivity",
+    "futuristic",
+    "todo",
+    "to-do-list",
+    "task-manager",
+    "missions"
+  ],
+  "icon": "web/icon-192.png",
+  "main": "./vscode/extension.js",
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "onCommand:masumChronos.open",
+    "onWebviewPanel:masumChronos.panel"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "masumChronos.open",
+        "title": "CHRONOS: Open Focus Command Center",
+        "category": "MASUM CHRONOS",
+        "icon": "$(watch)"
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "node --check ./vscode/extension.js && node --check ./web/app.js && node --check ./web/sw.js",
+    "package": "vsce package --no-dependencies"
+  },
+  "files": [
+    "vscode/extension.js",
+    "web/**",
+    "README.md",
+    "LICENSE"
+  ]
+}
