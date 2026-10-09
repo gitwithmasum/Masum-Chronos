@@ -1,8 +1,8 @@
 {
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
-  "description": "Futuristic Pomodoro timer, countdown, stopwatch and To-Do Missions with opt-in local Chrome-to-VS-Code task sync.",
-  "version": "1.2.1",
+  "description": "Neon Pomodoro focus timer, countdown, stopwatch, To-Do Mission Control and optional Chrome-to-VS-Code local task sync.",
+  "version": "1.2.2",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {
@@ -64,13 +64,32 @@
   },
   "scripts": {
     "lint": "node --check ./vscode/extension.js && node --check ./vscode/sync-bridge.js && node --check ./web/app.js && node --check ./web/sw.js",
-    "package": "vsce package --no-dependencies"
+    "package": "vsce package --no-dependencies",
+    "marketplace:check": "python tools/marketplace_check.py"
   },
   "files": [
     "vscode/extension.js",
-    "web/**",
+    "vscode/sync-bridge.js",
+    "web/index.html",
+    "web/styles.css",
+    "web/app.js",
+    "web/icon-192.png",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE",
-    "vscode/sync-bridge.js"
-  ]
+    "SUPPORT.md"
+  ],
+  "author": "Masum Billah",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gitwithmasum/Masum-Chronos.git"
+  },
+  "homepage": "https://gitwithmasum.github.io/Masum-Chronos/",
+  "bugs": {
+    "url": "https://github.com/gitwithmasum/Masum-Chronos/issues"
+  },
+  "galleryBanner": {
+    "color": "#080E21",
+    "theme": "dark"
+  }
 }

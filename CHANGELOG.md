@@ -1,3 +1,10 @@
+## v1.2.2 — Marketplace Release Candidate
+
+- Added publisher-ready metadata: repository, homepage, bug tracker, publisher banner and author.
+- Updated Marketplace README screenshots to stable HTTPS URLs and improved installation, privacy and support guidance.
+- Added VSIX packaging allowlist, support notes, Marketplace instructions and official `@vscode/vsce` checks in CI.
+- Kept v1.2.1 Timer, To-Do Missions, 10-second ringtone and opt-in local task sync logic unchanged.
+
 ## v1.2.1 — 10-second Completion Ringtone
 
 - Play a gentle, futuristic four-note ringtone for precisely 10 seconds when Pomodoro focus, breaks, or Countdown finishes.

@@ -1,16 +1,26 @@
 # MASUM CHRONOS // Timer + To-Do Mission Command Center
 
-![MASUM CHRONOS To-Do Mission Control](previews/desktop-v1.1-todo.png)
+[![MASUM CHRONOS To-Do Mission Control](https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/desktop-v1.1-todo.png)](https://gitwithmasum.github.io/Masum-Chronos/)
 
-**v1.2.1 | Open-source futuristic productivity app by Masum Billah.**
+**[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
+
+**v1.2.2 | Open-source futuristic productivity app by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
+
+## VS Code Marketplace edition (v1.2.2)
+
+Open the **Command Palette** (`Ctrl+Shift+P`) and select **CHRONOS: Open Focus Command Center**, or click the **Chronos** Status Bar item. Run Pomodoro, Countdown, Stopwatch (with laps) and To-Do Missions inside VS Code. The timer completion chime rings for 10 seconds when audio is enabled and the Webview is active; closed panels cannot reliably produce audio.
+
+**No account required.** Focus timers and tasks are stored locally. Optional Chrome ↔ VS Code task sync only works on the same computer, and requires starting the loopback bridge with the explicit pairing command; it is off by default. Local sync does not share running timers, focus stats or themes.
+
+**Support:** [Open a GitHub issue](https://github.com/gitwithmasum/Masum-Chronos/issues) or see [SUPPORT.md](https://github.com/gitwithmasum/Masum-Chronos/blob/main/SUPPORT.md).
 
 ## v1.2 — Chrome ↔ VS Code Local Task Sync (opt-in)
 
 This feature shares **To-Do Missions only** between the Chrome/PWA app and the VS Code extension **on the same laptop**. No public server, paid API, sign-in or cloud storage. Running timers, history/statistics and themes are intentionally separate.
 
-1. Update the VS Code extension by installing `releases/masum-chronos-1.2.1.vsix` (or use `code --install-extension .\releases\masum-chronos-1.2.1.vsix`), then reload VS Code.
+1. Update the VS Code extension by installing `releases/masum-chronos-1.2.2.vsix` (or use `code --install-extension .\releases\masum-chronos-1.2.2.vsix`), then reload VS Code.
 2. Open CHRONOS in VS Code, go to **Settings → LOCAL LINK** and click **START BRIDGE + COPY KEY**. VS Code copies a random pairing key to the clipboard. Alternatively use the Command Palette **CHRONOS: Start Local Task Sync & Copy Pairing Key**.
 3. In the **installed Chrome web app**, open **Settings → LOCAL LINK**, paste the key and click **CONNECT** once. The browser remembers it locally.
 4. Keep VS Code open. While both apps run, missions synchronize roughly every 2.5 seconds; after restarting an app, pending local edits are merged on reconnect.
@@ -31,9 +41,9 @@ This feature shares **To-Do Missions only** between the Chrome/PWA app and the V
 - The small mission queue on the timer page uses the **same task data** as the full To-Do workspace.
 - Local-first persistence; automatic migration of existing v1.0 task text/completion states, themes, timer settings, and stats.
 
-![CHRONOS mobile To-Do layout](previews/mobile-v1.1-todo.png)
+![CHRONOS mobile To-Do layout](https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/mobile-v1.1-todo.png)
 
-## 10-second completion ringtone (v1.2.1)
+## 10-second completion ringtone (v1.2.1+)
 
 When Focus, Break, or Countdown reaches zero, CHRONOS plays a repeating futuristic four-note chime for **10 seconds**. It stops automatically (timed by Web Audio) or immediately when you click **SILENCE** on the notification banner. Turn it off in Settings → **Play 10-second completion ringtone**. Chrome/VS Code must allow audio and the app must have been opened and activated at least once; browser autoplay restrictions and fully closed apps prevent reliable sound. Existing app and task data are preserved, and the previous local task-sync system is unchanged.
 
@@ -64,14 +74,14 @@ When Focus, Break, or Countdown reaches zero, CHRONOS plays a repeating futurist
 
 ## Install the VS Code extension
 
-1. `masum-chronos-1.2.1.vsix` download করো।
+1. `masum-chronos-1.2.2.vsix` download করো।
 2. VS Code → `Ctrl+Shift+P` → `Extensions: Install from VSIX...` → downloaded file select করো।
 3. `Ctrl+Shift+P` → **CHRONOS: Open Focus Command Center**, অথবা bottom Status Bar-এর **Chronos**-এ click করো।
 
 Terminal install:
 
 ```powershell
-code --install-extension .\masum-chronos-1.2.1.vsix
+code --install-extension .\masum-chronos-1.2.2.vsix
 ```
 
 To develop/debug the extension: open the repository in VS Code and press `F5`, then open the command in **Extension Development Host**.
@@ -151,3 +161,9 @@ masum-chronos/
 - Chrome/Windows behavior and full VSIX install must be confirmed on your device before public release. The smoke test uses a local HTML harness in headless Chromium because sandbox restrictions block actual localhost navigation in the build environment.
 
 MIT License · © 2026 Masum Billah
+
+## Marketplace packaging & support
+
+This repository has official Marketplace packaging checks on every push. The CI job packages using `@vscode/vsce` and uploads an installable `masum-chronos-1.2.2.vsix` as a GitHub Actions artifact. PWA-only files, screenshots, build tools, and test scripts are excluded from the VSIX. The Marketplace publisher ID is `gitwithmasum`.
+
+For verification on Windows: run `npm install --no-save --no-package-lock @vscode/vsce`, then `npx --no-install vsce package --no-dependencies --out dist/masum-chronos-1.2.2.vsix`. Before publishing, verify the Publisher account and configure authentication securely; **pushing to GitHub does not publish an extension to Marketplace**. See [MARKETPLACE.md](https://github.com/gitwithmasum/Masum-Chronos/blob/main/MARKETPLACE.md).

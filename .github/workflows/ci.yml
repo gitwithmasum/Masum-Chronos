@@ -29,5 +29,19 @@ jobs:
         run: node tools/sync_test.cjs
       - name: VS Code to Chrome sync integration test
         run: node tools/vscode_sync_test.cjs
-      - name: Extension packaging smoke test
+      - name: Offline extension packaging smoke test
         run: python tools/build_vsix.py
+      - name: Install official VS Code Marketplace packager
+        run: npm install --no-save --no-package-lock @vscode/vsce
+      - name: Official Marketplace VSIX package
+        run: |
+          mkdir -p dist
+          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-1.2.2.vsix
+      - name: Verify Marketplace VSIX content
+        run: python tools/marketplace_check.py dist/masum-chronos-1.2.2.vsix
+      - name: Upload marketplace release candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: masum-chronos-marketplace-v1.2.2
+          path: dist/masum-chronos-1.2.2.vsix
+          if-no-files-found: error
