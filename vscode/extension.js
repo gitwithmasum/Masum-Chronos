@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { SyncBridge } = require('./sync-bridge');
 
 let currentPanel = null;
 let activeContext = null;
@@ -13,10 +14,12 @@ let snapshot = null;
 let lastNotifiedDeadline = 0;
 const SNAPSHOT_KEY = 'masumChronos.snapshot.v1';
 const ALERT_KEY = 'masumChronos.lastAlert.v1';
-const VERSION = '1.1.0';
+const PAIR_KEY_STORAGE = 'masumChronos.localSyncKey.v1';
+const VERSION = '1.2.0';
+let bridge = null;
 
 function activeTimer() {
-  if (!snapshot || !['1.0.0', VERSION].includes(snapshot.version)) return null;
+  if (!snapshot || !['1.0.0','1.1.0', VERSION].includes(snapshot.version)) return null;
   if (snapshot.mode === 'stopwatch' && Number.isFinite(snapshot.stopwatch?.startedAt)) {
     const elapsed = (snapshot.stopwatch?.elapsedMs || 0) + Date.now() - snapshot.stopwatch.startedAt;
     return { mode: 'stopwatch', seconds: Math.max(0, Math.floor(elapsed / 1000)) };
@@ -74,6 +77,39 @@ function getWebviewHTML(webview, extensionUri) {
   html = html.replace('<title>', `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource}; font-src ${webview.cspSource}; connect-src 'none';" /><title>`);
   return html;
 }
+function announceBridgeStatus() {
+  if (currentPanel) void currentPanel.webview.postMessage({ type:'sync-status', connected:Boolean(bridge) });
+}
+function receiveSharedTasks(data) {
+  if (!snapshot) snapshot={version:VERSION,updatedAt:Date.now(),mode:'focus',tasks:[],deletedTasks:{}};
+  snapshot={...snapshot,version:VERSION,tasks:data.tasks,deletedTasks:data.deletedTasks,updatedAt:Date.now()};
+  if(activeContext) void activeContext.globalState.update(SNAPSHOT_KEY,snapshot);
+  if(currentPanel) void currentPanel.webview.postMessage({type:'sync-tasks',payload:data});
+}
+async function startBridge(context) {
+  if (bridge) { await showPairingKey();return; }
+  let key=await context.secrets?.get(PAIR_KEY_STORAGE);
+  if(!/^[a-f0-9]{64}$/i.test(key||'')) {
+    key=crypto.randomBytes(32).toString('hex');
+    if(context.secrets) await context.secrets.store(PAIR_KEY_STORAGE,key);
+  }
+  const candidate=new SyncBridge({key,initial:{tasks:snapshot?.tasks||[],deletedTasks:snapshot?.deletedTasks||{}},onChange:receiveSharedTasks});
+  try { await candidate.start();bridge=candidate; }
+  catch(err){void vscode.window.showErrorMessage('CHRONOS local bridge could not start: '+err.message);return;}
+  announceBridgeStatus();
+  await showPairingKey();
+}
+async function showPairingKey() {
+  if(!bridge){void vscode.window.showWarningMessage('Start the CHRONOS local sync bridge first.');return;}
+  await vscode.env.clipboard.writeText(bridge.key);
+  void vscode.window.showInformationMessage('CHRONOS bridge online. Pairing key copied! In the Chrome CHRONOS app open Settings → Local Link and paste the key. Keep VS Code running.');
+}
+async function stopBridge() {
+  if (!bridge) return;
+  const instance=bridge; bridge=null;
+  await instance.stop(); announceBridgeStatus();
+  void vscode.window.showInformationMessage('CHRONOS local task sync stopped. Saved tasks were preserved.');
+}
 function bindPanel(panel, context) {
   currentPanel = panel;
   const folder = vscode.Uri.joinPath(context.extensionUri, 'web');
@@ -82,15 +118,25 @@ function bindPanel(panel, context) {
   const receiver = panel.webview.onDidReceiveMessage(async (message) => {
     if (!message || typeof message !== 'object') return;
     if (message.type === 'ready') {
-      if (['1.0.0', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
+      if (['1.0.0','1.1.0', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
+      if(bridge) await panel.webview.postMessage({type:'sync-tasks',payload:bridge.getData()});
+      announceBridgeStatus();
     } else if (message.type === 'snapshot') {
       const candidate = message.state;
-      if (!candidate || !['1.0.0', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
+      if (!candidate || !['1.0.0','1.1.0', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
       if (!snapshot || candidate.updatedAt >= snapshot.updatedAt) {
         snapshot = candidate;
+        if(bridge) {
+          const result=bridge.merge(candidate.tasks||[],candidate.deletedTasks||{});
+          if(result.data) { snapshot.tasks=result.data.tasks; snapshot.deletedTasks=result.data.deletedTasks; }
+        }
         await context.globalState.update(SNAPSHOT_KEY, snapshot);
         updateStatus();
       }
+    } else if(message.type==='start-sync') {
+      await startBridge(context);
+    } else if(message.type==='stop-sync') {
+      await stopBridge();
     } else if (message.type === 'finished') {
       announce(Number(message.deadline), String(message.message || 'Timer finished.').slice(0, 150));
       updateStatus();
@@ -120,6 +166,9 @@ function activate(context) {
   statusBar.show();
   context.subscriptions.push(statusBar);
   context.subscriptions.push(vscode.commands.registerCommand('masumChronos.open', () => openPanel(context)));
+  context.subscriptions.push(vscode.commands.registerCommand('masumChronos.startSync',()=>startBridge(context)));
+  context.subscriptions.push(vscode.commands.registerCommand('masumChronos.copySyncKey',showPairingKey));
+  context.subscriptions.push(vscode.commands.registerCommand('masumChronos.stopSync',stopBridge));
   context.subscriptions.push(vscode.window.registerWebviewPanelSerializer('masumChronos.panel', {
     async deserializeWebviewPanel(panel) { bindPanel(panel, context); }
   }));
@@ -127,5 +176,5 @@ function activate(context) {
   context.subscriptions.push({ dispose: () => { if (monitor) clearInterval(monitor); } });
   updateStatus();
 }
-function deactivate() { if (monitor) clearInterval(monitor); currentPanel = null; }
+function deactivate() { if (monitor) clearInterval(monitor); if(bridge){const old=bridge;bridge=null;void old.stop();} currentPanel = null; }
 module.exports = { activate, deactivate };

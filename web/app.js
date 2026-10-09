@@ -1,7 +1,9 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '1.1.0';
+  const VERSION = '1.2.0';
+  const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
+  const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
   const STORAGE_KEY = 'masum-chronos-v1';
   const CIRCUMFERENCE = 2 * Math.PI * 178;
   const $ = (id) => document.getElementById(id);
@@ -17,6 +19,10 @@
   let currentTaskFilter = 'all';
   let currentTaskSearch = '';
   let editingTaskId = null;
+  let syncKey = '';
+  try { if(!inVSCode) syncKey = localStorage.getItem(SYNC_KEY_STORAGE) || ''; } catch {}
+  let syncBusy = false;
+  let syncLastStatus = '';
 
   const dateKey = (date = new Date()) => {
     const y = date.getFullYear();
@@ -31,7 +37,7 @@
     },
     stopwatch: { elapsedMs: 0, startedAt: null, laps: [] },
     settings: { autoBreak: false, autoFocus: false, alertSound: true, volume: 30, soundscape: 'off' },
-    tasks: [],
+    tasks: [], deletedTasks: {},
     stats: { sessions: 0, totalFocusSeconds: 0, daily: {} }
   });
   function loadLocal() {
@@ -47,21 +53,23 @@
       category: CATEGORIES.includes(task.category) ? task.category : 'Personal',
       dueDate: typeof task.dueDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate) && !Number.isNaN(new Date(task.dueDate+'T12:00:00').getTime()) ? task.dueDate : '',
       createdAt: Number.isFinite(task.createdAt) ? task.createdAt : Date.now(),
-      completedAt: Number.isFinite(task.completedAt) ? task.completedAt : null
+      completedAt: Number.isFinite(task.completedAt) ? task.completedAt : null,
+      modifiedAt: Number.isFinite(task.modifiedAt) ? task.modifiedAt : (Number.isFinite(task.completedAt) ? task.completedAt : (Number.isFinite(task.createdAt) ? task.createdAt : Date.now()))
     };
   }
   function isOverdue(task) { return !task.done && Boolean(task.dueDate) && task.dueDate < dateKey(); }
-  function completeTask(task) { task.done = !task.done; task.completedAt = task.done ? Date.now() : null; persist(); renderTasks(); }
+  function completeTask(task) { task.done = !task.done; task.completedAt = task.done ? Date.now() : null; task.modifiedAt = Date.now(); persist(); renderTasks(); }
   function addTask(text, options = {}) {
     const clean = text.trim().slice(0, 120);
     if (!clean) return safeToast('Enter a mission title first.');
     if (state.tasks.length >= 300) return safeToast('Maximum 300 missions supported. Clear completed missions to make space.');
-    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now() });
+    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now() });
     state.tasks.unshift(task); persist(); renderTasks(); safeToast('Mission deployed.');
     return task;
   }
   function removeTask(task) {
     state.tasks = state.tasks.filter(t => t.id !== task.id);
+    state.deletedTasks[task.id] = Date.now();
     if (state.activeTaskId === task.id) state.activeTaskId = null;
     persist(); renderTasks();
   }
@@ -85,7 +93,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -93,7 +101,8 @@
       stopwatch: { ...def.stopwatch, ...raw.stopwatch },
       settings: { ...def.settings, ...raw.settings },
       stats: { ...def.stats, ...raw.stats, daily: raw.stats?.daily && typeof raw.stats.daily === 'object' ? raw.stats.daily : {} },
-      tasks: Array.isArray(raw.tasks) ? raw.tasks.slice(0, 300).filter(t => t && typeof t.text === 'string').map(sanitizeTask) : []
+      tasks: Array.isArray(raw.tasks) ? raw.tasks.slice(0, 300).filter(t => t && typeof t.text === 'string').map(sanitizeTask) : [],
+      deletedTasks: raw.deletedTasks && typeof raw.deletedTasks === 'object' && !Array.isArray(raw.deletedTasks) ? raw.deletedTasks : {}
     };
     if (!['focus', 'countdown', 'stopwatch'].includes(s.mode)) s.mode = 'focus';
     if (!['timer', 'tasks'].includes(s.workspace)) s.workspace = 'timer';
@@ -122,6 +131,61 @@
       vscode.setState(state);
       sendHost('snapshot', { state });
     }
+  }
+  // Missions sync only; running timers and statistics stay device-local.
+  function applySyncedMissions(remote) {
+    if (!remote || !Array.isArray(remote.tasks) || remote.tasks.length > 300) return;
+    const taskMap = new Map(state.tasks.map(t => [t.id, sanitizeTask(t)]));
+    const deleted = { ...state.deletedTasks };
+    for (const [id, ts] of Object.entries(remote.deletedTasks || {}).slice(0,900)) {
+      if (id.length <= 100 && Number.isFinite(ts) && ts > 0) deleted[id] = Math.max(deleted[id]||0, ts);
+    }
+    for (const item of remote.tasks) {
+      if (!item || typeof item.id !== 'string' || typeof item.text !== 'string' || !item.text.trim()) continue;
+      const incoming = sanitizeTask(item), existing = taskMap.get(incoming.id);
+      if (!existing || incoming.modifiedAt > existing.modifiedAt || (incoming.modifiedAt === existing.modifiedAt && JSON.stringify(incoming) > JSON.stringify(existing))) taskMap.set(incoming.id, incoming);
+    }
+    for (const [id, item] of taskMap) {
+      if ((deleted[id]||0) >= item.modifiedAt) taskMap.delete(id);
+      else if (deleted[id]) delete deleted[id];
+    }
+    const tasks = [...taskMap.values()].sort((a,b)=>b.createdAt-a.createdAt || a.id.localeCompare(b.id)).slice(0,300);
+    const deletedTasks = Object.fromEntries(Object.entries(deleted).sort((a,b)=>b[1]-a[1]).slice(0,900));
+    if (JSON.stringify(tasks) === JSON.stringify(state.tasks) && JSON.stringify(deletedTasks) === JSON.stringify(state.deletedTasks)) return;
+    state.tasks = tasks; state.deletedTasks = deletedTasks;
+    if (state.activeTaskId && !tasks.some(t=>t.id===state.activeTaskId)) state.activeTaskId = null;
+    persist(); renderTasks();
+  }
+  function syncStatus(message, connected=false) {
+    if(syncLastStatus === message) return;
+    syncLastStatus = message;
+    const item = $('sync-status');
+    if(item) { item.textContent=message; item.dataset.connected=String(connected); }
+  }
+  async function exchangeMissions(key = syncKey) {
+    if (inVSCode || !key || syncBusy) return false;
+    syncBusy = true;
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(()=>controller.abort(),3000);
+      let response;
+      try {
+        response = await fetch(SYNC_URL,{
+          method:'POST',mode:'cors',cache:'no-store',signal:controller.signal,
+          headers:{'Content-Type':'application/json','X-Chronos-Key':key},
+          body:JSON.stringify({tasks:state.tasks,deletedTasks:state.deletedTasks})
+        });
+      } finally {clearTimeout(timeout);}
+      if(!response.ok) throw new Error(response.status===401?'Pairing key is incorrect':'Bridge returned '+response.status);
+      const payload=await response.json();
+      if(!payload.ok) throw new Error('Invalid sync response');
+      applySyncedMissions(payload);
+      syncStatus('CONNECTED · Tasks sync every 2.5 seconds',true);
+      return true;
+    } catch(err) {
+      syncStatus('OFFLINE · '+(err.message || 'Bridge unavailable'));
+      return false;
+    } finally {syncBusy=false;}
   }
   function safeToast(message) {
     $('toast').textContent = message;
@@ -650,9 +714,9 @@
     $('todo-search').addEventListener('input', e => {currentTaskSearch=e.target.value.trim().toLowerCase();renderTasks();});
     $('todo-sort').addEventListener('change',renderTasks);
     $('todo-form').addEventListener('submit', event=>{ event.preventDefault();const field=$('todo-title');if(addTask(field.value,{priority:$('todo-priority').value,category:$('todo-category').value,dueDate:$('todo-due').value})){field.value='';field.focus();}});
-    $('save-edited-task').addEventListener('click',()=>{const task=state.tasks.find(t=>t.id===editingTaskId);if(!task)return;$('edit-task-text').value=$('edit-task-text').value.trim();if(!$('edit-task-text').value)return safeToast('Mission title is required.');task.text=$('edit-task-text').value.slice(0,120);task.priority=$('edit-task-priority').value;task.category=$('edit-task-category').value;task.dueDate=$('edit-task-due').value;editingTaskId=null;persist();renderTasks();$('edit-task-dialog').close();safeToast('Mission updated.');});
+    $('save-edited-task').addEventListener('click',()=>{const task=state.tasks.find(t=>t.id===editingTaskId);if(!task)return;$('edit-task-text').value=$('edit-task-text').value.trim();if(!$('edit-task-text').value)return safeToast('Mission title is required.');task.text=$('edit-task-text').value.slice(0,120);task.priority=$('edit-task-priority').value;task.category=$('edit-task-category').value;task.dueDate=$('edit-task-due').value;task.modifiedAt=Date.now();editingTaskId=null;persist();renderTasks();$('edit-task-dialog').close();safeToast('Mission updated.');});
     $('clear-completed').addEventListener('click',()=>{const count=state.tasks.filter(t=>t.done).length;if(!count)return;$('clear-task-warning').textContent=`Permanently remove ${count} completed mission${count===1?'':'s'} from this device? This cannot be undone.`;$('clear-task-dialog').showModal();});
-    $('confirm-clear-completed').addEventListener('click',()=>{state.tasks=state.tasks.filter(t=>!t.done);if(!state.tasks.some(t=>t.id===state.activeTaskId))state.activeTaskId=null;persist();renderTasks();$('clear-task-dialog').close();safeToast('Completed missions cleared.');});
+    $('confirm-clear-completed').addEventListener('click',()=>{for(const task of state.tasks.filter(t=>t.done))state.deletedTasks[task.id]=Date.now();state.tasks=state.tasks.filter(t=>!t.done);if(!state.tasks.some(t=>t.id===state.activeTaskId))state.activeTaskId=null;persist();renderTasks();$('clear-task-dialog').close();safeToast('Completed missions cleared.');});
     $$('[data-phase]').forEach((b) => b.addEventListener('click', () => setPhase(b.dataset.phase)));
     $$('[data-seconds]').forEach((b) => b.addEventListener('click', () => setCountdown(Number(b.dataset.seconds))));
     $('primary-btn').addEventListener('click', toggleTimer);
@@ -661,6 +725,17 @@
     $('configure-btn').addEventListener('click', () => state.mode === 'countdown' ? $('custom-dialog').showModal() : openSettings());
     $('custom-countdown-btn').addEventListener('click', () => $('custom-dialog').showModal());
     $('open-settings').addEventListener('click', openSettings);
+    $('sync-connect').addEventListener('click', async () => {
+      if(inVSCode){sendHost('start-sync');return;}
+      const candidate=$('sync-key').value.trim();
+      if(!/^[a-f0-9]{64}$/i.test(candidate))return syncStatus('Enter the 64-character key copied from VS Code');
+      const success=await exchangeMissions(candidate);
+      if(success){syncKey=candidate;try{localStorage.setItem(SYNC_KEY_STORAGE,syncKey);}catch{}$('sync-key').value='';safeToast('Local task sync enabled.');}
+    });
+    $('sync-disconnect').addEventListener('click',()=>{
+      if(inVSCode){sendHost('stop-sync');return;}
+      syncKey='';try{localStorage.removeItem(SYNC_KEY_STORAGE);}catch{}syncStatus('DISCONNECTED · Your tasks remain saved locally');
+    });
     $('save-settings').addEventListener('click', saveSettings);
     $('notify-btn').addEventListener('click', requestNotifications);
     $$('[data-theme-choice]').forEach((b) => b.addEventListener('click', () => {
@@ -697,14 +772,23 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); tick();
+      } else if (event.data?.type === 'sync-tasks' && inVSCode) {
+        applySyncedMissions(event.data.payload);
+      } else if (event.data?.type === 'sync-status') {
+        syncStatus(event.data.connected ? 'BRIDGE ONLINE · Pair Chrome in Settings' : 'BRIDGE OFFLINE',Boolean(event.data.connected));
       }
     });
     window.addEventListener('beforeunload', () => stopSound());
   }
+  $('sync-connect').textContent = inVSCode ? 'START BRIDGE + COPY KEY' : 'CONNECT';
+  $('sync-disconnect').textContent = inVSCode ? 'STOP BRIDGE' : 'DISCONNECT';
+  $('sync-key').classList.toggle('hidden',inVSCode);
+  syncStatus(inVSCode ? 'BRIDGE OFFLINE · Start to pair Chrome' : syncKey ? 'CONNECTING…' : 'NOT CONNECTED · Optional, local only');
   $('runtime-label').textContent = inVSCode ? 'VS CODE EXTENSION EDITION' : 'CHROME / PWA EDITION';
   bind(); render(); tick(); initStars(); registerServiceWorker();
   setInterval(tick, 180);
   if (inVSCode) sendHost('ready');
+  else { if(syncKey) exchangeMissions(); setInterval(()=>{if(syncKey)exchangeMissions();},2500); }
 })();

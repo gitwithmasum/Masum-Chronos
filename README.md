@@ -2,9 +2,21 @@
 
 ![MASUM CHRONOS To-Do Mission Control](previews/desktop-v1.1-todo.png)
 
-**v1.1.0 | Open-source futuristic productivity app by Masum Billah.**
+**v1.2.0 | Open-source futuristic productivity app by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
+
+## v1.2 — Chrome ↔ VS Code Local Mission Sync
+
+Chrome and the VS Code extension can share To-Do Missions on the **same laptop** through an optional, authenticated local bridge. No cloud account, backend, or subscription.
+
+1. Download and install the v1.2 VSIX (available from GitHub Actions build artifacts or the downloadable source ZIP).
+2. Open CHRONOS in VS Code → Settings → LOCAL LINK → START BRIDGE + COPY KEY.
+3. Open the installed Chrome app → Settings → LOCAL LINK → paste the key → CONNECT.
+4. Keep VS Code running. Tasks update approximately every 2.5 seconds; offline edits merge after reconnect.
+5. Stop via DISCONNECT in Chrome or STOP BRIDGE in VS Code.
+
+**Safety:** The bridge listens only on 127.0.0.1:46469, checks a 256-bit pairing secret and approved browser origins. Never share the secret. It syncs tasks, not timer progress, themes, or focus statistics. Chrome security settings may require allowing local network access. This feature does not sync across different computers or phones.
 
 ## Mission Command Center (new in v1.1)
 
@@ -46,14 +58,14 @@ One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) 
 
 ## Install the VS Code extension
 
-1. [Download the v1.1.0 VS Code extension](releases/masum-chronos-1.1.0.vsix) (`.vsix` file)।
+1. [Download the v1.2.0 VS Code extension](masum-chronos-1.2.0.vsix) (`.vsix` file)।
 2. VS Code → `Ctrl+Shift+P` → `Extensions: Install from VSIX...` → downloaded file select করো।
 3. `Ctrl+Shift+P` → **CHRONOS: Open Focus Command Center**, অথবা bottom Status Bar-এর **Chronos**-এ click করো।
 
 Terminal install:
 
 ```powershell
-code --install-extension .\masum-chronos-1.1.0.vsix
+code --install-extension .\masum-chronos-1.2.0.vsix
 ```
 
 To develop/debug the extension: open the repository in VS Code and press `F5`, then open the command in **Extension Development Host**.
@@ -71,7 +83,7 @@ The included `tools/build_vsix.py` can generate a VSIX offline without npm.
 
 **Repository:** https://github.com/gitwithmasum/Masum-Chronos
 
-GitHub Pages publishes `web/` via the included `.github/workflows/pages.yml` workflow. The packaged VS Code installer is available under [`releases/masum-chronos-1.1.0.vsix`](releases/masum-chronos-1.1.0.vsix). Repository source changes trigger CI syntax, Webview, and extension-packaging checks. Releases uploaded to VS Code Marketplace must be published separately.
+GitHub Pages publishes `web/` via the included `.github/workflows/pages.yml` workflow. The packaged VS Code installer is available under [`masum-chronos-1.2.0.vsix`](masum-chronos-1.2.0.vsix). Repository source changes trigger CI syntax, Webview, and extension-packaging checks. Releases uploaded to VS Code Marketplace must be published separately.
 
 ### GitHub Pages / Live Chrome app
 

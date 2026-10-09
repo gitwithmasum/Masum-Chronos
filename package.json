@@ -1,8 +1,8 @@
 {
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
-  "description": "Futuristic Pomodoro timer, countdown, stopwatch and intelligent mission-based to-do manager for VS Code.",
-  "version": "1.1.0",
+  "description": "Futuristic Pomodoro timer, countdown, stopwatch and To-Do Missions with opt-in local Chrome-to-VS-Code task sync.",
+  "version": "1.2.0",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {
@@ -32,7 +32,10 @@
   ],
   "activationEvents": [
     "onCommand:masumChronos.open",
-    "onWebviewPanel:masumChronos.panel"
+    "onWebviewPanel:masumChronos.panel",
+    "onCommand:masumChronos.startSync",
+    "onCommand:masumChronos.copySyncKey",
+    "onCommand:masumChronos.stopSync"
   ],
   "contributes": {
     "commands": [
@@ -41,17 +44,33 @@
         "title": "CHRONOS: Open Focus Command Center",
         "category": "MASUM CHRONOS",
         "icon": "$(watch)"
+      },
+      {
+        "command": "masumChronos.startSync",
+        "title": "CHRONOS: Start Local Task Sync & Copy Pairing Key",
+        "category": "MASUM CHRONOS"
+      },
+      {
+        "command": "masumChronos.copySyncKey",
+        "title": "CHRONOS: Copy Local Pairing Key",
+        "category": "MASUM CHRONOS"
+      },
+      {
+        "command": "masumChronos.stopSync",
+        "title": "CHRONOS: Stop Local Task Sync",
+        "category": "MASUM CHRONOS"
       }
     ]
   },
   "scripts": {
-    "lint": "node --check ./vscode/extension.js && node --check ./web/app.js && node --check ./web/sw.js",
+    "lint": "node --check ./vscode/extension.js && node --check ./vscode/sync-bridge.js && node --check ./web/app.js && node --check ./web/sw.js",
     "package": "vsce package --no-dependencies"
   },
   "files": [
     "vscode/extension.js",
     "web/**",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "vscode/sync-bridge.js"
   ]
 }

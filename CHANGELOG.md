@@ -1,3 +1,9 @@
+## v1.2.0 — Local Task Sync
+- Opt-in Chrome ↔ VS Code mission sync on the same computer.
+- Secure localhost-only pairing key, deletion tombstones, conflict-aware merge.
+- Backward compatible with v1.0/v1.1 saved tasks; timers and stats remain separate.
+- Start/stop bridge in Settings or via Command Palette.
+
 # Changelog
 
 ## 1.1.0 — 2026-10-09

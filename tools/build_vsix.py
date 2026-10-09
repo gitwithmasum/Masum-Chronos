@@ -11,7 +11,7 @@ VERSION = DATA['version']
 OUTPUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / f"{DATA['name']}-{VERSION}.vsix"
 FILES = [
     'package.json', 'README.md', 'CHANGELOG.md', 'LICENSE',
-    'vscode/extension.js',
+    'vscode/extension.js', 'vscode/sync-bridge.js',
     *[str(x.relative_to(ROOT)).replace('\\', '/') for x in sorted((ROOT / 'web').iterdir()) if x.is_file()]
 ]
 CONTENT_TYPES = '''<?xml version="1.0" encoding="utf-8"?>
