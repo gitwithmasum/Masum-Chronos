@@ -26,7 +26,7 @@ assert.equal(logs.disconnects,40);assert.equal(banner.hidden,true);
 c.state.settings.alertSound=false;c.playCompletionRingtone();
 assert.equal(logs.starts.length,40,'Muted alarm scheduled sound');
 assert(src.includes('Date.now() - completedDeadline < 30_000'),'No overdue suppression');
-assert(src.includes("'1.2.0', VERSION].includes(raw.version)"),'v1.2 task migration would break');
+assert(src.includes("'1.2.0', '1.2.1', '1.2.2', VERSION].includes(raw.version)"),'v1.2 task migration would break');
 // Regression: a 10-minute or 20-minute countdown must be silent until its
 // exact configured deadline, then schedule exactly ten seconds of audio.
 const timerStart=src.indexOf('  function completeTimer(mode) {');

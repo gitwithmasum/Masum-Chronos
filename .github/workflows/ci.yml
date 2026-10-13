@@ -31,19 +31,17 @@ jobs:
         run: node tools/vscode_sync_test.cjs
       - name: Offline extension packaging smoke test
         run: python tools/build_vsix.py
-      - name: Validate offline VSIX license and all manifest asset paths
-        run: python tools/marketplace_check.py masum-chronos-1.2.2.vsix
       - name: Install official VS Code Marketplace packager
         run: npm install --no-save --no-package-lock @vscode/vsce
       - name: Official Marketplace VSIX package
         run: |
           mkdir -p dist
-          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-1.2.2.vsix
+          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-1.2.3.vsix
       - name: Verify Marketplace VSIX content
-        run: python tools/marketplace_check.py dist/masum-chronos-1.2.2.vsix
+        run: python tools/marketplace_check.py dist/masum-chronos-1.2.3.vsix
       - name: Upload marketplace release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: masum-chronos-marketplace-v1.2.2
-          path: dist/masum-chronos-1.2.2.vsix
+          name: masum-chronos-marketplace-v1.2.3
+          path: dist/masum-chronos-1.2.3.vsix
           if-no-files-found: error

@@ -1,3 +1,11 @@
+## v1.2.3 — Pearl Waves Theme (2026-10-13)
+
+- Add optional Pearl Waves light theme inspired by white, pink, and purple flowing curves.
+- Lighten the timer, task dashboard, cards, settings and editor surfaces with readable contrast.
+- Persist user-selected theme across browser reloads and VS Code webview reopens.
+- Keep all four previous themes, existing task data, 10-second ringtone, and local bridge sync.
+- Refresh PWA service-worker cache and prepare updated v1.2.3 VSIX.
+
 ## v1.2.2 — Marketplace Visual Identity Refresh
 
 - Replace clock-only icon with the user-approved futuristic Timer + To-Do combination icon (192px Marketplace / 512px PWA).

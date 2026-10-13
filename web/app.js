@@ -1,7 +1,7 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '1.2.1';
+  const VERSION = '1.2.3';
   const STORAGE_KEY = 'masum-chronos-v1';
   const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
   const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
@@ -96,7 +96,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -110,7 +110,7 @@
     if (!['focus', 'countdown', 'stopwatch'].includes(s.mode)) s.mode = 'focus';
     if (!['timer', 'tasks'].includes(s.workspace)) s.workspace = 'timer';
     s.version = VERSION;
-    if (!['nebula', 'cyber', 'aurora', 'minimal'].includes(s.theme)) s.theme = 'nebula';
+    if (!['nebula', 'cyber', 'aurora', 'minimal', 'pearl-waves'].includes(s.theme)) s.theme = 'nebula';
     if (!['focus', 'short', 'long'].includes(s.focus.phase)) s.focus.phase = 'focus';
     for (const key of ['focus', 'countdown']) {
       const t = s.timers[key];
@@ -581,6 +581,7 @@
   }
   function render() {
     document.body.dataset.theme = state.theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', state.theme === 'pearl-waves' ? '#fff9fd' : '#080e22');
     $$('[data-mode]').forEach((b) => b.classList.toggle('active', b.dataset.mode === state.mode));
     const mode = state.mode;
     const copy = {
@@ -773,7 +774,9 @@
     $$('[data-theme-choice]').forEach((b) => b.addEventListener('click', () => {
       state.theme = b.dataset.themeChoice;
       $$('[data-theme-choice]').forEach((item) => item.classList.toggle('active', item === b));
-      document.body.dataset.theme = state.theme; persist();
+      document.body.dataset.theme = state.theme;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', state.theme === 'pearl-waves' ? '#fff9fd' : '#080e22');
+      persist();
     }));
     $('save-custom').addEventListener('click', () => {
       const vals = [boundedInt($('custom-hours').value, 0, 99, -1), boundedInt($('custom-minutes').value, 0, 59, -1), boundedInt($('custom-seconds').value, 0, 59, -1)];
@@ -804,7 +807,7 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);

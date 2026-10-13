@@ -75,3 +75,180 @@ body[data-theme="minimal"]{--bg:#0c1220;--glass:rgba(23,32,49,.92);--glass-stron
 @keyframes ringtone-pulse{50%{transform:scale(1.15);box-shadow:0 0 23px rgba(98,229,246,.5)}}
 @media(max-width:540px){.ringtone-banner{left:12px;right:12px;bottom:12px;gap:10px;padding:13px;font-size:11px}.ringtone-banner button{margin-left:auto}}
 @media(prefers-reduced-motion:reduce){.ringtone-pulse{animation:none}}
+
+/* v1.2.3 — Pearl Waves light theme: reference white + pink/violet ribbon waves.
+   Scoped to one theme only. All previous theme styles and user data remain intact. */
+body[data-theme="pearl-waves"] {
+  color-scheme:light;
+  --bg:#fffdff;--glass:rgba(255,255,255,.85);--glass-strong:rgba(255,255,255,.98);
+  --stroke:rgba(138,72,148,.18);--stroke-bright:rgba(142,47,150,.34);
+  --text:#2e2040;--dim:#6c5876;--muted:#806c8b;
+  --cyan:#b0238b;--violet:#763aa8;--pink:#e3409f;--accent:#b0238b;
+  --button-grad:linear-gradient(112deg,#d632a2 0%,#a33ba8 48%,#6d49b4 100%);
+  --orb1:rgba(239,71,164,.10);--orb2:rgba(127,77,182,.11);
+  --panel-shadow:0 17px 45px rgba(118,46,118,.10);
+  background:linear-gradient(145deg,#fff 0%,#fdf8ff 52%,#fff 100%);
+  color:var(--text);
+}
+body[data-theme="pearl-waves"]::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%20800%22%20preserveAspectRatio%3D%22xMidYMin%20slice%22%3E%3Cg%20fill%3D%22none%22%20stroke-width%3D%221.05%22%20stroke-opacity%3D%22.61%22%3E%3Cpath%20d%3D%22M%20-45%2064%20C%20100%20-36%20206%20160%20300%20105%20S%20471%20-80%20595%20-15%22%20stroke%3D%22%23df319d%22%2F%3E%3Cpath%20d%3D%22M%20-45%2078%20C%20100%20-22%20206%20162%20300%2092%20S%20471%20-96%20595%20-28%22%20stroke%3D%22%23913eb0%22%2F%3E%3Cpath%20d%3D%22M%20-45%2092%20C%20100%20-8%20206%20164%20300%2079%20S%20471%20-112%20595%20-41%22%20stroke%3D%22%23bb4ab2%22%2F%3E%3Cpath%20d%3D%22M%20-45%20106%20C%20100%206%20206%20166%20300%2066%20S%20471%20-128%20595%20-54%22%20stroke%3D%22%23df319d%22%2F%3E%3Cpath%20d%3D%22M%20-45%20120%20C%20100%2020%20206%20168%20300%2053%20S%20471%20-144%20595%20-67%22%20stroke%3D%22%23913eb0%22%2F%3E%3Cpath%20d%3D%22M%20-45%20134%20C%20100%2034%20206%20170%20300%2040%20S%20471%20-160%20595%20-80%22%20stroke%3D%22%23bb4ab2%22%2F%3E%3Cpath%20d%3D%22M%20-45%20148%20C%20100%2048%20206%20172%20300%2027%20S%20471%20-176%20595%20-93%22%20stroke%3D%22%23df319d%22%2F%3E%3Cpath%20d%3D%22M%20-45%20162%20C%20100%2062%20206%20174%20300%2014%20S%20471%20-192%20595%20-106%22%20stroke%3D%22%23913eb0%22%2F%3E%3Cpath%20d%3D%22M%20-45%20176%20C%20100%2076%20206%20176%20300%201%20S%20471%20-208%20595%20-119%22%20stroke%3D%22%23bb4ab2%22%2F%3E%3Cpath%20d%3D%22M%20-45%20190%20C%20100%2090%20206%20178%20300%20-12%20S%20471%20-224%20595%20-132%22%20stroke%3D%22%23df319d%22%2F%3E%3Cpath%20d%3D%22M%20-45%20204%20C%20100%20104%20206%20180%20300%20-25%20S%20471%20-240%20595%20-145%22%20stroke%3D%22%23913eb0%22%2F%3E%3Cpath%20d%3D%22M%20-45%20218%20C%20100%20118%20206%20182%20300%20-38%20S%20471%20-256%20595%20-158%22%20stroke%3D%22%23bb4ab2%22%2F%3E%3Cpath%20d%3D%22M%20-45%20232%20C%20100%20132%20206%20184%20300%20-51%20S%20471%20-272%20595%20-171%22%20stroke%3D%22%23df319d%22%2F%3E%3Cpath%20d%3D%22M%20310%20835%20C%20250%20493%20470%20330%20560%20373%20S%20820%20532%201030%20290%22%20stroke%3D%22%23b737a3%22%2F%3E%3Cpath%20d%3D%22M%20320%20835%20C%20255%20486%20473%20322%20564%20365%20S%20827%20521%201030%20295%22%20stroke%3D%22%237245a9%22%2F%3E%3Cpath%20d%3D%22M%20330%20835%20C%20260%20479%20476%20314%20568%20357%20S%20834%20510%201030%20300%22%20stroke%3D%22%23d83c9e%22%2F%3E%3Cpath%20d%3D%22M%20340%20835%20C%20265%20472%20479%20306%20572%20349%20S%20841%20499%201030%20305%22%20stroke%3D%22%23b737a3%22%2F%3E%3Cpath%20d%3D%22M%20350%20835%20C%20270%20465%20482%20298%20576%20341%20S%20848%20488%201030%20310%22%20stroke%3D%22%237245a9%22%2F%3E%3Cpath%20d%3D%22M%20360%20835%20C%20275%20458%20485%20290%20580%20333%20S%20855%20477%201030%20315%22%20stroke%3D%22%23d83c9e%22%2F%3E%3Cpath%20d%3D%22M%20370%20835%20C%20280%20451%20488%20282%20584%20325%20S%20862%20466%201030%20320%22%20stroke%3D%22%23b737a3%22%2F%3E%3Cpath%20d%3D%22M%20380%20835%20C%20285%20444%20491%20274%20588%20317%20S%20869%20455%201030%20325%22%20stroke%3D%22%237245a9%22%2F%3E%3Cpath%20d%3D%22M%20390%20835%20C%20290%20437%20494%20266%20592%20309%20S%20876%20444%201030%20330%22%20stroke%3D%22%23d83c9e%22%2F%3E%3Cpath%20d%3D%22M%20400%20835%20C%20295%20430%20497%20258%20596%20301%20S%20883%20433%201030%20335%22%20stroke%3D%22%23b737a3%22%2F%3E%3Cpath%20d%3D%22M%20410%20835%20C%20300%20423%20500%20250%20600%20293%20S%20890%20422%201030%20340%22%20stroke%3D%22%237245a9%22%2F%3E%3Cpath%20d%3D%22M%20420%20835%20C%20305%20416%20503%20242%20604%20285%20S%20897%20411%201030%20345%22%20stroke%3D%22%23d83c9e%22%2F%3E%3Cpath%20d%3D%22M%20430%20835%20C%20310%20409%20506%20234%20608%20277%20S%20904%20400%201030%20350%22%20stroke%3D%22%23b737a3%22%2F%3E%3Cpath%20d%3D%22M%20440%20835%20C%20315%20402%20509%20226%20612%20269%20S%20911%20389%201030%20355%22%20stroke%3D%22%237245a9%22%2F%3E%3Cpath%20d%3D%22M%20450%20835%20C%20320%20395%20512%20218%20616%20261%20S%20918%20378%201030%20360%22%20stroke%3D%22%23d83c9e%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  background-repeat:no-repeat;background-position:center top;
+  background-size:cover;opacity:.63;
+}
+body[data-theme="pearl-waves"] #starfield{opacity:.14}
+body[data-theme="pearl-waves"] .ambient-halo{opacity:.45}
+body[data-theme="pearl-waves"] .glass,
+body[data-theme="pearl-waves"] .settings-window{box-shadow:var(--panel-shadow)}
+body[data-theme="pearl-waves"] .topbar,
+body[data-theme="pearl-waves"] .panel,
+body[data-theme="pearl-waves"] .todo-hero,
+body[data-theme="pearl-waves"] .todo-kpi{background:rgba(255,255,255,.87);border-color:var(--stroke)}
+body[data-theme="pearl-waves"] .hero-panel{
+  background:radial-gradient(circle at 53% 51%,rgba(235,169,220,.12),transparent 61%),rgba(255,255,255,.91);
+  border-color:rgba(185,78,166,.23)
+}
+body[data-theme="pearl-waves"] .hero-panel:after{background:linear-gradient(90deg,rgba(191,84,158,.032) 1px,transparent 1px),linear-gradient(rgba(158,83,163,.026) 1px,transparent 1px);background-size:36px 36px}
+body[data-theme="pearl-waves"] .todo-hero{
+  background:radial-gradient(ellipse at 88% 27%,rgba(216,73,154,.11),transparent 48%),rgba(255,255,255,.92)
+}
+body[data-theme="pearl-waves"] .header-tab:hover,
+body[data-theme="pearl-waves"] .header-tab.active,
+body[data-theme="pearl-waves"] .side-tab:hover,
+body[data-theme="pearl-waves"] .side-tab.active{color:var(--text)}
+body[data-theme="pearl-waves"] .side-tab:hover,
+body[data-theme="pearl-waves"] .side-tab.active,
+body[data-theme="pearl-waves"] .mini-mode:hover,
+body[data-theme="pearl-waves"] .mini-mode.active{
+  background:linear-gradient(110deg,rgba(216,59,148,.12),rgba(115,60,171,.075));border-color:rgba(169,69,163,.3);color:#822276
+}
+body[data-theme="pearl-waves"] .brand-mark:after{background:#fff}
+body[data-theme="pearl-waves"] .section-eyebrow,
+body[data-theme="pearl-waves"] .small-label,
+body[data-theme="pearl-waves"] .timer-caption,
+body[data-theme="pearl-waves"] .mode-context,
+body[data-theme="pearl-waves"] .hero-index strong,
+body[data-theme="pearl-waves"] .stat-pair>span,
+body[data-theme="pearl-waves"] .task-text,
+body[data-theme="pearl-waves"] .metric>span:first-child,
+body[data-theme="pearl-waves"] .todo-input-label,
+body[data-theme="pearl-waves"] .todo-sys-tag,
+body[data-theme="pearl-waves"] .todo-kpi span,
+body[data-theme="pearl-waves"] .todo-kpi small,
+body[data-theme="pearl-waves"] .todo-form-options label,
+body[data-theme="pearl-waves"] .form-grid label,
+body[data-theme="pearl-waves"] .task-editor label{color:#795e86}
+body[data-theme="pearl-waves"] .brand small,
+body[data-theme="pearl-waves"] .timer-subtext,
+body[data-theme="pearl-waves"] .hint-line,
+body[data-theme="pearl-waves"] .protocol-content p,
+body[data-theme="pearl-waves"] .todo-next-content p,
+body[data-theme="pearl-waves"] .todo-insight p,
+body[data-theme="pearl-waves"] .todo-reminder p,
+body[data-theme="pearl-waves"] .local-sync-card p{color:#7d6987}
+body[data-theme="pearl-waves"] .timer-digits{color:#2e2040;text-shadow:0 0 28px rgba(225,83,180,.14)}
+body[data-theme="pearl-waves"] .circle-track{stroke:rgba(153,70,158,.16)}
+body[data-theme="pearl-waves"] .orbit-outer{border-color:rgba(138,70,160,.24)}
+body[data-theme="pearl-waves"] .orbit-inner{border-color:rgba(150,88,168,.15)}
+body[data-theme="pearl-waves"] .timer-status,
+body[data-theme="pearl-waves"] .phase-tag,
+body[data-theme="pearl-waves"] .phase-button,
+body[data-theme="pearl-waves"] .countdown-presets>button,
+body[data-theme="pearl-waves"] .circle-control,
+body[data-theme="pearl-waves"] .icon-button,
+body[data-theme="pearl-waves"] .outline-btn,
+body[data-theme="pearl-waves"] .mini-mode,
+body[data-theme="pearl-waves"] .metric,
+body[data-theme="pearl-waves"] .theme-choice{
+  background:rgba(255,247,254,.92);color:#634a70;border-color:rgba(142,67,153,.25)
+}
+body[data-theme="pearl-waves"] .phase-button.active,
+body[data-theme="pearl-waves"] .countdown-presets>button.active,
+body[data-theme="pearl-waves"] .theme-choice.active,
+body[data-theme="pearl-waves"] .todo-filter.active{color:#882180;background:rgba(220,61,153,.12);border-color:#bd57aa}
+body[data-theme="pearl-waves"] .primary-control,
+body[data-theme="pearl-waves"] .solid-btn,
+body[data-theme="pearl-waves"] .todo-deploy{background:var(--button-grad);color:#fff;border:1px solid rgba(149,38,140,.35);box-shadow:0 6px 22px rgba(176,52,145,.17)}
+body[data-theme="pearl-waves"] .primary-control svg{color:#fff}
+body[data-theme="pearl-waves"] .metric{background:rgba(250,240,251,.68)}
+body[data-theme="pearl-waves"] .metric-caption,
+body[data-theme="pearl-waves"] .chart-axis,
+body[data-theme="pearl-waves"] .chart-item>span,
+body[data-theme="pearl-waves"] .todo-list-footer,
+body[data-theme="pearl-waves"] .footer,
+body[data-theme="pearl-waves"] .keyboard-hint{color:#8f7b98}
+body[data-theme="pearl-waves"] .sidebar-note,
+body[data-theme="pearl-waves"] .tip-card,
+body[data-theme="pearl-waves"] .todo-reminder{
+  background:linear-gradient(125deg,rgba(255,255,255,.91),rgba(251,235,251,.85));
+  border-color:rgba(167,82,161,.22)
+}
+body[data-theme="pearl-waves"] .sidebar-note>span,
+body[data-theme="pearl-waves"] .tip-card p,
+body[data-theme="pearl-waves"] .todo-reminder h3{color:#4b3155}
+body[data-theme="pearl-waves"] .todo-creator,
+body[data-theme="pearl-waves"] .local-sync-card{
+  background:linear-gradient(125deg,rgba(248,222,240,.58),rgba(241,228,252,.49));border-color:rgba(178,80,158,.22)
+}
+body[data-theme="pearl-waves"] .todo-entry,
+body[data-theme="pearl-waves"] .todo-search-wrap,
+body[data-theme="pearl-waves"] .task-form,
+body[data-theme="pearl-waves"] .mission-row{
+  background:rgba(255,255,255,.88);border-color:rgba(156,80,159,.23)
+}
+body[data-theme="pearl-waves"] .mission-row:hover{background:rgba(255,246,254,.98);border-color:rgba(174,61,156,.43)}
+body[data-theme="pearl-waves"] .todo-entry input,
+body[data-theme="pearl-waves"] .todo-search-wrap input,
+body[data-theme="pearl-waves"] .task-form input{color:var(--text)}
+body[data-theme="pearl-waves"] input::placeholder{color:#9d8ba3}
+body[data-theme="pearl-waves"] .mission-category{color:#782e97;background:rgba(133,78,173,.11)}
+body[data-theme="pearl-waves"] .mission-priority{color:#654777}
+body[data-theme="pearl-waves"] .priority-critical,
+body[data-theme="pearl-waves"] .priority-high{color:#9e334b}
+body[data-theme="pearl-waves"] .mission-due{color:#7a6183}
+body[data-theme="pearl-waves"] .mission-icon-btn{color:#6e567d}
+body[data-theme="pearl-waves"] .todo-filter{background:rgba(255,251,255,.90);border-color:rgba(142,67,153,.24);color:#735883}
+body[data-theme="pearl-waves"] .todo-filter:hover:not(.active){color:#982c89}
+body[data-theme="pearl-waves"] .todo-form-options input,
+body[data-theme="pearl-waves"] .todo-form-options select,
+body[data-theme="pearl-waves"] .todo-tools select,
+body[data-theme="pearl-waves"] .task-editor input,
+body[data-theme="pearl-waves"] .task-editor select,
+body[data-theme="pearl-waves"] .form-grid input,
+body[data-theme="pearl-waves"] .local-sync-row input,
+body[data-theme="pearl-waves"] .sound-select-row select{
+  color:#3d2a4d;background:#fff;border-color:rgba(141,76,154,.32);color-scheme:light
+}
+body[data-theme="pearl-waves"] .form-grid input::-webkit-calendar-picker-indicator,
+body[data-theme="pearl-waves"] .task-editor input::-webkit-calendar-picker-indicator,
+body[data-theme="pearl-waves"] .todo-form-options input::-webkit-calendar-picker-indicator{filter:none}
+body[data-theme="pearl-waves"] .progress-wheel>div{background:radial-gradient(circle,#fff,#fff1fb);border-color:#fbebf5}
+body[data-theme="pearl-waves"] .todo-insight .progress-wheel span,
+body[data-theme="pearl-waves"] .progress-meta,
+body[data-theme="pearl-waves"] .todo-next-content p{color:#735c82}
+body[data-theme="pearl-waves"] .local-sync-card h3{color:#392b48}
+body[data-theme="pearl-waves"] .local-sync-status{color:#786486}
+body[data-theme="pearl-waves"] .settings-dialog::backdrop{background:rgba(47,18,58,.28)}
+body[data-theme="pearl-waves"] .toast{background:#fff;color:#462c53;border-color:rgba(175,62,141,.5);box-shadow:0 12px 28px rgba(96,39,105,.20)}
+body[data-theme="pearl-waves"] .ringtone-banner{background:linear-gradient(125deg,#fff,#fbe9fa);color:#462958;border-color:#bd58ad;box-shadow:0 10px 30px rgba(110,45,107,.2)}
+body[data-theme="pearl-waves"] .ringtone-banner small{color:#804c88}
+body[data-theme="pearl-waves"] .ringtone-banner button{color:#743d81;background:#fff;border-color:rgba(156,75,154,.35)}
+body[data-theme="pearl-waves"] .theme-choice[data-theme-choice="pearl-waves"]{font-weight:800}
+.pearl-waves-dot{background:linear-gradient(135deg,#fff 18%,#e3419f 43%,#804ab2 73%);border:1px solid #b951a9;box-shadow:0 0 0 1px rgba(255,255,255,.45)}
+@media(max-width:800px){body[data-theme="pearl-waves"]::before{background-position:45% top;background-size:auto 100vh;opacity:.30}}
+@media(prefers-reduced-motion:reduce){body[data-theme="pearl-waves"]::before{transition:none}}
+/* Pearl Waves: pink/violet timer highlights and legible metadata. */
+body[data-theme="pearl-waves"] #ringGradient stop:nth-child(1){stop-color:#d832a4}
+body[data-theme="pearl-waves"] #ringGradient stop:nth-child(2){stop-color:#a544b5}
+body[data-theme="pearl-waves"] #ringGradient stop:nth-child(3){stop-color:#7544b0}
+body[data-theme="pearl-waves"] .timer-svg{filter:drop-shadow(0 0 13px rgba(189,61,160,.25))}
+body[data-theme="pearl-waves"] .circle-progress{filter:drop-shadow(0 0 5px rgba(193,58,159,.36))}
+body[data-theme="pearl-waves"] .status-dot{background:#bb479e}
+body[data-theme="pearl-waves"] .todo-hero p,
+body[data-theme="pearl-waves"] .todo-empty,
+body[data-theme="pearl-waves"] .todo-empty span,
+body[data-theme="pearl-waves"] .todo-empty strong,
+body[data-theme="pearl-waves"] .todo-list-footer,
+body[data-theme="pearl-waves"] .task-check,
+body[data-theme="pearl-waves"] .metric-caption{color:#715a81}
+body[data-theme="pearl-waves"] .focus-next-btn{background:rgba(211,63,155,.1);border-color:rgba(173,54,155,.31)}

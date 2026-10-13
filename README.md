@@ -4,7 +4,7 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v1.2.2 | Open-source futuristic productivity app by Masum Billah.**
+**v1.2.3 | Open-source futuristic productivity app by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
 
@@ -19,6 +19,10 @@ Open the **Command Palette** (`Ctrl+Shift+P`) and select **CHRONOS: Open Focus C
 **No account required.** Focus timers and tasks are stored locally. Optional Chrome ↔ VS Code task sync only works on the same computer, and requires starting the loopback bridge with the explicit pairing command; it is off by default. Local sync does not share running timers, focus stats or themes.
 
 **Support:** [Open a GitHub issue](https://github.com/gitwithmasum/Masum-Chronos/issues) or see [SUPPORT.md](https://github.com/gitwithmasum/Masum-Chronos/blob/main/SUPPORT.md).
+
+## v1.2.3 — Pearl Waves Light Theme
+
+A fifth optional theme inspired by white, magenta and violet flowing-line artwork. Open **Settings → Interface Theme → PEARL WAVES** to enable the soft white glass panels, pink–purple line waves, darker readable text and gradient controls. Your selection is saved locally and survives reloads. The original Nebula, Cyber, Aurora and Minimal themes remain available, and timer/task/local-sync functionality is unchanged. The same theme is available inside the VS Code extension once its updated VSIX is installed.
 
 ## v1.2 — Chrome ↔ VS Code Local Task Sync (opt-in)
 
