@@ -21,6 +21,8 @@ jobs:
         run: npm run lint
       - name: VS Code webview smoke test
         run: node tools/vscode_smoke.cjs
+      - name: Pearl Waves theme and legacy state regression checks
+        run: node tools/theme_test.cjs
       - name: Root GitHub Pages integrity and asset path checks
         run: node tools/pages_smoke.cjs
       - name: 10-second completion ringtone tests
