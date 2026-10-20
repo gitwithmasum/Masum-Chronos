@@ -1,0 +1,41 @@
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#080e20;color:#eef5ff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 20% 0,rgba(82,73,186,.28),transparent 41%),radial-gradient(ellipse at 80% 18%,rgba(30,134,196,.16),transparent 40%),#080e20}
+a{color:inherit}
+button,select,textarea{font:inherit}
+button,a,select{transition:border-color .2s ease,background .2s ease,transform .2s ease}
+button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #64dcfc;outline-offset:3px}
+.studio{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:28px 0 42px;display:grid;gap:22px}
+.masthead{padding:6px 0 11px}
+.back{display:inline-flex;margin-bottom:21px;text-decoration:none;border:1px solid rgba(131,172,244,.33);color:#bed2f6;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:800;letter-spacing:.8px}
+.back:hover,.secondary:hover{border-color:#66dcfb;color:white}
+.eyebrow,.section-heading>span{color:#91acd7;font:800 11px ui-monospace,Consolas,monospace;letter-spacing:1.4px}
+.orb{display:inline-block;width:8px;height:8px;background:#64e2d8;border-radius:50%;box-shadow:0 0 10px #53dcd6;margin-right:6px}
+.masthead h1{font-size:clamp(37px,5.5vw,68px);letter-spacing:-2.5px;line-height:1.1;margin:16px 0}
+.masthead h1 em{font-style:normal;color:#7de4f7;background:linear-gradient(90deg,#72e6fa,#c68ffc);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.masthead>p:last-child{font-size:14px;line-height:1.7;max-width:760px;color:#a2b6d7}
+.layout{display:grid;grid-template-columns:minmax(300px,450px) minmax(0,1fr);gap:18px}
+.panel{border:1px solid rgba(121,162,234,.26);border-radius:19px;padding:25px;background:radial-gradient(ellipse at 85% -5%,rgba(107,80,218,.1),transparent 55%),linear-gradient(150deg,rgba(18,33,72,.96),rgba(9,22,49,.97));box-shadow:0 24px 48px rgba(0,0,0,.17)}
+.section-heading{margin-bottom:24px}
+.section-heading>span{font-size:10px;color:#77bcd9}
+.section-heading h2{font-size:clamp(19px,2.4vw,25px);margin:9px 0 0}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.fields>label{display:grid;gap:7px;font:800 10px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.55px;color:#b2c6e8}
+.fields select{min-width:0;width:100%;padding:12px 10px;border-radius:10px;background:#122443;color:#ecf5ff;border:1px solid rgba(110,159,229,.4);font-size:12px}
+.fields label:first-child,.fields label:nth-child(2){grid-column:auto}
+.studio-source{grid-column:span 2}
+.note{font-size:11px;line-height:1.75;color:#93a9cf;margin:17px 0}
+.studio-actions{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:20px}
+.primary,.secondary{border-radius:10px;min-height:42px;padding:13px 17px;font-size:11px;font-weight:800;letter-spacing:.6px;cursor:pointer}
+.primary{border:1px solid transparent;color:#08182a;background:linear-gradient(90deg,#67d6f8,#a2acff)}
+.primary:hover{transform:translateY(-1px)}
+.secondary{display:inline-flex;align-items:center;text-decoration:none;border:1px solid rgba(135,175,239,.4);color:#c3d8f9;background:transparent}
+.preview-stage{min-height:490px;display:grid;place-items:start center;align-content:start;border:1px dashed rgba(115,173,240,.2);border-radius:14px;padding:18px 10px;background:repeating-linear-gradient(45deg,rgba(51,92,175,.06) 0,rgba(51,92,175,.06) 2px,transparent 2px,transparent 20px)}
+.preview-stage iframe{margin:0 auto}
+.install>p{font-size:12px;line-height:1.7;color:#abbddb}
+.install textarea{display:block;width:100%;min-height:174px;max-height:330px;resize:vertical;border:1px solid rgba(109,174,244,.43);border-radius:10px;background:#050f24;color:#c2edfa;font:12px/1.65 ui-monospace,Consolas,monospace;padding:17px;white-space:pre;overflow:auto}
+.copy-message{min-height:18px;font-size:11px;color:#8cf0cb;margin-top:12px}
+footer{text-align:center;margin:10px 0 0;color:#7e97bd;font:700 10px ui-monospace,Consolas,monospace;letter-spacing:1.1px}
+@media(max-width:940px){.layout{grid-template-columns:1fr}.preview-stage{min-height:370px}.studio{width:min(760px,calc(100% - 24px))}}
+@media(max-width:480px){.studio{padding:18px 0;gap:16px}.panel{padding:16px}.fields{grid-template-columns:1fr}.studio-source{grid-column:auto}.masthead h1{letter-spacing:-1.2px}.eyebrow{font-size:9px}.preview-stage{padding:12px 5px;min-height:375px}}
+@media(prefers-reduced-motion:reduce){button,a,select{transition:none}}
