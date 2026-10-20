@@ -29,7 +29,14 @@
     const seriesId = typeof t.seriesId === 'string' && t.seriesId.length <= 100 ? t.seriesId : '';
     // Persist the calendar series' original date to avoid month-end drift.
     const recurrenceAnchor = validDate(t.recurrenceAnchor) ? t.recurrenceAnchor : '';
-    return {recurrence,dependsOn,reminderTime,estimateMins,seriesId,recurrenceAnchor};
+    const planDate = validDate(t.planDate) ? t.planDate : '';
+    const planStart = TIME_RE.test(t.planStart) ? t.planStart : '';
+    const planDurationMins = Number.isInteger(t.planDurationMins) && t.planDurationMins >= 5 && t.planDurationMins <= 480
+      ? t.planDurationMins : 0;
+    return {recurrence,dependsOn,reminderTime,estimateMins,seriesId,recurrenceAnchor,
+      planDate:planDate && planStart ? planDate : '',
+      planStart:planDate && planStart ? planStart : '',
+      planDurationMins:planDate && planStart ? planDurationMins : 0};
   }
   function dependencyStatus(tasks, task) {
     const byId = new Map(tasks.map(t=>[t.id,t]));
@@ -113,5 +120,52 @@
     return {ready:ready.length,blocked,due,planned,
       recommended:ready.sort((a,b)=>score(b,today)-score(a,today) || a.createdAt-b.createdAt)[0]||null};
   }
-  return Object.freeze({RECURRENCE,validDate,extras,dependencyStatus,hasCycle,nextDate,nextOccurrence,reminderCandidates,overview,score});
+
+  function minutesOfDay(hhmm) {
+    if (!TIME_RE.test(hhmm)) return null;
+    const [h,m]=hhmm.split(':').map(Number);
+    return 60*h+m;
+  }
+  function weekDates(anchor) {
+    const day = validDate(anchor) ? anchor : localDay(new Date());
+    const [y,m,d] = day.split('-').map(Number);
+    const first = new Date(y,m-1,d,12);
+    first.setDate(first.getDate() - ((first.getDay()+6)%7));
+    return Array.from({length:7},(_,i)=>{
+      const date=new Date(first.getFullYear(),first.getMonth(),first.getDate()+i,12);
+      return localDay(date);
+    });
+  }
+  function shiftWeek(anchor,offset) {
+    const start=weekDates(anchor)[0];
+    const [y,m,d]=start.split('-').map(Number);
+    return localDay(new Date(y,m-1,d+7*offset,12));
+  }
+  function planConflicts(tasks, candidateId, day, time, duration) {
+    if (!validDate(day) || minutesOfDay(time)===null || !Number.isInteger(duration) || duration<5 || duration>480)
+      return {valid:false,overlaps:[],pastDeadline:false,reason:'Choose a valid date, start time and 5–480 minute duration.'};
+    const start=minutesOfDay(time),end=start+duration;
+    if(end>1440)return {valid:false,overlaps:[],pastDeadline:false,reason:'A planned block cannot end after midnight.'};
+    const target=tasks.find(t=>t.id===candidateId);
+    if (!target || target.done) return {valid:false,overlaps:[],pastDeadline:false,reason:'Select an unfinished mission.'};
+    const overlaps=tasks.filter(t=>!t.done && t.id!==candidateId && t.planDate===day &&
+      minutesOfDay(t.planStart)!==null && Math.max(start,minutesOfDay(t.planStart)) <
+      Math.min(end,minutesOfDay(t.planStart)+(t.planDurationMins||t.estimateMins||30)));
+    const pastDeadline=Boolean(target.dueDate && day>target.dueDate);
+    return {valid:!overlaps.length && !pastDeadline,overlaps,pastDeadline,
+      reason:overlaps.length?'Overlaps with '+overlaps.map(t=>t.text).join(', ')
+        :pastDeadline?'Time block falls after the mission due date. Edit the deadline or choose an earlier day.':''};
+  }
+  function dependencyLinks(tasks,limit=50) {
+    const nodes=tasks.filter(t=>!t.done).slice(0,limit);
+    const byId=new Map(tasks.map(t=>[t.id,t]));
+    return nodes.map(task=>{
+      const status=dependencyStatus(tasks,task);
+      return {id:task.id,text:task.text,blocked:status.blocked,
+        prerequisites:(task.dependsOn||[]).map(id=>({
+          id,text:byId.get(id)?.text||'Missing prerequisite',done:Boolean(byId.get(id)?.done)
+        }))};
+    });
+  }
+  return Object.freeze({RECURRENCE,validDate,extras,dependencyStatus,hasCycle,nextDate,nextOccurrence,reminderCandidates,overview,score,minutesOfDay,weekDates,shiftWeek,planConflicts,dependencyLinks});
 });
