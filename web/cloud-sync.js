@@ -2,6 +2,12 @@
    No secret/server key, no automatic destructive restore, and no cloud access without opt-in. */
 (() => {
   'use strict';
+  // This is a public browser publishable key, never a service_role / secret key.
+  // Dedicated Chronos tables and owner-only RLS share NovaStudy's Supabase infrastructure.
+  const DEFAULT_CONFIG = Object.freeze({
+    url: 'https://pkydbkpbayrarnwaomoa.supabase.co',
+    key: 'sb_publishable_NZ2IfpTrqlhq4-UEZnGXuA_oWPZpz84'
+  });
   const CFG_KEY = 'chronos-cloud-config-v2';
   const PREF_KEY = 'chronos-cloud-preferences-changed-v2';
   const EVENT_KEY = 'chronos-cloud-daily-backup-v2';
@@ -20,7 +26,7 @@
     return data?.message || data?.msg || data?.error_description || data?.error || fallback;
   }
   window.createChronosCloud = function createChronosCloud({ getSnapshot, mergeMissions, applyPreferences, restoreSnapshot, toast, inVSCode }) {
-    let config = safeRead(CFG_KEY, null), session = null, user = null;
+    let config = safeRead(CFG_KEY, null) || DEFAULT_CONFIG, session = null, user = null;
     let busy = false, lastStatus = defaultStatus, confirmRestoreUntil = 0, remoteRows = [];
     let syncInterval = null;
     const setStatus = text => {
@@ -95,6 +101,7 @@
     async function login() {
       if (!config) return;
       if (!location.protocol.startsWith('http')) return toast('Google Login needs HTTPS or localhost.');
+      // The redirect URI must be allow-listed in the shared Supabase Auth settings.
       const url = new URL(config.url.replace(/\/$/, '') + '/auth/v1/authorize');
       url.searchParams.set('provider', 'google');
       url.searchParams.set('redirect_to', location.origin + location.pathname);
@@ -247,6 +254,7 @@
       }
       if (config && isUrl(config.url) && isPublicKey(config.key)) {
         $('cloud-url').value = config.url; $('cloud-key').value = config.key;
+        safePut(CFG_KEY, config);
         session = safeRead(keyFor(config), null);
       } else config = null;
       $('cloud-configure').addEventListener('click', () => {
