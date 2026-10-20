@@ -992,10 +992,42 @@
     $$('[data-task-filter]').forEach(b => b.addEventListener('click', () => {currentTaskFilter=b.dataset.taskFilter;$$('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks();}));
     $('todo-search').addEventListener('input', e => {currentTaskSearch=e.target.value.trim().toLowerCase();renderTasks();});
     $('todo-sort').addEventListener('change',renderTasks);
-    $('todo-form').addEventListener('submit', event=>{ event.preventDefault();const field=$('todo-title');if(addTask(field.value,{priority:$('todo-priority').value,category:$('todo-category').value,dueDate:$('todo-due').value})){field.value='';field.focus();}});
-    $('save-edited-task').addEventListener('click',()=>{const task=state.tasks.find(t=>t.id===editingTaskId);if(!task)return;$('edit-task-text').value=$('edit-task-text').value.trim();if(!$('edit-task-text').value)return safeToast('Mission title is required.');task.text=$('edit-task-text').value.slice(0,120);task.priority=$('edit-task-priority').value;task.category=$('edit-task-category').value;task.dueDate=$('edit-task-due').value;task.modifiedAt=Date.now();editingTaskId=null;persist();renderTasks();$('edit-task-dialog').close();safeToast('Mission updated.');});
+    $('todo-form').addEventListener('submit', event=>{
+      event.preventDefault();
+      const field=$('todo-title'), extra=smartTaskOptions('todo');
+      if (extra.reminderTime && !extra.dueDate) return safeToast('Set a due date before adding a reminder time.');
+      if(addTask(field.value,{...extra,priority:$('todo-priority').value,category:$('todo-category').value})){
+        field.value='';$('todo-dependency').value='';field.focus();
+      }
+    });
+    $('save-edited-task').addEventListener('click',()=>{
+      const task=state.tasks.find(t=>t.id===editingTaskId);if(!task)return;
+      const title=$('edit-task-text').value.trim();
+      if(!title) return safeToast('Mission title is required.');
+      const extra=smartTaskOptions('edit-task');
+      if(extra.reminderTime&&!extra.dueDate) return safeToast('Set a due date before adding a reminder time.');
+      if(mission.hasCycle(state.tasks,task.id,extra.dependsOn))return safeToast('Dependency cycle detected: choose a different prerequisite.');
+      task.text=title.slice(0,120);task.priority=$('edit-task-priority').value;
+      task.category=$('edit-task-category').value;task.dueDate=extra.dueDate;
+      Object.assign(task,mission.extras(extra,task.id));
+      task.modifiedAt=Date.now();editingTaskId=null;persist();renderTasks();
+      $('edit-task-dialog').close();safeToast('Mission updated.');
+    });
     $('clear-completed').addEventListener('click',()=>{const count=state.tasks.filter(t=>t.done).length;if(!count)return;$('clear-task-warning').textContent=`Permanently remove ${count} completed mission${count===1?'':'s'} from this device? This cannot be undone.`;$('clear-task-dialog').showModal();});
-    $('confirm-clear-completed').addEventListener('click',()=>{for(const task of state.tasks.filter(t=>t.done))state.deletedTasks[task.id]=Date.now();state.tasks=state.tasks.filter(t=>!t.done);if(!state.tasks.some(t=>t.id===state.activeTaskId))state.activeTaskId=null;persist();renderTasks();$('clear-task-dialog').close();safeToast('Completed missions cleared.');});
+    $('confirm-clear-completed').addEventListener('click',()=>{
+      const cleared = new Set(state.tasks.filter(t=>t.done).map(t=>t.id));
+      const stamp=Date.now();
+      for(const id of cleared)state.deletedTasks[id]=stamp;
+      state.tasks=state.tasks.filter(t=>!t.done);
+      // Clearing completed history must not permanently lock its dependents.
+      for(const task of state.tasks){
+        if(task.dependsOn?.some(id=>cleared.has(id))){
+          task.dependsOn=task.dependsOn.filter(id=>!cleared.has(id));task.modifiedAt=stamp;
+        }
+      }
+      if(!state.tasks.some(t=>t.id===state.activeTaskId))state.activeTaskId=null;
+      persist();renderTasks();$('clear-task-dialog').close();safeToast('Completed missions cleared.');
+    });
     $$('[data-phase]').forEach((b) => b.addEventListener('click', () => setPhase(b.dataset.phase)));
     $$('[data-seconds]').forEach((b) => b.addEventListener('click', () => setCountdown(Number(b.dataset.seconds))));
     $('primary-btn').addEventListener('click', toggleTimer);
@@ -1005,6 +1037,21 @@
     $('configure-btn').addEventListener('click', () => state.mode === 'countdown' ? $('custom-dialog').showModal() : openSettings());
     $('custom-countdown-btn').addEventListener('click', () => $('custom-dialog').showModal());
     $('open-settings').addEventListener('click', openSettings);
+    $('open-command').addEventListener('click',openCommandPalette);
+    $('hud-command-open').addEventListener('click',openCommandPalette);
+    $('command-close').addEventListener('click',closeCommandPalette);
+    $('command-query').addEventListener('input',renderCommands);
+    $('command-query').addEventListener('keydown', event=>{
+      if(event.key==='ArrowDown'){event.preventDefault();highlightCommand(selectedCommand+1);}
+      else if(event.key==='ArrowUp'){event.preventDefault();highlightCommand(selectedCommand-1);}
+      else if(event.key==='Enter'){event.preventDefault();if(commandItems[selectedCommand])runCommand(commandItems[selectedCommand]);}
+    });
+    document.addEventListener('keydown', event=>{
+      if((event.ctrlKey||event.metaKey) && event.key.toLowerCase()==='k'){
+        event.preventDefault();
+        if($('command-dialog').open) closeCommandPalette();else openCommandPalette();
+      }
+    });
     $('cc-close-settings').addEventListener('click', () => $('settings-dialog').close());
     $('cc-dismiss-header').addEventListener('click', () => $('settings-dialog').close());
     const tabButtons = $$('[data-settings-tab]');
