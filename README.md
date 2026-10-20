@@ -14,7 +14,7 @@ The CHRONOS icon combines a luminous clock face and completed-mission checklist 
 
 ## VS Code Marketplace edition (v1.2.2)
 
-Open the **Command Palette** (`Ctrl+Shift+P`) and select **CHRONOS: Open Focus Command Center**, or click the **Chronos** Status Bar item. Run Pomodoro, Countdown, Stopwatch (with laps) and To-Do Missions inside VS Code. The timer completion chime rings for 10 seconds when audio is enabled and the Webview is active; closed panels cannot reliably produce audio.
+Open the **Command Palette** (`Ctrl+Shift+P`) and select **CHRONOS: Open Focus Command Center**, or click the **Chronos** Status Bar item. Run Pomodoro, Countdown, Stopwatch (with laps) and To-Do Missions inside VS Code. Sound Studio now loops timer and event alerts until you click SILENCE by default, with optional 10-second auto-stop. The VS Code webview must stay open for sound.
 
 **No account required.** Focus timers and tasks are stored locally. Optional Chrome ↔ VS Code task sync only works on the same computer, and requires starting the loopback bridge with the explicit pairing command; it is off by default. Local sync does not share running timers, focus stats or themes.
 
@@ -139,7 +139,7 @@ git push -u origin main
 3. Open **https://gitwithmasum.github.io/Masum-Chronos/**. It loads the app at the root URL, not README and not a redirect.
 4. The installed Chrome PWA at `/web/` keeps working. All local tasks and settings use the same site origin; they are not deleted by this deployment change. If an old offline app persists, close and reopen it before trying hard refresh.
 
-**10 or 20 minutes, same ring behavior:** The timer does *not* ring while counting down. When its deadline is reached and the app is running with audio enabled, it plays the completion ringtone for exactly 10 seconds (Web Audio scheduled stop), then stops automatically. This also applies to any supported custom countdown duration and focus/break timers. Browser suspension, audio permissions and an entirely closed app can prevent an immediate alarm.
+**10 or 20 minutes, same selectable alarm behavior:** Timers remain silent while counting down. At the deadline, the selected ringtone loops until SILENCE by default; switch to Auto Stop in Settings to end playback after 10 seconds using the Web Audio clock. Audio restrictions, a suspended tab or fully closed app can prevent or interrupt playback.
 
 ## Storage and privacy
 
