@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const engine=require('../web/mission-engine.js');
 const mk=(id,opts={})=>({id,text:id,createdAt:100,modifiedAt:100,done:false,priority:'medium',estimateMins:25,recurrence:'none',dependsOn:[],...opts});
-assert.deepEqual(engine.extras({},'x'),{recurrence:'none',dependsOn:[],reminderTime:'',estimateMins:0,seriesId:'',recurrenceAnchor:''});
+assert.deepEqual(engine.extras({},'x'),{recurrence:'none',dependsOn:[],reminderTime:'',estimateMins:0,seriesId:'',recurrenceAnchor:'',planDate:'',planStart:'',planDurationMins:0});
 assert.deepEqual(engine.extras({recurrence:'weekly',dependsOn:['p','p','q','x'],reminderTime:'08:05',estimateMins:60},'x').dependsOn,['p','q']);
 assert.equal(engine.extras({reminderTime:'99:88'}).reminderTime,'');
 assert.equal(engine.validDate('2026-02-30'),false);
