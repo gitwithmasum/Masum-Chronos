@@ -8,7 +8,7 @@ ROOT=Path(__file__).resolve().parents[1]
 async def run():
     raw=(ROOT/'web'/'index.html').read_text(encoding='utf8')
     html=raw.replace('<link rel="stylesheet" href="./styles.css" />','<style>'+ (ROOT/'web'/'styles.css').read_text(encoding='utf8')+'</style>')
-    html=html.replace('<script defer src="./app.js"></script>','').replace('</body>','<script>'+(ROOT/'web'/'app.js').read_text(encoding='utf8')+'</script></body>')
+    html=html.replace('<script defer src="./sound-studio.js"></script>','').replace('<script defer src="./app.js"></script>','').replace('</body>','<script>'+(ROOT/'web'/'sound-studio.js').read_text(encoding='utf8')+'</script><script>'+(ROOT/'web'/'app.js').read_text(encoding='utf8')+'</script></body>')
     async def mount(page, persisted=None):
         await page.evaluate("""data => {
           window.__chronosMemory = data || {};
