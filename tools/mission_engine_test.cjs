@@ -36,8 +36,34 @@ for(const id of ['hud-ready','hud-blocked','hud-due','hud-estimate','hud-next-ta
 assert.match(web,/mission\.nextOccurrence\(task,state\.tasks,dateKey\(\)\)/);
 assert.match(web,/mission\.hasCycle/);
 assert.match(web,/mission\.reminderCandidates/);
-assert.match(web,/id="foo"/.source ? /function openCommandPalette/ : /function openCommandPalette/);
+assert.match(web,/function openCommandPalette/);
 assert.match(bridge,/recurrence:/);
 assert.match(bridge,/dependsOn:/);
 assert.match(bridge,/reminderTime:/);
+
+// Runtime smoke: the text command "timer 15" must actually switch to
+// Countdown before starting the requested duration.
+const vm=require('node:vm');
+const commandSource=web.slice(web.indexOf('  const COMMAND_HINTS ='),web.indexOf('  function sortedFilteredTasks()'));
+assert(commandSource.includes('function renderCommands()'),'Command module missing');
+const actions=[];
+const commandInput={value:'timer 15'};
+const commandDialog={open:true,close(){this.open=false}};
+const commandResults={children:[],replaceChildren(){this.children=[]},append(v){this.children.push(v)}};
+const getId=id=>({'command-query':commandInput,'command-dialog':commandDialog,'command-results':commandResults})[id] || null;
+const makeNode=()=>({append(){},setAttribute(){},addEventListener(){},classList:{toggle(){}}});
+const commandContext={
+ $:getId, $$:()=>[],
+ document:{createElement:makeNode},
+ state:{tasks:[]},mission:engine,
+ switchMode:m=>actions.push('mode:'+m),setCountdown:n=>actions.push('duration:'+n),
+ switchWorkspace:w=>actions.push('workspace:'+w),isRunning:()=>false,
+ toggleTimer:()=>actions.push('start'),
+ openSettings:()=>{},activateSettingsTab:()=>{},
+ safeToast:()=>{},selectMission:()=>{}
+};
+vm.runInNewContext(commandSource+'\nrenderCommands(); runCommand(commandItems[0]);',commandContext,{timeout:1000});
+assert.deepEqual(actions,['mode:countdown','duration:900','workspace:timer','start']);
+assert.equal(commandDialog.open,false);
+
 console.log('MISSION ENGINE: dependencies, cycles, recurring dates, duplicate guard, timed alerts, ready queue, HUD and both app entrypoints PASS');
