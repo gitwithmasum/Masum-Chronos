@@ -74,5 +74,5 @@ const bridge=fs.readFileSync('vscode/sync-bridge.js','utf8');
 assert(bridge.includes('planDurationMins:'),'VS Code bridge drops time blocks');
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
 assert(pkg.files.includes('web/calendar-command.css'));
-assert.equal(pkg.version,'2.2.0-beta.1');
+assert.equal(pkg.version,'2.3.0-beta.1');
 console.log('SMART CALENDAR: timezone-safe week, conflict guard, draggable UI markers, eight dependencies, migration, bridge, edit safety and schedule runtime PASS');
