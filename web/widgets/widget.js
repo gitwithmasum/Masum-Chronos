@@ -183,7 +183,7 @@
    $('cw-minutes').addEventListener('change',durationChanged);
    $('cw-task-form').addEventListener('submit',addTask);
    window.addEventListener('message',acceptHostData);
-   if(isTimer){timerPaint();setInterval(timerPaint,500);}
+   if(isTimer){$('cw-minutes').value=String(Math.floor(local[mode].durationSeconds/60));timerPaint();setInterval(timerPaint,500);}
    if(config.type==='tasks')tasksPaint();
    if(config.type==='stats')statsPaint();
    status(config.source==='host'&&['tasks','stats'].includes(config.type)
