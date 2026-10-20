@@ -1,3 +1,10 @@
+## v1.3.0 — Smart Sound Studio
+
+- Per-event preset ringtone selection, manual-loop stop or optional 10s auto-stop, event mute and volume.
+- IndexedDB custom MP3/WAV/OGG import, preview, removal, and preferences retention.
+- Date-only due and overdue reminders while the app is open, plus Stopwatch lap/pause and To-Do completion sounds.
+- Chrome/PWA and VS Code webview assets wired; preserves legacy v1.2.3 data.
+
 ## v1.2.3 — Pearl Waves Theme (2026-10-13)
 
 - Add optional Pearl Waves light theme inspired by white, pink, and purple flowing curves.
