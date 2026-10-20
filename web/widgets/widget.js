@@ -71,7 +71,7 @@
    const running=Boolean(timer.endsAt);
    $('cw-toggle').textContent=running?'PAUSE':seconds===0?'START AGAIN':'START';
    $('cw-caption').textContent=running?'SESSION ACTIVE':seconds===0?'SESSION COMPLETE':'READY';
-   $('cw-minutes').value=String(Math.floor(timer.durationSeconds/60));
+   // Keep the duration input editable while a timer is ticking.
  }
  function playPause(){
    unlockAudio();
