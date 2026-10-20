@@ -1,3 +1,13 @@
+## v2.4.0-beta.1 — Universal Productivity Widget Engine
+
+- Created self-contained Focus Timer, Countdown, Mini Tasks and Productivity Pulse iframe widgets with a tiny embeddable `ChronosWidgets.mount()` loader.
+- Added Futuristic Widget Studio with theme, size, type, duration, sample host-data preview and copyable HTML snippets.
+- Added opt-in read-only parent-to-frame snapshot updates with exact-origin and direct-parent checks; no direct access to Chronos/NovaStudy private app state.
+- Added an isolated widget storage namespace, graceful fallback when third-party browser storage is blocked and low-volume timer chime with 10-second automatic stop.
+- Added dedicated Content Security Policy, static asset cache, VS Code packaging assets and widget security/integration regression tests.
+- Kept all prior Timer, To-Do, Cloud Sync, Focus Intelligence, Calendar, Settings and task storage migrations intact.
+- [Developer guide](docs/universal-widget-engine-v2.4.md) includes safe NovaStudy installation and browser limitations.
+
 ## v2.3.0-beta.1 — Galaxy Productivity Intelligence
 
 - Added a collapsible futuristic Productivity Intelligence dashboard with 7/30-day Focus trend, 84-day Mission activity heatmap, completed Focus Session count, completed Mission count and active-day metrics.
