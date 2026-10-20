@@ -12,8 +12,10 @@
   <link rel="stylesheet" href="./sound-studio.css" />
   <link rel="stylesheet" href="./cloud-sync.css" />
   <link rel="stylesheet" href="./control-center.css" />
+  <link rel="stylesheet" href="./mission-control.css" />
   <script defer src="./sound-studio.js"></script>
   <script defer src="./cloud-sync.js"></script>
+  <script defer src="./mission-engine.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body data-theme="nebula">
@@ -53,6 +55,7 @@
       <div class="header-actions">
         <div class="connection"><span class="online-dot"></span><span>ALL SYSTEMS READY</span></div>
         <span id="header-clock" class="header-clock">--:--</span>
+        <button id="open-command" class="icon-button" type="button" title="Open Command Palette (Ctrl+K)" aria-label="Open Command Palette"><svg><use href="#i-search" /></svg></button>
         <button id="open-settings" class="icon-button" title="Open settings" aria-label="Open settings"><svg><use href="#i-settings" /></svg></button>
       </div>
     </header>
@@ -122,6 +125,17 @@
         </div>
         <div class="todo-hero-right"><div class="mission-orbit"><div class="mission-orbit-inner">✦</div></div><button id="todo-jump-timer" class="outline-btn">OPEN FOCUS TIMER <span>↗</span></button></div>
       </header>
+
+      <section class="glass mission-hud" aria-label="Smart Mission HUD">
+        <div class="mission-hud-title"><span class="section-eyebrow"><span class="blink-dot"></span> MISSION INTELLIGENCE / V2.1</span><button type="button" id="hud-command-open" class="outline-btn">⌘ COMMAND PALETTE <span>↗</span></button></div>
+        <div class="mission-hud-grid">
+          <div class="mission-hud-meter"><span>READY TO EXECUTE</span><strong id="hud-ready">0</strong><small>Unblocked missions</small></div>
+          <div class="mission-hud-meter"><span>AWAITING DEPENDENCY</span><strong id="hud-blocked">0</strong><small>Locked objectives</small></div>
+          <div class="mission-hud-meter"><span>DUE / OVERDUE</span><strong id="hud-due">0</strong><small>Needs your attention</small></div>
+          <div class="mission-hud-meter"><span>PLANNED FOCUS</span><strong id="hud-estimate">0m</strong><small>Ready mission estimates</small></div>
+        </div>
+        <p class="mission-hud-recommendation" id="hud-next-task" aria-live="polite">Deploy a mission to initialize your intelligent queue.</p>
+      </section>
       <div class="todo-kpis">
         <div class="glass todo-kpi"><span>TOTAL MISSIONS</span><strong id="todo-kpi-total">00</strong><small>ALL TASKS</small></div>
         <div class="glass todo-kpi"><span>IN PROGRESS</span><strong id="todo-kpi-active">00</strong><small>OPEN MISSIONS</small></div>
@@ -139,6 +153,13 @@
               <label>CATEGORY<select id="todo-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label>
               <label>DUE DATE<input id="todo-due" type="date" /></label>
             </div>
+            <div class="mission-advanced-fields" aria-label="Smart Mission options">
+              <label>REPEAT<select id="todo-recurrence"><option value="none">One-time mission</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></label>
+              <label>DEPENDS ON<select id="todo-dependency"><option value="">No dependency</option></select></label>
+              <label>REMIND AT<input id="todo-reminder-time" type="time" aria-label="Reminder time (optional)" /></label>
+              <label>ESTIMATE (MIN)<input id="todo-estimate" type="number" inputmode="numeric" min="0" max="480" value="25" /></label>
+            </div>
+
           </form>
           <div class="todo-toolbar">
             <div class="section-eyebrow">02 / MISSION QUEUE <span id="todo-visible-count" class="result-count">0 OBJECTIVES</span></div>
@@ -164,7 +185,16 @@
     <footer class="footer"><span>MASUM CHRONOS © 2026</span><span>STAY CURIOUS // STAY FOCUSED</span><span id="runtime-label">BROWSER EDITION</span></footer>
   </div>
   <aside id="ringtone-banner" class="ringtone-banner" role="status" aria-label="Timer finished, ringtone playing" hidden><span class="ringtone-pulse" aria-hidden="true">♪</span><span><strong id="ringtone-title">SOUND ALERT</strong><small id="ringtone-subtitle">LOOPING UNTIL YOU PRESS SILENCE</small></span><button id="silence-ringtone" type="button">SILENCE</button></aside>
-  <dialog id="settings-dialog" class="settings-dialog chronos-settings-dialog" aria-labelledby="settings-heading">
+  
+  <dialog id="command-dialog" class="command-dialog" aria-labelledby="command-heading">
+    <div class="command-window glass" role="document">
+      <header class="command-head"><div><span class="section-eyebrow">CHRONOS / RAPID COMMAND</span><h2 id="command-heading">Mission Command Palette</h2></div><button type="button" id="command-close" class="icon-button" aria-label="Close command palette"><svg><use href="#i-close" /></svg></button></header>
+      <label class="command-search-wrap"><svg><use href="#i-search" /></svg><input id="command-query" type="search" autocomplete="off" spellcheck="false" placeholder="Search actions, focus on a mission, or type: task ..." aria-label="Command search" /></label>
+      <div id="command-results" class="command-results" role="listbox" aria-label="Matching commands"></div>
+      <footer class="command-foot"><span>↑ ↓ NAVIGATE</span><span>ENTER EXECUTE</span><span>ESC CLOSE</span><span>CTRL + K OPEN</span></footer>
+    </div>
+  </dialog>
+<dialog id="settings-dialog" class="settings-dialog chronos-settings-dialog" aria-labelledby="settings-heading">
   <form method="dialog" class="settings-window glass chronos-control-center">
     <header class="cc-header">
       <div class="cc-emblem" aria-hidden="true"><svg><use href="#i-settings" /></svg></div>
@@ -280,7 +310,14 @@
 </dialog>
 <dialog id="custom-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">CUSTOM COUNTDOWN</div><h2>Set the deadline</h2></div><button class="icon-button" value="cancel" aria-label="Close custom timer"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Hours<input id="custom-hours" type="number" min="0" max="99" value="0" /></label><label>Minutes<input id="custom-minutes" type="number" min="0" max="59" value="15" /></label><label>Seconds<input id="custom-seconds" type="number" min="0" max="59" value="0" /></label></div><div class="modal-actions"><button id="save-custom" type="button" class="solid-btn">SET COUNTDOWN</button></div></form></dialog>
 
-  <dialog id="edit-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">TASK COMMAND CENTER / EDIT</div><h2>Modify your mission</h2></div><button class="icon-button" value="cancel" aria-label="Close task editor"><svg><use href="#i-close" /></svg></button></div><div class="task-editor"><label>MISSION TITLE<input id="edit-task-text" maxlength="120" required /></label><div class="form-grid"><label>PRIORITY<select id="edit-task-priority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label><label>CATEGORY<select id="edit-task-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label><label>DUE DATE<input id="edit-task-due" type="date"/></label></div></div><div class="modal-actions"><button type="button" id="save-edited-task" class="solid-btn">SAVE MISSION</button></div></form></dialog>
+  <dialog id="edit-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">TASK COMMAND CENTER / EDIT</div><h2>Modify your mission</h2></div><button class="icon-button" value="cancel" aria-label="Close task editor"><svg><use href="#i-close" /></svg></button></div><div class="task-editor"><label>MISSION TITLE<input id="edit-task-text" maxlength="120" required /></label><div class="form-grid"><label>PRIORITY<select id="edit-task-priority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label><label>CATEGORY<select id="edit-task-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label><label>DUE DATE<input id="edit-task-due" type="date"/></label></div>
+  <div class="mission-advanced-fields">
+    <label>REPEAT<select id="edit-task-recurrence"><option value="none">One-time mission</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></label>
+    <label>DEPENDS ON<select id="edit-task-dependency"><option value="">No dependency</option></select></label>
+    <label>REMIND AT<input id="edit-task-reminder-time" type="time" aria-label="Reminder time (optional)" /></label>
+    <label>ESTIMATE (MIN)<input id="edit-task-estimate" type="number" min="0" max="480" value="0" /></label>
+  </div>
+  <p class="mission-form-help">Dependents unlock after the prerequisite mission is completed. Recurring missions generate their next occurrence when completed.</p></div><div class="modal-actions"><button type="button" id="save-edited-task" class="solid-btn">SAVE MISSION</button></div></form></dialog>
   <dialog id="clear-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">MISSION CONTROL / CLEANUP</div><h2>Clear completed missions?</h2></div><button class="icon-button" value="cancel" aria-label="Cancel clear completed"><svg><use href="#i-close" /></svg></button></div><p id="clear-task-warning" class="modal-note">Completed missions will be permanently removed from this device.</p><div class="modal-actions" style="margin-top:22px"><button class="outline-btn" value="cancel">CANCEL</button><button id="confirm-clear-completed" type="button" class="solid-btn">DELETE COMPLETED</button></div></form></dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
