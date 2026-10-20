@@ -133,6 +133,7 @@
     mergeMissions: remote => applySyncedMissions(remote),
     applyPreferences: payload => applyCloudPreferences(payload),
     restoreSnapshot: (backup, remote) => restoreCloudSnapshot(backup, remote),
+    onAccountChanged: (next, previous) => switchCloudAccount(next, previous),
     toast: message => safeToast(message),
     inVSCode
   });
@@ -179,6 +180,16 @@
     if (!state.settings.alertSound) stopCompletionRingtone();
     if (state.settings.soundscape === 'off') stopSound();
     persist(); render(); soundStudio.render();
+  }
+  function switchCloudAccount(nextId, previousId) {
+    // Never upload the previously signed-in user's local missions to another account.
+    try { localStorage.setItem('chronos-cloud-profile:' + previousId, JSON.stringify(state)); } catch {}
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem('chronos-cloud-profile:' + nextId) || 'null'); } catch {}
+    state = saved ? normalize({...saved, version: VERSION}) : initial();
+    state.activeTaskId = null;
+    persist(); render(); soundStudio.render();
+    safeToast('Switched cloud account. Your prior local profile was preserved.');
   }
   function restoreCloudSnapshot(backup, remoteRows = []) {
     if (!backup || !Array.isArray(backup.tasks)) throw Error('Invalid cloud backup.');
