@@ -86,6 +86,13 @@
     return task;
   }
   function removeTask(task) {
+    // Deleting a finished prerequisite must not re-lock its dependents.
+    if (task.done) for (const child of state.tasks) {
+      if (child.id !== task.id && child.dependsOn?.includes(task.id)) {
+        child.dependsOn = child.dependsOn.filter(id=>id!==task.id);
+        child.modifiedAt = Date.now();
+      }
+    }
     state.tasks = state.tasks.filter(t => t.id !== task.id);
     state.deletedTasks[task.id] = Date.now();
     if (state.activeTaskId === task.id) state.activeTaskId = null;
@@ -531,11 +538,11 @@
     const empty = document.createElement('option');
     empty.value = ''; empty.textContent = 'No dependency';
     select.append(empty);
-    for (const task of state.tasks.filter(t => !t.done && t.id !== ownId)) {
+    for (const task of state.tasks.filter(t => t.id !== ownId)) {
       if (ownId && mission.hasCycle(state.tasks,ownId,[task.id])) continue;
       const item = document.createElement('option');
       item.value = task.id;
-      item.textContent = task.text.slice(0,55);
+      item.textContent = (task.done ? '✓ ' : '') + task.text.slice(0,55);
       select.append(item);
     }
     const stillValid = [...select.options].some(option=>option.value===prior);
