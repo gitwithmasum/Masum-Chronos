@@ -92,7 +92,7 @@ const queryAll = selector => {
 };
 const vm = require('node:vm');
 const env = {
-  $:getId,$:queryAll,
+  $:getId,$$:queryAll,
   state:{focus:{focusMins:25,shortMins:5,longMins:15,longEvery:4},settings:{autoBreak:false,autoFocus:true,alertSound:true},theme:'nebula'},
   inVSCode:false,window:{Notification:{permission:'default'}},
   Notification:{permission:'default'},soundStudio:{render(){this.count=(this.count||0)+1}},
