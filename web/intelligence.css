@@ -1,0 +1,72 @@
+/* CHRONOS v2.3 Galaxy Intelligence — progressive disclosure, CSS-based charts, print-ready reports */
+.intelligence-panel{padding:0;margin:20px 0;border:1px solid rgba(105,175,245,.35);border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 91% -20%,rgba(135,71,216,.2),transparent 64%),var(--glass)}
+.intelligence-toggle{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:22px 25px;cursor:pointer;list-style:none;min-height:100px}
+.intelligence-toggle::-webkit-details-marker{display:none}
+.intelligence-toggle-copy{display:grid;gap:5px}
+.intelligence-toggle-copy strong{font-size:clamp(21px,2.5vw,29px);letter-spacing:-.6px;color:var(--text)}
+.intelligence-toggle-copy strong em{color:var(--cyan);font-style:normal}
+.intelligence-toggle-copy small{color:var(--dim);font-size:11px}
+.intelligence-open{color:var(--cyan);font:700 10px Consolas,monospace;white-space:nowrap}
+.intelligence-panel[open] .intelligence-open{font-size:0}
+.intelligence-panel[open] .intelligence-open::after{content:'COLLAPSE ↖';font-size:10px}
+.intelligence-toggle:focus-visible{outline:2px solid var(--cyan);outline-offset:-3px}
+.intelligence-content{padding:0 23px 24px}
+.intelligence-tools{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;border-top:1px solid var(--stroke);padding-top:18px;margin-bottom:16px}
+.intelligence-tools label{display:grid;gap:6px;font:700 10px Consolas,monospace;color:var(--dim)}
+.intelligence-tools select{min-width:145px;padding:9px 13px;border-radius:9px;background:rgba(25,36,73,.72);color:var(--text);border:1px solid var(--stroke-bright);font:700 12px inherit}
+.intelligence-actions{display:flex;gap:8px;flex-wrap:wrap}
+.intelligence-actions button{padding:10px 13px;font:750 10px Consolas,monospace;min-height:38px}
+.intelligence-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.intelligence-metric{min-width:0;padding:17px;border:1px solid rgba(113,164,234,.25);border-radius:13px;background:linear-gradient(145deg,rgba(72,90,171,.12),rgba(11,29,61,.09))}
+.intelligence-metric span{display:block;font:700 9px/1.6 Consolas,monospace;color:var(--dim);letter-spacing:.5px}
+.intelligence-metric strong{display:block;margin:9px 0 3px;color:var(--cyan);font-size:clamp(23px,2.8vw,32px);line-height:1.1;font-variant-numeric:tabular-nums}
+.intelligence-metric:nth-child(3) strong{color:var(--violet)}
+.intelligence-metric small{display:block;color:var(--dim);font-size:10px;line-height:1.5}
+.intelligence-visuals{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.intelligence-tile{padding:19px;border:1px solid rgba(109,158,229,.22);border-radius:14px;background:rgba(20,36,73,.19);min-width:0}
+.intelligence-tile header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.intelligence-tile h3{font-size:15px;color:var(--text);margin:0}
+.intelligence-tile header small{font-size:10px;color:var(--dim)}
+.intelligence-trend{display:flex;align-items:end;gap:3px;min-height:162px;border-bottom:1px solid var(--stroke);padding-bottom:16px}
+.intelligence-trend-day{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;min-width:0;height:145px;gap:4px}
+.intelligence-trend-bar{width:min(100%,22px);min-height:3px;border-radius:5px 5px 0 0;background:linear-gradient(to top,var(--violet),var(--cyan));}
+.intelligence-trend-day span{font:700 9px Consolas,monospace;color:var(--dim);white-space:nowrap}
+.intelligence-heatmap{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));grid-template-rows:repeat(7,14px);grid-auto-flow:column;gap:4px;align-content:start;min-height:124px}
+.intelligence-heatmap button,.intelligence-legend i{min-width:0;border:0;border-radius:3px;background:rgba(140,159,195,.13);padding:0;cursor:help}
+.intelligence-heatmap button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.intelligence-heatmap [data-level="1"],.intelligence-legend [data-level="1"]{background:#25616d}
+.intelligence-heatmap [data-level="2"],.intelligence-legend [data-level="2"]{background:#288c9d}
+.intelligence-heatmap [data-level="3"],.intelligence-legend [data-level="3"]{background:#4bb9c5}
+.intelligence-heatmap [data-level="4"],.intelligence-legend [data-level="4"]{background:#97f3eb}
+.intelligence-legend{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:12px}
+.intelligence-legend span{color:var(--dim);font:700 9px Consolas,monospace}
+.intelligence-legend i{width:12px;height:12px;flex:0 0 12px}
+.intelligence-comparisons{margin-bottom:12px}
+.intelligence-comparison-list{display:grid;gap:11px}
+.intelligence-comparison-item{padding:12px;border:1px solid var(--stroke);border-radius:10px;background:rgba(64,89,177,.06)}
+.intelligence-comparison-head{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text);line-height:1.5}
+.intelligence-comparison-head span{overflow-wrap:anywhere}
+.intelligence-comparison-head small{white-space:nowrap;font-size:10px;color:var(--dim)}
+.intelligence-compare-bar{margin-top:9px;background:rgba(118,151,217,.14);height:8px;position:relative;border-radius:6px;overflow:hidden}
+.intelligence-compare-bar span{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--violet),var(--cyan))}
+.intelligence-note{font-size:11px;line-height:1.7;color:var(--dim);margin:10px 0 15px}
+.intelligence-empty{font-size:12px;color:var(--dim);line-height:1.6;padding:16px 0}
+body[data-theme="pearl-waves"] .intelligence-panel,body[data-theme="pearl-waves"] .intelligence-tile,body[data-theme="pearl-waves"] .intelligence-metric{background:rgba(255,249,253,.92)}
+body[data-theme="pearl-waves"] .intelligence-tools select{background:#fff;color:#683d77}
+@media(max-width:800px){.intelligence-visuals{grid-template-columns:1fr}.intelligence-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:450px){.intelligence-toggle{padding:17px 14px;min-height:90px}.intelligence-open{font-size:9px}.intelligence-content{padding:0 13px 18px}.intelligence-metric,.intelligence-tile{padding:12px}.intelligence-trend{min-height:142px}.intelligence-trend-day{height:125px}.intelligence-heatmap{gap:3px;grid-template-rows:repeat(7,13px)}.intelligence-comparison-head{flex-wrap:wrap}}
+@media print {
+ @page{size:A4; margin:14mm}
+ body.print-intelligence *{visibility:hidden!important}
+ body.print-intelligence #intelligence-panel,body.print-intelligence #intelligence-panel *{visibility:visible!important}
+ body.print-intelligence #intelligence-panel{display:block!important;position:absolute;left:0;top:0;width:100%;max-width:none;margin:0;border:0;box-shadow:none;background:white;color:#17243a;overflow:visible}
+ body.print-intelligence #intelligence-panel .intelligence-content{display:block!important}
+ body.print-intelligence #intelligence-panel .intelligence-tools,body.print-intelligence #intelligence-panel .intelligence-open{display:none!important}
+ body.print-intelligence #intelligence-panel .intelligence-toggle{padding:0 0 12px;min-height:0}
+ body.print-intelligence #intelligence-panel .intelligence-toggle-copy strong,body.print-intelligence #intelligence-panel h3,body.print-intelligence #intelligence-panel .intelligence-comparison-head span{color:#15253e!important}
+ body.print-intelligence #intelligence-panel .intelligence-note,body.print-intelligence #intelligence-panel small,body.print-intelligence #intelligence-panel .intelligence-toggle-copy small{color:#506078!important}
+ body.print-intelligence #intelligence-panel .intelligence-metric,body.print-intelligence #intelligence-panel .intelligence-tile{border-color:#c9d3e0;background:#f8faff}
+ body.print-intelligence #intelligence-panel .intelligence-trend-bar,body.print-intelligence #intelligence-panel .intelligence-heatmap button,body.print-intelligence #intelligence-panel .intelligence-compare-bar span{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+ body.print-intelligence #intelligence-panel .intelligence-tile{break-inside:avoid}
+ body.print-intelligence #intelligence-panel .intelligence-visuals{grid-template-columns:1fr 1fr}
+}
