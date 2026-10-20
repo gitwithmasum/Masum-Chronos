@@ -4,9 +4,19 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v1.3.0 | Open-source futuristic productivity app by Masum Billah.**
+**v2.0.0-beta.1 | Offline-first productivity + opt-in shared Supabase Cloud by Masum Billah.**
 
-One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
+One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.0 Cloud Sync & Multi-Device Productivity (beta)
+
+**Supabase backend is live:** Chronos data is in its own `chronos_missions`, `chronos_preferences` and `chronos_backups` tables within the existing NovaStudy-Routine Supabase project, with per-user RLS and revision-guarded RPCs. NovaStudy's existing tables and data were not modified.
+
+**Chrome/PWA Cloud Panel:** Settings → **Cloud Sync & Backup** → **Sign in with Google**, then Sync Now, Backup Now, or Restore Latest. An authenticated session syncs task edits and deletions, theme, audio settings and timer configuration approximately every 30 seconds online; an offline device keeps working locally. Automatic backup is attempted daily while the app is open and signed in. Restore requires two clicks within 15 seconds, and a pre-restore safety copy is kept locally.
+
+**Required before sign-in:** The shared project's **Authentication → URL Configuration → Redirect URLs** must allow the Chronos GitHub Pages URL. Do **not** change NovaStudy's existing Site URL. See [Shared Supabase Setup and Limitations](docs/shared-supabase-cloud-v2.md).
+
+**Known beta boundaries:** Browser/PWA cross-device sync is implemented but **real Google login and cross-device end-to-end acceptance are pending** OAuth redirect allow-list verification. The VS Code edition can receive browser cloud-synced tasks on the **same laptop** using the existing Local Link; direct VS Code webview Google OAuth is not enabled. Custom uploaded ringtone files, live timer deadlines and stopwatch state stay device-local. Two apps share Supabase quotas.
 
 ### Visual identity — Timer × To-Do
 
