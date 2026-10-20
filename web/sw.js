@@ -1,6 +1,6 @@
 /* Minimal offline cache for local PWA; no external requests. */
-const CACHE = 'masum-chronos-v1.3.0-sound-studio';
-const ASSETS = ['./', './index.html', './styles.css', './app.js', './sound-studio.js', './sound-studio.css', './icon.svg', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
+const CACHE = 'masum-chronos-v2.0.0-beta.1-cloud';
+const ASSETS = ['./', './index.html', './styles.css', './app.js', './sound-studio.js', './sound-studio.css', './cloud-sync.js', './cloud-sync.css', './icon.svg', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
