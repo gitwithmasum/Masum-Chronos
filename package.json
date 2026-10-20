@@ -1,8 +1,8 @@
 {
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
-  "description": "Galaxy productivity Control Center with offline-first Pomodoro, To-Do, Smart Sound Studio, shared Supabase Cloud Sync and futuristic tabbed settings.",
-  "version": "2.0.0-beta.2",
+  "description": "Futuristic mission control: Pomodoro, recurring tasks, dependency-aware planning, Command Palette, Galaxy HUD, and offline-first cloud sync.",
+  "version": "2.1.0-beta.1",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {
@@ -63,12 +63,13 @@
     ]
   },
   "scripts": {
-    "lint": "node --check ./vscode/extension.js && node --check ./vscode/sync-bridge.js && node --check ./web/app.js && node --check ./web/sound-studio.js && node --check ./web/cloud-sync.js && node --check ./web/sw.js",
+    "lint": "node --check ./vscode/extension.js && node --check ./vscode/sync-bridge.js && node --check ./web/mission-engine.js && node --check ./web/app.js && node --check ./web/sound-studio.js && node --check ./web/cloud-sync.js && node --check ./web/sw.js",
     "package": "vsce package --no-dependencies",
     "marketplace:check": "python tools/marketplace_check.py",
     "test:sounds": "node tools/sound_studio_test.cjs",
     "test:cloud": "node tools/cloud_sync_test.cjs",
-    "test:settings": "node tools/control_center_test.cjs"
+    "test:settings": "node tools/control_center_test.cjs",
+    "test:missions": "node tools/mission_engine_test.cjs"
   },
   "files": [
     "vscode/extension.js",
@@ -81,6 +82,8 @@
     "web/cloud-sync.js",
     "web/cloud-sync.css",
     "web/control-center.css",
+    "web/mission-engine.js",
+    "web/mission-control.css",
     "web/icon-192.png",
     "README.md",
     "CHANGELOG.md",
