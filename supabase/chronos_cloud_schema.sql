@@ -75,3 +75,32 @@ revoke all on public.chronos_missions, public.chronos_preferences, public.chrono
 grant select, insert, update, delete on public.chronos_missions to authenticated;
 grant select, insert, update on public.chronos_preferences to authenticated;
 grant select, insert, delete on public.chronos_backups to authenticated;
+
+-- Atomic timestamp-guarded writes prevent a stale device from overwriting newer missions.
+-- SECURITY INVOKER preserves caller RLS; ownership is always auth.uid(), never supplied by client.
+create or replace function public.chronos_upsert_missions(p_rows jsonb)
+returns void language plpgsql security invoker
+set search_path = public
+as $chronos$
+begin
+  if (select auth.uid()) is null then
+    raise exception 'Authentication required';
+  end if;
+  if jsonb_typeof(p_rows) is distinct from 'array' or jsonb_array_length(p_rows) > 500 then
+    raise exception 'Expected an array with at most 500 mission rows';
+  end if;
+  insert into public.chronos_missions (user_id, id, payload, modified_at, deleted)
+  select (select auth.uid()), x.id, coalesce(x.payload, '{}'::jsonb), x.modified_at, coalesce(x.deleted,false)
+    from jsonb_to_recordset(p_rows) as x(id text, payload jsonb, modified_at bigint, deleted boolean)
+   where x.id is not null and char_length(x.id) between 1 and 100 and x.modified_at >= 0
+  on conflict (user_id, id) do update
+     set payload = excluded.payload,
+         modified_at = excluded.modified_at,
+         deleted = excluded.deleted
+    where excluded.modified_at > public.chronos_missions.modified_at
+       or (excluded.modified_at = public.chronos_missions.modified_at
+           and excluded.deleted = true and public.chronos_missions.deleted = false);
+end;
+$chronos$;
+revoke all on function public.chronos_upsert_missions(jsonb) from public, anon;
+grant execute on function public.chronos_upsert_missions(jsonb) to authenticated;
