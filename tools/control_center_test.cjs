@@ -53,7 +53,7 @@ assert.match(app,/event\.key === 'ArrowRight'/);
 assert.match(app,/event\.key === 'ArrowLeft'/);
 assert.match(app,/\$\('cc-close-settings'\)\.addEventListener/);
 assert.match(app,/cloud\?\.preferencesChanged\(\)/);
-assert.match(app,/const VERSION = '2\.1\.0-beta\.1'/);
+assert.match(app,/const VERSION = '2\.1\.0-beta\.2'/);
 assert.match(host,/controlCssUri/);
 assert.match(host,/href="\.\/control-center\.css"/);
 assert(pkg.files.includes('web/control-center.css'));
