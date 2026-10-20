@@ -1,3 +1,11 @@
+## v2.0.0-beta.1 — Shared Supabase Cloud Foundation
+
+- Installed `chronos_missions`, `chronos_preferences`, `chronos_backups`, RLS and authenticated security-invoker sync RPCs in the existing NovaStudy Supabase project. No `ns_*` tables changed.
+- Browser/PWA opt-in Google OAuth UI, refreshable sessions, automatic 30-second task and preferences reconciliation, date-stamped backups, safety-checked restore and offline resilience.
+- Separate local task profiles for account switching and account-scoped preference revisions.
+- Corrected root GitHub Pages offline service worker, added Cloud integration tests and v2 package assets.
+- **Pending manual verification:** Add Chronos redirect URLs without changing NovaStudy Site URL, then complete real Google OAuth, multi-device and deployment smoke tests.
+
 ## v1.3.0 — Smart Sound Studio
 
 - Per-event preset ringtone selection, manual-loop stop or optional 10s auto-stop, event mute and volume.
