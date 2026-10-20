@@ -22,7 +22,7 @@
    try{localStorage.setItem(store,JSON.stringify(local));}
    catch{/* Host browser may partition or block third-party storage. */ }
  }
- function dataView(){return supplied && config.source==='host'?supplied:local;}
+ function dataView(){return config.source==='host' ? (supplied||core.snapshot({})) : local;}
  function status(value){$('cw-status').textContent=value;}
  function unlockAudio(){
    if(audioContext) {try{void audioContext.resume();}catch{}return;}
