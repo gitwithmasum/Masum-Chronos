@@ -104,3 +104,22 @@ end;
 $chronos$;
 revoke all on function public.chronos_upsert_missions(jsonb) from public, anon;
 grant execute on function public.chronos_upsert_missions(jsonb) to authenticated;
+
+-- Idempotent, version-guarded preference writes prevent stale devices from overwriting newer settings.
+create or replace function public.chronos_upsert_preferences(p_payload jsonb, p_modified_at bigint)
+returns void language plpgsql security invoker
+set search_path = public
+as $chronos$
+begin
+  if (select auth.uid()) is null then raise exception 'Authentication required'; end if;
+  if jsonb_typeof(p_payload) is distinct from 'object' or p_modified_at < 0
+     or pg_column_size(p_payload) > 131072 then raise exception 'Invalid preferences'; end if;
+  insert into public.chronos_preferences(user_id,payload,modified_at)
+  values((select auth.uid()),p_payload,p_modified_at)
+  on conflict(user_id) do update
+    set payload=excluded.payload,modified_at=excluded.modified_at
+    where excluded.modified_at > public.chronos_preferences.modified_at;
+end;
+$chronos$;
+revoke all on function public.chronos_upsert_preferences(jsonb,bigint) from public, anon;
+grant execute on function public.chronos_upsert_preferences(jsonb,bigint) to authenticated;
