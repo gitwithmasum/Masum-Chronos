@@ -33,7 +33,7 @@ function cleanTask(task) {
     recurrence:['daily','weekly','monthly'].includes(task.recurrence)?task.recurrence:'none',
     dependsOn:Array.isArray(task.dependsOn) ? [...new Set(task.dependsOn
       .filter(id=>typeof id==='string'&&id.length<=100&&id.length>0&&id!==task.id))].slice(0,8) : [],
-    reminderTime:typeof task.reminderTime==='string'&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(task.reminderTime)?task.reminderTime:'',
+    reminderTime:typeof task.reminderTime==='string'&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(task.reminderTime)?task.reminderTime:'',
     estimateMins:Number.isInteger(task.estimateMins)&&task.estimateMins>=0&&task.estimateMins<=480?task.estimateMins:0,
     seriesId:typeof task.seriesId==='string'&&task.seriesId.length<=100?task.seriesId:''
   };
