@@ -1,10 +1,10 @@
 /* Root GitHub Pages offline cache. Root and /web/ pages use separate SW scopes. */
-const CACHE = 'chronos-root-v2.2.0-beta.1-smart-calendar';
+const CACHE = 'chronos-root-v2.3.0-beta.1-galaxy-intelligence';
 const ASSETS = [
   './', './index.html', './web/index.html',
   './web/styles.css', './web/app.js',
   './web/sound-studio.js', './web/sound-studio.css',
-  './web/cloud-sync.js', './web/cloud-sync.css', './web/control-center.css', './web/mission-control.css', './web/calendar-command.css', './web/mission-engine.js',
+  './web/cloud-sync.js', './web/cloud-sync.css', './web/control-center.css', './web/mission-control.css', './web/calendar-command.css', './web/intelligence.css', './web/mission-engine.js', './web/productivity-intelligence.js',
   './web/icon.svg', './web/icon-192.png', './web/icon-512.png',
   './web/manifest.webmanifest'
 ];
