@@ -4,9 +4,19 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.1.0-beta.2 | Mission Control Reliability, Secure Cloud Configuration and DST-Safe Recurrence.**
+**v2.2.0-beta.1 | Smart Calendar, Multi-Mission Dependencies and Futuristic Scheduling.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.2 — Smart Calendar & Advanced Dependencies (beta)
+
+- **7-day Smart Calendar:** drag an unscheduled mission or an existing plan into any day/hour slot. Navigate weeks with Previous / Today / Next. For mobile and keyboard, schedule via Mission, Date, Start Time and Minutes fields. Removing a plan does not remove its task.
+- **Smart conflict detection:** rejects overlapping blocks, blocks after a task's deadline, and slots that cross midnight. Consecutive blocks are allowed. Shows conflicts imported from another device.
+- **Up to eight prerequisites:** multi-checkbox picker in new/edit mission forms; cycle protection and missing-prerequisite visibility. Mission Dependency Network visualizes READY/LOCKED and prerequisite edges.
+- **Cross-device preservation:** new calendar fields live in the existing mission payload, preserving Supabase JSONB, local snapshots, VS Code local bridge, completed history and ongoing timers.
+- **Command Palette shortcuts:** Open Smart Calendar / Open Dependency Network.
+
+The calendar uses **local device time** and does **not** yet integrate with Google Calendar. Real signed-in cross-device and mobile visual QA are still required after automated CI. [Architecture and acceptance checklist](docs/smart-calendar-v2.2.md).
 
 ## v2.1.0-beta.2 — Final QA & Reliability Update
 
