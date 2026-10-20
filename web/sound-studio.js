@@ -138,6 +138,8 @@
       } else stop();
       const ticket = ++serial;
       try {
+        // Unlock WebAudio while still inside the originating user gesture.
+        audio();
         const buffer = await bufferFor(id);
         if (!buffer || serial !== ticket) return;
         const ctx = audio();
