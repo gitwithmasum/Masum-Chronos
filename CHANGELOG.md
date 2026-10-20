@@ -1,3 +1,13 @@
+## v2.1.0-beta.1 — Smart Mission Control
+
+- Add dependency-aware Task Engine with cycle protection, blocked mission tracking, ready queue and smart recommendation.
+- Add daily, weekly and monthly recurring tasks with deterministic next-occurrence IDs and completed history retention.
+- Add optional HH:MM local-time reminders, estimated minutes and migration-safe task metadata.
+- Add futuristic Mission HUD, Command Palette (Ctrl+K / Cmd+K, task creation, timer commands, search).
+- Preserve cloud/local bridge task metadata without changing NovaStudy Supabase tables.
+- Add responsive styles, PWA cache asset updates, VS Code webview resource mapping and dedicated regression tests.
+- Beta limitations and manual end-to-end QA are documented in `docs/smart-mission-control-v2.1.md`.
+
 ## v2.0.0-beta.2 — Futuristic Settings Control Center
 
 - Replace crowded Settings overlay with five clearly separated modules and a visual galaxy command rail.
