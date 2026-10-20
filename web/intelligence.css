@@ -70,3 +70,14 @@ body[data-theme="pearl-waves"] .intelligence-tools select{background:#fff;color:
  body.print-intelligence #intelligence-panel .intelligence-tile{break-inside:avoid}
  body.print-intelligence #intelligence-panel .intelligence-visuals{grid-template-columns:1fr 1fr}
 }
+
+
+/* Chronos Universal Widget Engine: concise entry point, zero extra startup scripts. */
+.widget-engine-launch{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:22px;margin:20px 0;border-radius:16px;border:1px solid rgba(126,182,244,.30);background:radial-gradient(ellipse at 91% -20%,rgba(101,79,211,.17),transparent 60%),var(--glass)}
+.widget-engine-launch>div{flex:1;min-width:min(100%,280px)}
+.widget-engine-launch h2{font-size:clamp(20px,2.5vw,27px);margin:9px 0;letter-spacing:-.5px}
+.widget-engine-launch h2 em{font-style:normal;color:var(--cyan)}
+.widget-engine-launch p{font-size:12px;color:var(--dim);line-height:1.65;max-width:620px;margin:0}
+.widget-engine-launch a{min-height:41px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap;font-size:11px;padding:11px 14px}
+.widget-engine-launch a:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+@media(max-width:580px){.widget-engine-launch{padding:15px}.widget-engine-launch>a{width:100%}}
