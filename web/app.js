@@ -715,6 +715,86 @@
     }
   }
 
+
+  function intelligenceClock(seconds) {
+    const whole=Math.max(0,Math.round((Number(seconds)||0)/60));
+    return whole>=60 ? Math.floor(whole/60)+'h '+(whole%60)+'m' : whole+'m';
+  }
+  function renderIntelligence() {
+    if(!$('intelligence-panel')?.open)return;
+    const windowDays=Number($('intelligence-range').value)===30?30:7;
+    const today=dateKey();
+    const report=intelligence.summary(state,today,windowDays);
+    $('intelligence-focus').textContent=intelligenceClock(report.focusSeconds);
+    $('intelligence-sessions').textContent=String(report.sessions);
+    $('intelligence-completed').textContent=String(report.completed);
+    $('intelligence-active').textContent=report.activeDays+'/'+report.days;
+    const series=intelligence.timeline(state,today,windowDays);
+    const ceiling=Math.max(1,...series.map(r=>r.focusSeconds));
+    const trend=$('intelligence-trend');trend.replaceChildren();
+    trend.setAttribute('aria-label','Daily completed Focus Session minutes, last '+windowDays+' days');
+    for(let i=0;i<series.length;i++){
+      const item=series[i];
+      const day=document.createElement('div');day.className='intelligence-trend-day';
+      const bar=document.createElement('div');bar.className='intelligence-trend-bar';
+      bar.style.height=(item.focusSeconds ? Math.max(4,Math.round(item.focusSeconds/ceiling*112)):3)+'px';
+      const desc=document.createElement('span');
+      desc.textContent=windowDays===7 ? item.day.slice(5) : (i%5===0 || i===series.length-1 ? item.day.slice(5):'');
+      day.title=item.day+' · '+intelligenceClock(item.focusSeconds)+' · '+item.sessions+' sessions';
+      day.append(bar,desc);trend.append(day);
+    }
+    const heatmap=intelligence.timeline(state,today,84), grid=$('intelligence-heatmap');
+    grid.replaceChildren();
+    for(const day of heatmap) {
+      const level=day.activity>=7?4:day.activity>=4?3:day.activity>=2?2:day.activity>=1?1:0;
+      const dot=document.createElement('button');dot.type='button';dot.dataset.level=String(level);
+      dot.title=day.day+' · '+day.sessions+' focus sessions · '+day.completed+' missions completed';
+      dot.setAttribute('aria-label',dot.title);
+      grid.append(dot);
+    }
+    const comp=$('intelligence-comparison-list');comp.replaceChildren();
+    const history=intelligence.comparisons(state.tasks,8);
+    if(!history.length) {
+      const note=document.createElement('p');note.className='intelligence-empty';
+      note.textContent='No mission-level Focus Session records yet. Select a mission, complete a Focus session and return here.';
+      comp.append(note);
+    } else for(const item of history) {
+      const container=document.createElement('div');container.className='intelligence-comparison-item';
+      const head=document.createElement('div');head.className='intelligence-comparison-head';
+      const title=document.createElement('span');title.textContent=item.text;
+      const stats=document.createElement('small');
+      stats.textContent=item.estimatedMins>0
+        ? item.trackedMins+'m tracked / '+item.estimatedMins+'m estimated'
+        : item.trackedMins+'m tracked / no estimate';
+      head.append(title,stats);
+      const track=document.createElement('div');track.className='intelligence-compare-bar';
+      const fill=document.createElement('span');
+      fill.style.width=Math.min(100,Math.max(2,item.ratio===null?100:item.ratio))+'%';
+      fill.title=item.ratio===null?'No estimate':item.ratio+'% of estimated duration';
+      track.append(fill);container.append(head,track);comp.append(container);
+    }
+  }
+  function exportIntelligenceCsv() {
+    if(inVSCode) return safeToast('CSV downloads are available in the browser/PWA edition.');
+    const csv=intelligence.csv(state,dateKey());
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+    link.href=url;link.download='masum-chronos-productivity-'+dateKey()+'.csv';
+    link.style.display='none';document.body.append(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    safeToast('Productivity CSV generated locally.');
+  }
+  function printIntelligenceReport() {
+    if(inVSCode) return safeToast('Open Chronos in a browser to Print / Save as PDF.');
+    if(typeof window.print!=='function')return safeToast('Browser printing is unavailable here.');
+    switchWorkspace('tasks');
+    $('intelligence-panel').open=true;renderIntelligence();
+    document.body.classList.add('print-intelligence');
+    // Native print dialog offers "Save as PDF" without an external PDF library.
+    window.print();
+  }
+
   function updateMissionHud(intelligence) {
     $('hud-ready').textContent = String(intelligence.ready).padStart(2,'0');
     $('hud-blocked').textContent = String(intelligence.blocked).padStart(2,'0');
@@ -1191,6 +1271,12 @@
       const minutes=Number($('calendar-duration').value);
       scheduleMission($('calendar-task').value,$('calendar-date').value,$('calendar-time').value,minutes);
     });
+    $('intelligence-panel').addEventListener('toggle',()=>{if($('intelligence-panel').open)renderIntelligence();});
+    $('intelligence-range').addEventListener('change',renderIntelligence);
+    $('intelligence-csv').addEventListener('click',exportIntelligenceCsv);
+    $('intelligence-pdf').addEventListener('click',printIntelligenceReport);
+    window.addEventListener('afterprint',()=>document.body.classList.remove('print-intelligence'));
+
 
     $('todo-form').addEventListener('submit', event=>{
       event.preventDefault();
