@@ -857,6 +857,7 @@
     $('custom-countdown-btn').addEventListener('click', () => $('custom-dialog').showModal());
     $('open-settings').addEventListener('click', openSettings);
     $('cc-close-settings').addEventListener('click', () => $('settings-dialog').close());
+    $('cc-dismiss-header').addEventListener('click', () => $('settings-dialog').close());
     const tabButtons = $('[data-settings-tab]');
     tabButtons.forEach((button, index) => {
       button.addEventListener('click', () => activateSettingsTab(button.dataset.settingsTab));
