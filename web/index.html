@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./sound-studio.css" />
   <link rel="stylesheet" href="./cloud-sync.css" />
+  <link rel="stylesheet" href="./control-center.css" />
   <script defer src="./sound-studio.js"></script>
   <script defer src="./cloud-sync.js"></script>
   <script defer src="./app.js"></script>
@@ -163,7 +164,77 @@
     <footer class="footer"><span>MASUM CHRONOS © 2026</span><span>STAY CURIOUS // STAY FOCUSED</span><span id="runtime-label">BROWSER EDITION</span></footer>
   </div>
   <aside id="ringtone-banner" class="ringtone-banner" role="status" aria-label="Timer finished, ringtone playing" hidden><span class="ringtone-pulse" aria-hidden="true">♪</span><span><strong id="ringtone-title">SOUND ALERT</strong><small id="ringtone-subtitle">LOOPING UNTIL YOU PRESS SILENCE</small></span><button id="silence-ringtone" type="button">SILENCE</button></aside>
-  <dialog id="settings-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">CONTROL CENTER / SETTINGS</div><h2>Fine-tune your focus</h2></div><button class="icon-button" value="cancel" aria-label="Close settings"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Focus duration (minutes)<input id="focus-mins" type="number" min="1" max="180" value="25" /></label><label>Short break (minutes)<input id="short-mins" type="number" min="1" max="60" value="5" /></label><label>Long break (minutes)<input id="long-mins" type="number" min="1" max="120" value="15" /></label><label>Long break after rounds<input id="long-every" type="number" min="2" max="12" value="4" /></label></div><div class="theme-select"><div class="section-eyebrow">INTERFACE THEME</div><div class="theme-buttons"><button type="button" data-theme-choice="nebula" class="theme-choice active"><span class="theme-dot nebula-dot"></span>NEBULA</button><button type="button" data-theme-choice="cyber" class="theme-choice"><span class="theme-dot cyber-dot"></span>CYBER</button><button type="button" data-theme-choice="aurora" class="theme-choice"><span class="theme-dot aurora-dot"></span>AURORA</button><button type="button" data-theme-choice="minimal" class="theme-choice"><span class="theme-dot minimal-dot"></span>MINIMAL</button><button type="button" data-theme-choice="pearl-waves" class="theme-choice" aria-label="Pearl Waves: white, pink and purple"><span class="theme-dot pearl-waves-dot"></span>PEARL WAVES</button></div></div><div class="setting-toggles"><label><input id="auto-break" type="checkbox" /><span>Automatically start breaks</span></label><label><input id="auto-focus" type="checkbox" /><span>Automatically start focus after breaks</span></label><label><input id="alert-sound" type="checkbox" checked /><span>Enable alert sounds (Smart Sound Studio)</span></label></div><section id="sound-studio-controls" class="sound-studio-controls" aria-label="Smart Sound Studio"></section><section class="chronos-cloud" aria-label="Chronos shared Supabase Cloud Sync">
+  <dialog id="settings-dialog" class="settings-dialog chronos-settings-dialog" aria-labelledby="settings-heading">
+  <form method="dialog" class="settings-window glass chronos-control-center">
+    <header class="cc-header">
+      <div class="cc-emblem" aria-hidden="true"><svg><use href="#i-settings" /></svg></div>
+      <div class="cc-heading">
+        <div class="section-eyebrow"><span class="blink-dot"></span> CHRONOS / CONTROL CENTER <span class="cc-build">V2.0</span></div>
+        <h2 id="settings-heading">Command <span>Settings.</span></h2>
+        <p>Personalize your workspace. Everything in its place.</p>
+      </div>
+      <button class="icon-button cc-close" type="submit" value="cancel" aria-label="Close settings"><svg><use href="#i-close" /></svg></button>
+    </header>
+    <div class="cc-layout">
+      <aside class="cc-sidebar" aria-label="Settings navigation">
+        <span class="cc-nav-caption">SYSTEM MODULES / 05</span>
+        <div class="cc-tablist" role="tablist" aria-label="Settings categories" aria-orientation="vertical">
+          <button type="button" class="cc-nav-item active" role="tab" id="settings-tab-focus" aria-controls="settings-panel-focus" aria-selected="true" tabindex="0" data-settings-tab="focus"><svg><use href="#i-clock" /></svg><span>Timer & Focus<small>SESSION PROTOCOLS</small></span><b aria-hidden="true">01</b></button>
+          <button type="button" class="cc-nav-item" role="tab" id="settings-tab-appearance" aria-controls="settings-panel-appearance" aria-selected="false" tabindex="-1" data-settings-tab="appearance"><svg><use href="#i-spark" /></svg><span>Appearance<small>GALAXY THEMES</small></span><b aria-hidden="true">02</b></button>
+          <button type="button" class="cc-nav-item" role="tab" id="settings-tab-sound" aria-controls="settings-panel-sound" aria-selected="false" tabindex="-1" data-settings-tab="sound"><svg><use href="#i-volume" /></svg><span>Sound Studio<small>ALERT ENGINE</small></span><b aria-hidden="true">03</b></button>
+          <button type="button" class="cc-nav-item" role="tab" id="settings-tab-cloud" aria-controls="settings-panel-cloud" aria-selected="false" tabindex="-1" data-settings-tab="cloud"><svg><use href="#i-chart" /></svg><span>Cloud & Backup<small>DATA COMMAND</small></span><b aria-hidden="true">04</b></button>
+          <button type="button" class="cc-nav-item" role="tab" id="settings-tab-link" aria-controls="settings-panel-link" aria-selected="false" tabindex="-1" data-settings-tab="link"><svg><use href="#i-settings" /></svg><span>Local Link<small>DEVICE PAIRING</small></span><b aria-hidden="true">05</b></button>
+        </div>
+        <div class="cc-nav-foot"><span class="cc-online-dot"></span> LOCAL-FIRST SYSTEM <small>SECURE • OFFLINE READY</small></div>
+      </aside>
+      <main class="cc-main">
+        <section class="cc-panel" id="settings-panel-focus" role="tabpanel" aria-labelledby="settings-tab-focus" data-settings-panel="focus">
+          <div class="cc-section-intro"><span class="section-eyebrow">01 / TEMPORAL ENGINE</span><h3>Focus Protocols</h3><p>Choose the session rhythm that works for you.</p></div>
+          <div class="cc-card">
+            <div class="cc-card-heading"><span class="cc-card-icon"><svg><use href="#i-hourglass" /></svg></span><div><strong>Session durations</strong><small>Minutes per focus and recovery cycle</small></div></div>
+            <div class="form-grid cc-field-grid">
+              <label>Focus Session <span class="cc-input-wrap"><input id="focus-mins" type="number" min="1" max="180" value="25" inputmode="numeric" /><span>MIN</span></span></label>
+              <label>Short Break <span class="cc-input-wrap"><input id="short-mins" type="number" min="1" max="60" value="5" inputmode="numeric" /><span>MIN</span></span></label>
+              <label>Long Break <span class="cc-input-wrap"><input id="long-mins" type="number" min="1" max="120" value="15" inputmode="numeric" /><span>MIN</span></span></label>
+              <label>Long Break Every <span class="cc-input-wrap"><input id="long-every" type="number" min="2" max="12" value="4" inputmode="numeric" /><span>ROUNDS</span></span></label>
+            </div>
+          </div>
+          <div class="cc-card">
+            <div class="cc-card-heading"><span class="cc-card-icon"><svg><use href="#i-next" /></svg></span><div><strong>Automation</strong><small>Decide what happens after each session</small></div></div>
+            <div class="setting-toggles cc-toggles">
+              <label><span><strong>Automatically start breaks</strong><small>Begin recovery after focus finishes</small></span><input id="auto-break" type="checkbox" /></label>
+              <label><span><strong>Automatically resume focus</strong><small>Start a new focus round after breaks</small></span><input id="auto-focus" type="checkbox" /></label>
+            </div>
+          </div>
+          <div class="cc-card">
+            <div class="cc-card-heading"><span class="cc-card-icon"><svg><use href="#i-bell" /></svg></span><div><strong>Notifications</strong><small>Desktop completion reminders</small></div></div>
+            <button id="notify-btn" type="button" class="outline-btn cc-notify"><svg><use href="#i-bell" /></svg> ENABLE NOTIFICATIONS</button>
+            <p id="notification-note" class="modal-note">Notifications are optional and require browser permission.</p>
+          </div>
+        </section>
+        <section class="cc-panel" id="settings-panel-appearance" role="tabpanel" aria-labelledby="settings-tab-appearance" data-settings-panel="appearance" hidden>
+          <div class="cc-section-intro"><span class="section-eyebrow">02 / VISUAL ENGINE</span><h3>Galaxy Appearance</h3><p>Five distinct visual identities for your command deck.</p></div>
+          <div class="cc-card"><div class="cc-card-heading"><span class="cc-card-icon"><svg><use href="#i-spark" /></svg></span><div><strong>Choose a theme</strong><small>Changes apply instantly and persist on this device</small></div></div>
+            <div class="theme-select cc-theme-select"><div class="theme-buttons cc-theme-grid">
+              <button type="button" data-theme-choice="nebula" class="theme-choice active"><span class="theme-dot nebula-dot"></span>NEBULA</button>
+              <button type="button" data-theme-choice="cyber" class="theme-choice"><span class="theme-dot cyber-dot"></span>CYBER</button>
+              <button type="button" data-theme-choice="aurora" class="theme-choice"><span class="theme-dot aurora-dot"></span>AURORA</button>
+              <button type="button" data-theme-choice="minimal" class="theme-choice"><span class="theme-dot minimal-dot"></span>MINIMAL</button>
+              <button type="button" data-theme-choice="pearl-waves" class="theme-choice" aria-label="Pearl Waves: white, pink and purple"><span class="theme-dot pearl-waves-dot"></span>PEARL WAVES</button>
+            </div></div>
+          </div>
+          <p class="cc-hint">Your theme is applied to the dashboard, widgets, overlays and Control Center. Custom sound alerts can be configured separately.</p>
+        </section>
+        <section class="cc-panel" id="settings-panel-sound" role="tabpanel" aria-labelledby="settings-tab-sound" data-settings-panel="sound" hidden>
+          <div class="cc-section-intro"><span class="section-eyebrow">03 / SONIC ENGINE</span><h3>Smart Sound Studio</h3><p>One place for event alerts, custom sounds and volume.</p></div>
+          <div class="cc-card">
+            <div class="setting-toggles cc-toggles"><label><span><strong>Enable alert sounds</strong><small>Master switch for timer and task notifications</small></span><input id="alert-sound" type="checkbox" checked /></label></div>
+          </div>
+          <section id="sound-studio-controls" class="sound-studio-controls" aria-label="Smart Sound Studio"></section>
+        </section>
+        <section class="cc-panel" id="settings-panel-cloud" role="tabpanel" aria-labelledby="settings-tab-cloud" data-settings-panel="cloud" hidden>
+          <div class="cc-section-intro"><span class="section-eyebrow">04 / CLOUD INFRASTRUCTURE</span><h3>Cloud Command</h3><p>Connect your account, sync missions and manage backups.</p></div>
+          <section class="chronos-cloud" aria-label="Chronos shared Supabase Cloud Sync">
   <div class="cloud-summary"><div><span class="section-eyebrow">CHRONOS CLOUD / V2.0</span><h3>Cloud Sync &amp; Backup</h3></div><span id="cloud-account" class="cloud-account">NOT SIGNED IN</span></div>
   <p>Sync Chronos missions and settings across browsers with Google Login. Your missions work offline; cloud syncing resumes when online. The Supabase backend is shared with NovaStudy, but data tables are separate.</p>
   <details><summary>Project connection (advanced)</summary>
@@ -182,7 +253,11 @@
   </div>
   <div id="cloud-status" class="cloud-status" role="status" aria-live="polite">LOCAL MODE</div>
   <p class="cloud-note">Cloud sync is optional. Custom uploaded ringtone files remain device-local; selecting a local-only sound on another device requires uploading it there. Restore needs two clicks to confirm and will replace saved mission data.</p>
-</section><section class="local-sync-card" aria-label="Local Chrome and VS Code mission sync">
+</section>
+        </section>
+        <section class="cc-panel" id="settings-panel-link" role="tabpanel" aria-labelledby="settings-tab-link" data-settings-panel="link" hidden>
+          <div class="cc-section-intro"><span class="section-eyebrow">05 / DEVICE CONNECTIONS</span><h3>Local Device Link</h3><p>Pair Chronos in Chrome and VS Code on this computer.</p></div>
+          <section class="local-sync-card" aria-label="Local Chrome and VS Code mission sync">
     <div class="section-eyebrow">LOCAL LINK / V1.2</div>
     <h3>Chrome ↔ VS Code Task Sync</h3>
     <p>Pair these apps on the same laptop. No cloud, login, or internet needed. Tasks sync while VS Code is running with the bridge enabled; timer stats stay local.</p>
@@ -193,8 +268,17 @@
     </div>
     <span class="local-sync-status" id="sync-status" role="status">NOT CONNECTED</span>
   </section>
-  <div class="modal-actions"><button id="notify-btn" type="button" class="outline-btn"><svg><use href="#i-bell" /></svg> ENABLE NOTIFICATIONS</button><button id="save-settings" type="button" class="solid-btn">SAVE CHANGES</button></div><p id="notification-note" class="modal-note">Notifications are optional and require browser permission.</p></form></dialog>
-  <dialog id="custom-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">CUSTOM COUNTDOWN</div><h2>Set the deadline</h2></div><button class="icon-button" value="cancel" aria-label="Close custom timer"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Hours<input id="custom-hours" type="number" min="0" max="99" value="0" /></label><label>Minutes<input id="custom-minutes" type="number" min="0" max="59" value="15" /></label><label>Seconds<input id="custom-seconds" type="number" min="0" max="59" value="0" /></label></div><div class="modal-actions"><button id="save-custom" type="button" class="solid-btn">SET COUNTDOWN</button></div></form></dialog>
+  
+        </section>
+      </main>
+    </div>
+    <footer class="cc-footer">
+      <span class="cc-save-hint"><span class="cc-online-dot"></span> CHRONOS CONTROL SYSTEM <small>Preferences saved on this device</small></span>
+      <div class="cc-footer-actions"><button type="button" id="cc-close-settings" class="outline-btn">CLOSE</button><button id="save-settings" type="button" class="solid-btn">SAVE CHANGES <span aria-hidden="true">↗</span></button></div>
+    </footer>
+  </form>
+</dialog>
+<dialog id="custom-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">CUSTOM COUNTDOWN</div><h2>Set the deadline</h2></div><button class="icon-button" value="cancel" aria-label="Close custom timer"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Hours<input id="custom-hours" type="number" min="0" max="99" value="0" /></label><label>Minutes<input id="custom-minutes" type="number" min="0" max="59" value="15" /></label><label>Seconds<input id="custom-seconds" type="number" min="0" max="59" value="0" /></label></div><div class="modal-actions"><button id="save-custom" type="button" class="solid-btn">SET COUNTDOWN</button></div></form></dialog>
 
   <dialog id="edit-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">TASK COMMAND CENTER / EDIT</div><h2>Modify your mission</h2></div><button class="icon-button" value="cancel" aria-label="Close task editor"><svg><use href="#i-close" /></svg></button></div><div class="task-editor"><label>MISSION TITLE<input id="edit-task-text" maxlength="120" required /></label><div class="form-grid"><label>PRIORITY<select id="edit-task-priority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label><label>CATEGORY<select id="edit-task-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label><label>DUE DATE<input id="edit-task-due" type="date"/></label></div></div><div class="modal-actions"><button type="button" id="save-edited-task" class="solid-btn">SAVE MISSION</button></div></form></dialog>
   <dialog id="clear-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass small-modal"><div class="modal-head"><div><div class="section-eyebrow">MISSION CONTROL / CLEANUP</div><h2>Clear completed missions?</h2></div><button class="icon-button" value="cancel" aria-label="Cancel clear completed"><svg><use href="#i-close" /></svg></button></div><p id="clear-task-warning" class="modal-note">Completed missions will be permanently removed from this device.</p><div class="modal-actions" style="margin-top:22px"><button class="outline-btn" value="cancel">CANCEL</button><button id="confirm-clear-completed" type="button" class="solid-btn">DELETE COMPLETED</button></div></form></dialog>
