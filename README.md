@@ -4,9 +4,21 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.0.0-beta.1 | Offline-first productivity + opt-in shared Supabase Cloud by Masum Billah.**
+**v2.0.0-beta.2 | Futuristic Control Center, Offline-First Productivity and Cloud Sync by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.0 Beta 2 — Futuristic Settings Control Center
+
+The crowded one-page Settings dialog has been redesigned into a sleek, responsive five-module command deck:
+
+- **Timer & Focus:** session durations, automation, notifications.
+- **Appearance:** Nebula, Cyber, Aurora, Minimal and Pearl Waves themes.
+- **Sound Studio:** event ringtones, custom uploads, preview, volume and manual/10-second auto-stop.
+- **Cloud & Backup:** Google Login, sync, backup, restore and project configuration.
+- **Local Link:** Chrome ↔ VS Code pairing and connection status.
+
+Only the selected module is shown. Desktop uses a glowing left navigation rail; mobile uses scrollable horizontal tabs. Arrow keys, Home and End work with the tab list. Save/CLOSE stays visible. All existing control IDs, local data, and Cloud/Local Sync handlers are preserved. Theme and individual sound choices may save immediately; session settings use the Save Changes button. Version `v2.0.0-beta.2` migrates both the previous `v2.0.0-beta.1` and older app states.
 
 ## v2.0 Cloud Sync & Multi-Device Productivity (beta)
 
