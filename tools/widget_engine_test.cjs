@@ -103,7 +103,7 @@ const storage={
  setItem(k,v){if(k==='masum-chronos-v1')throw Error('Unauthorized main state write');mainStorage[k]=v;}
 };
 let cb=null;
-const w={location:{search:'?type=tasks&source=host&hostOrigin=https%3A%2F%2Fhost.example'},parent:{},
+const w={ChronosWidgetCore:core,location:{search:'?type=tasks&source=host&hostOrigin=https%3A%2F%2Fhost.example'},parent:{},
  addEventListener(name,fn){if(name==='message')cb=fn;},
  crypto:{randomUUID:()=> 'new-id'}};
 vm.runInNewContext(widgetCode,{window:w,document:{body:{dataset:{}},
