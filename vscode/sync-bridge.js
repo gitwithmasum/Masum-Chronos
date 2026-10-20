@@ -36,7 +36,10 @@ function cleanTask(task) {
     reminderTime:typeof task.reminderTime==='string'&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(task.reminderTime)?task.reminderTime:'',
     estimateMins:Number.isInteger(task.estimateMins)&&task.estimateMins>=0&&task.estimateMins<=480?task.estimateMins:0,
     seriesId:typeof task.seriesId==='string'&&task.seriesId.length<=100?task.seriesId:'',
-    recurrenceAnchor:typeof task.recurrenceAnchor==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.recurrenceAnchor)?task.recurrenceAnchor:''
+    recurrenceAnchor:typeof task.recurrenceAnchor==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.recurrenceAnchor)?task.recurrenceAnchor:'',
+    planDate:typeof task.planDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.planDate)&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(task.planStart)?task.planDate:'',
+    planStart:typeof task.planDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.planDate)&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(task.planStart)?task.planStart:'',
+    planDurationMins:Number.isInteger(task.planDurationMins)&&task.planDurationMins>=5&&task.planDurationMins<=480?task.planDurationMins:0
   };
 }
 function cleanDeleted(value) {
