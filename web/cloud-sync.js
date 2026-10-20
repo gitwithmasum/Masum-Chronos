@@ -16,8 +16,18 @@
   const safePut = (key, value) => { try { localStorage.setItem(key, JSON.stringify(value)); } catch {} };
   const keyFor = (config) => 'chronos-cloud-session:' + new URL(config.url).host;
   const isUrl = url => /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(url || '');
-  const isPublicKey = key => typeof key === 'string' &&
-    (/^sb_publishable_[A-Za-z0-9_-]+$/.test(key) || (/^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$/.test(key) && !key.includes('service_role')));
+  function isPublicKey(key) {
+    if (typeof key !== 'string') return false;
+    if (/^sb_publishable_[A-Za-z0-9_-]+$/.test(key)) return true;
+    // Legacy Supabase JWT anon keys are still allowed, but a role claim must
+    // actually be anon. "service_role" isn't plaintext inside JWT base64.
+    if (!/^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$/.test(key)) return false;
+    try {
+      const payload = key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = JSON.parse(atob(payload.padEnd(Math.ceil(payload.length / 4) * 4, '=')));
+      return decoded.role === 'anon';
+    } catch { return false; }
+  }
   const defaultStatus = 'LOCAL MODE — No cloud connection configured.';
   function headers(config, token) {
     return { apikey: config.key, Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' };
