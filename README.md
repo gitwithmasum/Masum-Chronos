@@ -4,9 +4,15 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.1.0-beta.1 | Smart Mission Control, Futuristic HUD and Local-First Productivity by Masum Billah.**
+**v2.1.0-beta.2 | Mission Control Reliability, Secure Cloud Configuration and DST-Safe Recurrence.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.1.0-beta.2 — Final QA & Reliability Update
+
+This patch preserves all prior beta states and fixes **month-end recurrence drift**, **daylight-saving date offsets**, and **recurrence anchor loss in VS Code Local Link**. The original series date persists through Cloud JSONB and the browser-to-extension bridge. Cloud configuration rejects Supabase service-role JWTs and unknown legacy JWT roles; only public publishable keys or legacy `anon` keys are accepted.
+
+CI regression coverage includes calendar transitions in `America/New_York`, cross-device duplicate recurrence IDs, Cloud key rejection, Settings click behavior, timer command dispatch, and VSIX package integrity. These are automated checks, not a substitute for real Android PWA notification, Chrome/VS Code integration, browser rendering, and Google OAuth acceptance. Closed-app reminders still require future server push scheduling.
 
 ## v2.1 — Smart Mission Control (beta)
 
