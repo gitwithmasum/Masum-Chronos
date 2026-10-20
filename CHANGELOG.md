@@ -1,3 +1,12 @@
+## v2.3.0-beta.1 — Galaxy Productivity Intelligence
+
+- Added a collapsible futuristic Productivity Intelligence dashboard with 7/30-day Focus trend, 84-day Mission activity heatmap, completed Focus Session count, completed Mission count and active-day metrics.
+- Added mission-level `focusSeconds` attribution for completed Focus sessions associated with the selected mission; legacy tasks without tracked history are excluded from actual-vs-estimated comparisons.
+- Added local UTF-8 CSV export of daily focus/activity and retained missions with spreadsheet formula-injection prevention.
+- Added print-friendly reporting using the browser Print / Save as PDF workflow (browser/PWA only).
+- Preserved existing v1–v2.2 task data, Supabase JSONB Cloud Sync, authenticated VS Code Local Link and recurring task history; reset focus attribution on newly generated recurring occurrences.
+- Added dedicated automated analytics correctness, CSV security, dashboard rendering and packaging regression tests. Real-device PDF print and cloud login integration still require manual acceptance.
+
 ## v2.2.0-beta.1 — Smart Calendar & Advanced Dependencies
 
 - Introduced 7-day weekly calendar with HTML5 draggable time blocks and a keyboard/mobile scheduling form.
