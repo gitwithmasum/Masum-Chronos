@@ -27,6 +27,8 @@ jobs:
         run: node tools/pages_smoke.cjs
       - name: Smart Sound Studio manual and auto-stop tests
         run: node tools/ringtone_test.cjs
+      - name: Smart Calendar and multi-dependency regression
+        run: node tools/calendar_command_test.cjs
       - name: Smart Mission Engine regression
         run: node tools/mission_engine_test.cjs
       - name: Mission date regression across daylight saving timezone
@@ -46,12 +48,12 @@ jobs:
       - name: Official Marketplace VSIX package
         run: |
           mkdir -p dist
-          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-2.1.0-beta.2.vsix
+          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-2.2.0-beta.1.vsix
       - name: Verify Marketplace VSIX content
-        run: python tools/marketplace_check.py dist/masum-chronos-2.1.0-beta.2.vsix
+        run: python tools/marketplace_check.py dist/masum-chronos-2.2.0-beta.1.vsix
       - name: Upload marketplace release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: masum-chronos-marketplace-v2.1.0-beta.2
-          path: dist/masum-chronos-2.1.0-beta.2.vsix
+          name: masum-chronos-marketplace-v2.2.0-beta.1
+          path: dist/masum-chronos-2.2.0-beta.1.vsix
           if-no-files-found: error
