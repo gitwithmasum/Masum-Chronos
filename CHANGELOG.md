@@ -1,3 +1,12 @@
+## v2.2.0-beta.1 — Smart Calendar & Advanced Dependencies
+
+- Introduced 7-day weekly calendar with HTML5 draggable time blocks and a keyboard/mobile scheduling form.
+- Added plan date, start and duration metadata (5–480 min), conflict detection for overlapping blocks, after-midnight slots and scheduling beyond mission deadlines.
+- Replaced one-prerequisite selectors with up-to-eight prerequisite checkboxes and cycle protection. Added dependency network showing task readiness and prerequisite relationships.
+- Calendar tasks persist across localStorage, Supabase JSONB missions and VS Code local bridge; editing a mission preserves its scheduled block. Recurring mission instances start unscheduled.
+- Added calendar/dependency shortcuts to Command Palette, responsive themed styling, PWA cache updates, asset packaging and automated tests.
+- See `docs/smart-calendar-v2.2.md` for user acceptance tests and limitations.
+
 ## v2.1.0-beta.2 — Final QA & Reliability
 
 - Fix calendar recurrences: monthly 31st stays anchored across short months and daily/weekly schedules use DST-safe date-only arithmetic.
