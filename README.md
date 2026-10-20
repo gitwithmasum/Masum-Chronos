@@ -4,9 +4,31 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.3.0-beta.1 | Galaxy Productivity Intelligence, Focus Heatmap and Local Reporting.**
+**v2.4.0-beta.1 | Universal Galaxy Productivity Widgets & Integration Studio.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.4 — Universal Productivity Widget Engine (beta)
+
+Chronos now offers four reusable tools for other apps: **Focus Timer**, **Countdown**, **Mini To-Do Board**, and **Productivity Stats**. A dedicated **[Universal Widget Studio](https://gitwithmasum.github.io/Masum-Chronos/web/widgets/studio.html)** previews real widgets in Compact, Regular and Wide layouts using Nebula, Cyber, Aurora, Black & Gold or Pearl Waves color themes.
+
+Embedding requires a container and one lightweight [loader](web/widgets/chronos-widgets.js):
+
+```html
+<div id="chronos-widget"></div>
+<script src="https://gitwithmasum.github.io/Masum-Chronos/web/widgets/chronos-widgets.js"></script>
+<script>
+  ChronosWidgets.mount("#chronos-widget", {
+    type: "focus", theme: "nebula", size: "regular", minutes: 25
+  });
+</script>
+```
+
+The widget's storage is separate from the main Chronos app. **Host-provided tasks/stats are opt-in and read-only**, supplied by the hosting website via `source:'host'` with `data` or `update(data)`. No NovaStudy account, data, or database is read without explicit host integration. Third-party iframe storage may be partitioned or blocked by the browser; cloud sync between independent widgets is not part of this beta.
+
+Four widget runtime modes, strict configuration validation, trusted-parent data update checks, standalone 10-second auto-stop timer chime, host integration snippets, offline PWA assets and automated security regressions are included. **NovaStudy's repository is not modified automatically**—the provided embed code is integration-ready for review.
+
+[Full developer SDK guide and NovaStudy integration checklist](docs/universal-widget-engine-v2.4.md).
 
 ## v2.3 — Galaxy Productivity Intelligence (beta)
 
