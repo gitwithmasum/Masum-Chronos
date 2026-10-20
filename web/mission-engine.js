@@ -99,7 +99,8 @@
     const id = seriesId+'~'+dueDate.replace(/-/g,'');
     if (allTasks.some(t=>t.id===id)) return null;
     return { ...task, id, seriesId, recurrenceAnchor:anchor, dueDate, done:false, completedAt:null,
-      createdAt:now, modifiedAt:now, dependsOn:[], reminderTime:task.reminderTime || '' };
+      createdAt:now, modifiedAt:now, dependsOn:[], reminderTime:task.reminderTime || '',
+      planDate:'', planStart:'', planDurationMins:0 };
   }
   function reminderCandidates(tasks, today, timeHHMM, receipts = {}) {
     return tasks.filter(t=>!t.done && validDate(t.dueDate) && t.dueDate<=today &&
