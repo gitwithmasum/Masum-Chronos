@@ -12,7 +12,7 @@ OUTPUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / f"{DATA['name']}-{VE
 FILES = [
     'package.json', 'README.md', 'CHANGELOG.md', 'LICENSE', 'SUPPORT.md',
     'vscode/extension.js', 'vscode/sync-bridge.js',
-    'web/index.html', 'web/styles.css', 'web/app.js', 'web/sound-studio.js', 'web/sound-studio.css', 'web/icon-192.png'
+    'web/index.html', 'web/styles.css', 'web/app.js', 'web/sound-studio.js', 'web/sound-studio.css', 'web/cloud-sync.js', 'web/cloud-sync.css', 'web/icon-192.png'
 ]
 PACKAGED_NAME = {'README.md':'readme.md', 'CHANGELOG.md':'changelog.md', 'LICENSE':'LICENSE.txt'}
 CONTENT_TYPES = '''<?xml version="1.0" encoding="utf-8"?>
