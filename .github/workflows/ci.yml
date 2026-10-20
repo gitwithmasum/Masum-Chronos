@@ -29,6 +29,8 @@ jobs:
         run: node tools/ringtone_test.cjs
       - name: Smart Mission Engine regression
         run: node tools/mission_engine_test.cjs
+      - name: Mission date regression across daylight saving timezone
+        run: TZ=America/New_York node tools/mission_engine_test.cjs
       - name: Control Center layout and navigation regression
         run: node tools/control_center_test.cjs
       - name: Cloud Sync integration regression
