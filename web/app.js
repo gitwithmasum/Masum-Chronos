@@ -1,7 +1,7 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '1.2.3';
+  const VERSION = '1.3.0';
   const STORAGE_KEY = 'masum-chronos-v1';
   const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
   const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
@@ -13,9 +13,8 @@
   const inVSCode = Boolean(vscode);
   let audioCtx;
   let soundNodes = [];
-  let ringtoneVoices = [];
-  let ringtoneTimeout = null;
-  const RINGTONE_SECONDS = 10;
+  let soundInteractionReady = false;
+  let reminderCheckMinute = -1;
   let toastTimeout;
   let lastRenderedSecond = -1;
   let lastTitle = '';
@@ -61,7 +60,7 @@
     };
   }
   function isOverdue(task) { return !task.done && Boolean(task.dueDate) && task.dueDate < dateKey(); }
-  function completeTask(task) { task.done = !task.done; task.completedAt = task.done ? Date.now() : null; task.modifiedAt = Date.now(); persist(); renderTasks(); }
+  function completeTask(task) { task.done = !task.done; task.completedAt = task.done ? Date.now() : null; task.modifiedAt = Date.now(); persist(); renderTasks(); if (task.done) void soundStudio.play('taskComplete'); }
   function addTask(text, options = {}) {
     const clean = text.trim().slice(0, 120);
     if (!clean) return safeToast('Enter a mission title first.');
@@ -96,7 +95,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -124,6 +123,9 @@
     return s;
   }
   let state = normalize(vscode?.getState?.() || loadLocal());
+  const soundStudio = window.createChronosSoundStudio({
+    getSettings: () => state.settings, persist: () => persist(), toast: (message) => safeToast(message)
+  });
   function sendHost(type, extra = {}) {
     if (vscode) vscode.postMessage({ type, ...extra });
   }
@@ -263,54 +265,17 @@
     persist(); render();
   }
   function unlockAudio() {
+    soundInteractionReady = true;
+    soundStudio.unlock();
     if (!audioCtx) {
       const Audio = window.AudioContext || window.webkitAudioContext;
       if (Audio) audioCtx = new Audio();
     }
     if (audioCtx?.state === 'suspended') audioCtx.resume().catch(() => {});
   }
-  // AudioContext notes are scheduled on the audio clock, not JS intervals.
-  // They therefore stop at exactly 10 seconds even in throttled background tabs.
-  function stopCompletionRingtone() {
-    if (ringtoneTimeout !== null) { clearTimeout(ringtoneTimeout); ringtoneTimeout = null; }
-    for (const voice of ringtoneVoices) {
-      try { voice.stop(); } catch {}
-      try { voice.disconnect(); } catch {}
-    }
-    ringtoneVoices = [];
-    const banner = $('ringtone-banner');
-    if (banner) banner.hidden = true;
-  }
-  function playCompletionRingtone() {
-    stopCompletionRingtone();
-    if (!state.settings.alertSound) return;
-    unlockAudio();
-    if (!audioCtx) return;
-    const start = audioCtx.currentTime + .015;
-    const finish = start + RINGTONE_SECONDS;
-    const loudness = .10 + .13 * Math.max(0, Math.min(100, state.settings.volume)) / 100;
-    // A melodic four-note chime, repeating once per second for 10 seconds.
-    const notes = [659.25, 783.99, 987.77, 783.99];
-    for (let second = 0; second < RINGTONE_SECONDS; second++) {
-      for (let j = 0; j < notes.length; j++) {
-        const when = start + second + j * .24;
-        const until = Math.min(finish, when + .28);
-        const voice = audioCtx.createOscillator();
-        const envelope = audioCtx.createGain();
-        voice.type = 'sine'; voice.frequency.setValueAtTime(notes[j], when);
-        envelope.gain.setValueAtTime(0.0001, when);
-        envelope.gain.linearRampToValueAtTime(loudness, when + .018);
-        envelope.gain.exponentialRampToValueAtTime(0.0001, until);
-        voice.connect(envelope).connect(audioCtx.destination);
-        voice.start(when); voice.stop(until);
-        ringtoneVoices.push(voice);
-      }
-    }
-    const banner = $('ringtone-banner');
-    if (banner) banner.hidden = false;
-    // Only UI cleanup uses a JS timer; the actual sound ends on the audio clock.
-    ringtoneTimeout = setTimeout(stopCompletionRingtone, RINGTONE_SECONDS * 1000 + 100);
-  }
+  // Manual loop is the default; the user may select optional 10-second auto stop.
+  function stopCompletionRingtone() { soundStudio.stop(); }
+  function playCompletionRingtone(eventName = 'countdown') { void soundStudio.play(eventName); }
   function notify(message) {
     if (!inVSCode && 'Notification' in window && Notification.permission === 'granted') {
       try { new Notification('MASUM CHRONOS', { body: message, icon: './icon-192.png', tag: 'chronos-finish' }); } catch {}
@@ -322,6 +287,7 @@
     const completedDeadline = t.endsAt;
     t.endsAt = null; t.remainingMs = 0;
     let message = 'Countdown complete. Mission accomplished.';
+    const soundEvent = mode === 'countdown' ? 'countdown' : state.focus.phase === 'focus' ? 'focus' : 'break';
     let autoStart = false;
     if (mode === 'focus') {
       const phase = state.focus.phase;
@@ -344,7 +310,7 @@
         autoStart = state.settings.autoFocus;
       }
     }
-    if (Date.now() - completedDeadline < 30_000) playCompletionRingtone();
+    if (Date.now() - completedDeadline < 30_000) playCompletionRingtone(soundEvent);
     notify(message); safeToast(message);
     sendHost('finished', { deadline: completedDeadline, message });
     if (autoStart) state.timers.focus.endsAt = Date.now() + state.timers.focus.remainingMs;
@@ -353,7 +319,7 @@
   function toggleTimer() {
     unlockAudio();
     if (state.mode === 'stopwatch') {
-      if (state.stopwatch.startedAt) pauseActive();
+      if (state.stopwatch.startedAt) { pauseActive(); void soundStudio.play('stopwatchStop'); }
       else state.stopwatch.startedAt = Date.now();
     } else {
       const t = state.timers[state.mode];
@@ -379,7 +345,7 @@
     const previous = state.stopwatch.laps[0]?.total || 0;
     state.stopwatch.laps.unshift({ total, split: total - previous });
     state.stopwatch.laps = state.stopwatch.laps.slice(0, 50);
-    persist(); renderLaps();
+    persist(); renderLaps(); void soundStudio.play('stopwatchLap');
   }
   function doNext() {
     if (state.mode === 'focus') {
@@ -615,8 +581,37 @@
     $('volume').value = state.settings.volume;
     $('volume-value').textContent = `${state.settings.volume}%`;
   }
+  // Due dates are date-only, so a task is announced once per calendar day while
+  // the app is open and the user has interacted with audio. No background alarm.
+  function checkTaskReminders() {
+    if (!soundInteractionReady || !state.settings.alertSound) return;
+    const minute = Math.floor(Date.now() / 60000);
+    if (minute === reminderCheckMinute) return;
+    reminderCheckMinute = minute;
+    const today = dateKey();
+    const key = 'masum-chronos.task-alerts.' + today;
+    let already = {};
+    try { already = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
+    const candidates = state.tasks.filter(t => !t.done && t.dueDate && t.dueDate <= today && !already[t.id]);
+    if (!candidates.length) return;
+    for (const task of candidates) already[task.id] = true;
+    try {
+      localStorage.setItem(key, JSON.stringify(already));
+      // Keep reminder receipts bounded, so browser storage does not grow forever.
+      const lastKey = 'masum-chronos.task-alerts.last-key';
+      const oldKey = localStorage.getItem(lastKey);
+      if (oldKey && oldKey !== key) localStorage.removeItem(oldKey);
+      localStorage.setItem(lastKey, key);
+    } catch {}
+    const overdue = candidates.some(t => t.dueDate < today);
+    const kind = overdue ? 'overdue' : 'taskReminder';
+    void soundStudio.play(kind);
+    const message = overdue ? `${candidates.length} mission(s) need attention.` : `${candidates.length} mission(s) due today.`;
+    notify(message); safeToast(message);
+  }
   function tick() {
     for (const mode of ['focus', 'countdown']) completeTimer(mode);
+    checkTaskReminders();
     if (state.mode === 'stopwatch' || isRunning()) updateDisplay();
     const time = new Date();
     const formatted = time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
@@ -640,6 +635,7 @@
     $('notify-btn').disabled = inVSCode || !('Notification' in window) || Notification.permission === 'granted';
     $('notify-btn').textContent = inVSCode ? 'VS CODE ALERTS ENABLED' : ('Notification' in window && Notification.permission === 'granted') ? 'NOTIFICATIONS ENABLED' : 'ENABLE NOTIFICATIONS';
     $$('[data-theme-choice]').forEach((b) => b.classList.toggle('active', b.dataset.themeChoice === state.theme));
+    soundStudio.render();
     $('settings-dialog').showModal();
   }
   function saveSettings() {
@@ -807,8 +803,8 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
-        state = normalize(event.data.state); persist(); render(); tick();
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+        state = normalize(event.data.state); persist(); render(); soundStudio.render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);
       } else if (event.data?.type === 'sync-status') {
