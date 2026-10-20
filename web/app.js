@@ -1,7 +1,7 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '1.3.0';
+  const VERSION = '2.0.0-beta.1';
   const STORAGE_KEY = 'masum-chronos-v1';
   const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
   const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
@@ -95,7 +95,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -123,8 +123,18 @@
     return s;
   }
   let state = normalize(vscode?.getState?.() || loadLocal());
+  let cloud = null;
   const soundStudio = window.createChronosSoundStudio({
-    getSettings: () => state.settings, persist: () => persist(), toast: (message) => safeToast(message)
+    getSettings: () => state.settings, persist: () => { persist(); cloud?.preferencesChanged(); },
+    toast: (message) => safeToast(message)
+  });
+  if (window.createChronosCloud) cloud = window.createChronosCloud({
+    getSnapshot: () => state,
+    mergeMissions: remote => applySyncedMissions(remote),
+    applyPreferences: payload => applyCloudPreferences(payload),
+    restoreSnapshot: (backup, remote) => restoreCloudSnapshot(backup, remote),
+    toast: message => safeToast(message),
+    inVSCode
   });
   function sendHost(type, extra = {}) {
     if (vscode) vscode.postMessage({ type, ...extra });
@@ -136,6 +146,58 @@
       vscode.setState(state);
       sendHost('snapshot', { state });
     }
+  }
+
+  function applyCloudPreferences(value) {
+    if (!value || typeof value !== 'object') return;
+    if (['nebula','cyber','aurora','minimal','pearl-waves'].includes(value.theme)) state.theme = value.theme;
+    const src = value.settings;
+    if (src && typeof src === 'object' && !Array.isArray(src)) {
+      for (const key of ['autoBreak','autoFocus','alertSound'])
+        if (typeof src[key] === 'boolean') state.settings[key] = src[key];
+      if (Number.isFinite(src.volume) && src.volume >= 0 && src.volume <= 100) state.settings.volume = src.volume;
+      if (['off','space','rain'].includes(src.soundscape)) state.settings.soundscape = src.soundscape;
+      if (src.soundStudio && typeof src.soundStudio === 'object') {
+        const studio = src.soundStudio;
+        const existing = state.settings.soundStudio || {};
+        if (['manual','auto10'].includes(studio.stopMode)) existing.stopMode = studio.stopMode;
+        if (Number.isFinite(studio.volume) && studio.volume >= 0 && studio.volume <= 100) existing.volume = studio.volume;
+        if (studio.selections && typeof studio.selections === 'object') {
+          existing.selections = Object.fromEntries(Object.entries(studio.selections).filter(([k,v]) => /^[a-zA-Z]+$/.test(k) && typeof v === 'string' && v.length <= 130));
+        }
+        state.settings.soundStudio = existing;
+      }
+    }
+    if (value.focus && typeof value.focus === 'object') {
+      for (const [k,lo,hi] of [['focusMins',1,180],['shortMins',1,60],['longMins',1,120],['longEvery',2,12]])
+        if (Number.isInteger(value.focus[k]) && value.focus[k] >= lo && value.focus[k] <= hi) state.focus[k] = value.focus[k];
+      if (!state.timers.focus.endsAt) {
+        state.timers.focus.durationMs = phaseDuration();
+        state.timers.focus.remainingMs = phaseDuration();
+      }
+    }
+    if (!state.settings.alertSound) stopCompletionRingtone();
+    if (state.settings.soundscape === 'off') stopSound();
+    persist(); render(); soundStudio.render();
+  }
+  function restoreCloudSnapshot(backup, remoteRows = []) {
+    if (!backup || !Array.isArray(backup.tasks)) throw Error('Invalid cloud backup.');
+    try { localStorage.setItem('masum-chronos-pre-restore-safety', JSON.stringify(state)); } catch {}
+    const restored = normalize({...backup, version: VERSION});
+    const newest = Math.max(Date.now(), ...remoteRows.slice(0,2500).map(row=>Number(row.modified_at)||0)) + 1000;
+    const tasks = restored.tasks.map((t,i)=>({...t,modifiedAt:newest+i}));
+    const kept = new Set(tasks.map(t=>t.id));
+    const deleted = {...restored.deletedTasks};
+    for(const row of remoteRows) if(typeof row.id==='string' && !kept.has(row.id)) deleted[row.id] = newest+tasks.length+1;
+    for(const id of kept) delete deleted[id];
+    state.tasks = tasks;
+    state.deletedTasks = Object.fromEntries(Object.entries(deleted).sort((a,b)=>b[1]-a[1]).slice(0,900));
+    state.activeTaskId = null;
+    state.settings = restored.settings;
+    state.theme = restored.theme;
+    state.focus = {...state.focus, ...restored.focus};
+    state.stats = restored.stats;
+    persist(); render(); soundStudio.render();
   }
   // Missions sync; running timers and statistics remain device-local.
   function applySyncedMissions(remote) {
@@ -656,7 +718,7 @@
       const duration = phaseDuration();
       state.timers.focus.durationMs = duration; state.timers.focus.remainingMs = duration;
     }
-    persist(); render(); $('settings-dialog').close(); safeToast('Protocol settings updated.');
+    persist(); cloud?.preferencesChanged(); render(); $('settings-dialog').close(); safeToast('Protocol settings updated.');
   }
   async function requestNotifications() {
     if (inVSCode || !('Notification' in window)) return;
@@ -776,7 +838,7 @@
       $$('[data-theme-choice]').forEach((item) => item.classList.toggle('active', item === b));
       document.body.dataset.theme = state.theme;
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', state.theme === 'pearl-waves' ? '#fff9fd' : '#080e22');
-      persist();
+      persist(); cloud?.preferencesChanged();
     }));
     $('save-custom').addEventListener('click', () => {
       const vals = [boundedInt($('custom-hours').value, 0, 99, -1), boundedInt($('custom-minutes').value, 0, 59, -1), boundedInt($('custom-seconds').value, 0, 59, -1)];
@@ -790,14 +852,14 @@
     });
     $('soundscape').addEventListener('change', (e) => {
       state.settings.soundscape = e.target.value;
-      playSoundscape(); persist();
+      playSoundscape(); persist(); cloud?.preferencesChanged();
       safeToast(state.settings.soundscape === 'off' ? 'Ambient audio off.' : 'Ambient soundscape is playing.');
     });
     $('volume').addEventListener('input', (e) => {
       state.settings.volume = Math.max(0, Math.min(100, Number(e.target.value) || 0));
       $('volume-value').textContent = `${state.settings.volume}%`;
       if (soundNodes.length) playSoundscape();
-      persist();
+      persist(); cloud?.preferencesChanged();
     });
     document.addEventListener('keydown', (event) => {
       const tag = event.target?.tagName || '';
@@ -807,7 +869,7 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); soundStudio.render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);
@@ -822,7 +884,7 @@
   $('sync-key').classList.toggle('hidden',inVSCode);
   syncStatus(inVSCode ? 'BRIDGE OFFLINE · Start to pair Chrome' : syncKey ? 'CONNECTING…' : 'NOT CONNECTED · Optional, local only');
   $('runtime-label').textContent = inVSCode ? 'VS CODE EXTENSION EDITION' : 'CHROME / PWA EDITION';
-  bind(); render(); tick(); initStars(); registerServiceWorker();
+  bind(); render(); tick(); initStars(); registerServiceWorker(); cloud?.init();
   setInterval(tick, 180);
   if (inVSCode) sendHost('ready');
   else { if(syncKey) exchangeMissions(); setInterval(()=>{if(syncKey)exchangeMissions();},2500); }
