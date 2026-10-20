@@ -4,7 +4,7 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v1.2.3 | Open-source futuristic productivity app by Masum Billah.**
+**v1.3.0 | Open-source futuristic productivity app by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account, external APIs, paid services, or runtime dependencies.
 
@@ -51,9 +51,17 @@ This feature shares **To-Do Missions only** between the Chrome/PWA app and the V
 
 ![CHRONOS mobile To-Do layout](https://raw.githubusercontent.com/gitwithmasum/Masum-Chronos/main/previews/mobile-v1.1-todo.png)
 
-## 10-second completion ringtone (v1.2.1+)
+## Smart Sound Studio (v1.3.0)
 
-When Focus, Break, or Countdown reaches zero, CHRONOS plays a repeating futuristic four-note chime for **10 seconds**. It stops automatically (timed by Web Audio) or immediately when you click **SILENCE** on the notification banner. Turn it off in Settings → **Play 10-second completion ringtone**. Chrome/VS Code must allow audio and the app must have been opened and activated at least once; browser autoplay restrictions and fully closed apps prevent reliable sound. Existing app and task data are preserved, and the previous local task-sync system is unchanged.
+Eight independent sound events: Countdown (Cosmic Alarm), Focus (Galaxy Chime), Break (Soft Aurora), Stopwatch lap (Digital Pulse), Stopwatch pause (Quantum Signal), To-Do completion (Victory Spark), task due today (Neon Bell), overdue task (Cyber Warning).
+
+Open **Settings → Smart Sound Studio** to select sounds per event, preview any selection, mute individual events with **Silent / Off**, change alert volume or upload up to 12 custom MP3/WAV/OGG files (5 MB each, 120 seconds maximum). Files are stored locally in IndexedDB on that browser/VS Code profile; they are not uploaded to GitHub or synchronized between profiles. Alert settings are stored with existing app preferences.
+
+**Stop behavior:** Manual Stop (default) loops the selected sound until the visible **SILENCE** control is clicked. Optional **Auto Stop · After 10 seconds** maintains the prior timer behavior. Preview plays at most 3 seconds. The global alert toggle disables event sounds. Ambient soundscape volume remains a separate control.
+
+**Task reminders:** To-Do deadlines currently have dates (not times). The app checks for tasks due today or overdue once per minute after an audio-enabling interaction and alerts once per task per local calendar day. It does not issue timed notifications while fully closed. Chrome autoplay rules or a suspended/closed tab may interrupt playback; in VS Code the webview panel must remain open. The normal stopwatch is an elapsed counter, so lap/pause events have sounds rather than an automatic deadline.
+
+Existing tasks, Pomodoro progress, themes, and local sync settings migrate without deletion.
 
 ## Focus Timer
 
