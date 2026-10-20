@@ -1,0 +1,23 @@
+/* Smart Sound Studio — inherits each CHRONOS theme. */
+.sound-studio-controls { margin: 20px 0; padding: 18px; border: 1px solid rgba(158,175,255,.24); border-radius: 18px; background: rgba(88,105,155,.09); }
+.sound-studio-controls .studio-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 17px; }
+.sound-studio-controls .studio-head h3 { margin: 6px 0 0; font-size: 1.3rem; color: inherit; }
+.sound-studio-controls .studio-head p, .sound-studio-controls .studio-note { color: inherit; opacity: .72; font-size: .78rem; line-height: 1.5; margin: 0; }
+.sound-studio-controls .studio-grid { display: grid; gap: 8px; }
+.sound-studio-controls .studio-row { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(145px, 1.5fr) auto; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(145,159,199,.14); }
+.sound-studio-controls .studio-row label { font-size: .84rem; font-weight: 600; color: inherit; }
+.sound-studio-controls select, .sound-studio-controls input[type=file] { width: 100%; min-width: 0; border-radius: 10px; border: 1px solid rgba(150,165,218,.3); padding: 10px; background: #142039; color: #f2f7ff; font: inherit; }
+.sound-studio-controls .studio-preview { min-width: 68px; border: 1px solid rgba(109,219,255,.5); background: rgba(25,92,138,.18); color: inherit; border-radius: 9px; padding: 10px 11px; font: inherit; font-size: .73rem; font-weight: 800; cursor: pointer; }
+.sound-studio-controls button:focus-visible, .sound-studio-controls select:focus-visible, .sound-studio-controls input:focus-visible { outline: 2px solid #50dafa; outline-offset: 2px; }
+.sound-studio-controls .studio-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+.sound-studio-controls .studio-settings label, .sound-studio-controls .studio-custom > label { display: grid; gap: 9px; color: inherit; font-size: .72rem; font-weight: 800; letter-spacing: .06em; }
+.sound-studio-controls input[type=range] { width: 100%; accent-color: #72d9f6; }
+.sound-studio-controls .studio-custom { display: grid; gap: 10px; border-top: 1px solid rgba(150,165,218,.25); margin-top: 18px; padding-top: 18px; }
+.sound-studio-controls .studio-file { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; font-size: .8rem; }
+.sound-studio-controls .studio-file span { overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+ .sound-studio-controls { padding: 12px; }
+ .sound-studio-controls .studio-row { grid-template-columns: minmax(0,1fr) auto; }
+ .sound-studio-controls .studio-row label { grid-column: 1 / -1; }
+ .sound-studio-controls .studio-settings { grid-template-columns: 1fr; }
+}
