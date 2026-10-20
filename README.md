@@ -4,9 +4,17 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.2.0-beta.1 | Smart Calendar, Multi-Mission Dependencies and Futuristic Scheduling.**
+**v2.3.0-beta.1 | Galaxy Productivity Intelligence, Focus Heatmap and Local Reporting.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.3 — Galaxy Productivity Intelligence (beta)
+
+Chronos now includes a **collapsible analytics command deck** inside the To-Do workspace: a 7/30-day Focus momentum chart, 84-day Mission activity heatmap, active-day and session metrics, and **Estimated vs Recorded Focus** mission comparisons. Focus tracking starts with this release and counts **completed Pomodoro sessions associated with a selected Mission**; older missions without attribution are correctly labelled *not tracked*.
+
+Reports are locally generated as **CSV** (with spreadsheet formula injection protection) or by choosing **Print / Save PDF** in the browser’s native print dialog. No paid PDF conversion service, analytics cloud API or additional Supabase tables are needed. Browser/PWA file export works independently of Google Login; VS Code continues to provide the dashboard but file exports require opening the web app in a browser.
+
+All v2.2 calendar, dependencies, task records, themes, custom sound settings and cloud/local sync behavior are retained. [Read implementation details and test scenarios](docs/productivity-intelligence-v2.3.md).
 
 ## v2.2 — Smart Calendar & Advanced Dependencies (beta)
 
