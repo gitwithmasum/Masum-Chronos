@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="./cloud-sync.css" />
   <link rel="stylesheet" href="./control-center.css" />
   <link rel="stylesheet" href="./mission-control.css" />
+  <link rel="stylesheet" href="./calendar-command.css" />
   <script defer src="./sound-studio.js"></script>
   <script defer src="./cloud-sync.js"></script>
   <script defer src="./mission-engine.js"></script>
@@ -49,7 +50,7 @@
   <div class="ambient-halo halo-two" aria-hidden="true"></div>
   <div class="app-shell">
     <header class="topbar glass">
-      <div class="brand"><div class="brand-mark"><span class="brand-mark-core"></span></div><div><strong>MASUM<span class="brand-accent">.CHRONOS</span></strong><small>FOCUS + TASK COMMAND CENTER <span class="version">/ V2.1 BETA</span></small></div></div>
+      <div class="brand"><div class="brand-mark"><span class="brand-mark-core"></span></div><div><strong>MASUM<span class="brand-accent">.CHRONOS</span></strong><small>FOCUS + TASK COMMAND CENTER <span class="version">/ V2.2 BETA</span></small></div></div>
       <div class="header-links" role="navigation" aria-label="Workspaces">
         <button class="header-tab active" data-workspace="timer"><svg><use href="#i-clock" /></svg> Focus Timer</button>
         <button class="header-tab" data-workspace="tasks"><svg><use href="#i-check" /></svg> To-Do Missions <span id="nav-pending" class="nav-count">0</span></button>
@@ -129,7 +130,7 @@
       </header>
 
       <section class="glass mission-hud" aria-label="Smart Mission HUD">
-        <div class="mission-hud-title"><span class="section-eyebrow"><span class="blink-dot"></span> MISSION INTELLIGENCE / V2.1</span><button type="button" id="hud-command-open" class="outline-btn">⌘ COMMAND PALETTE <span>↗</span></button></div>
+        <div class="mission-hud-title"><span class="section-eyebrow"><span class="blink-dot"></span> MISSION INTELLIGENCE / V2.2</span><button type="button" id="hud-command-open" class="outline-btn">⌘ COMMAND PALETTE <span>↗</span></button></div>
         <div class="mission-hud-grid">
           <div class="mission-hud-meter"><span>READY TO EXECUTE</span><strong id="hud-ready">0</strong><small>Unblocked missions</small></div>
           <div class="mission-hud-meter"><span>AWAITING DEPENDENCY</span><strong id="hud-blocked">0</strong><small>Locked objectives</small></div>
@@ -157,7 +158,7 @@
             </div>
             <div class="mission-advanced-fields" aria-label="Smart Mission options">
               <label>REPEAT<select id="todo-recurrence"><option value="none">One-time mission</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></label>
-              <label>DEPENDS ON<select id="todo-dependency"><option value="">No dependency</option></select></label>
+              <fieldset class="dependency-fieldset"><legend>PREREQUISITES · MAX 8</legend><div id="todo-dependency" class="dependency-picker" role="group" aria-label="Create mission prerequisites"></div></fieldset>
               <label>REMIND AT<input id="todo-reminder-time" type="time" aria-label="Reminder time (optional)" /></label>
               <label>ESTIMATE (MIN)<input id="todo-estimate" type="number" inputmode="numeric" min="0" max="480" value="25" /></label>
             </div>
@@ -185,6 +186,40 @@
         </aside>
       </div>
     </section>
+
+      <section id="calendar-command" class="glass calendar-command" aria-labelledby="calendar-heading">
+        <header class="calendar-topbar">
+          <div><div class="section-eyebrow">03 / TEMPORAL MISSION PLANNER · V2.2</div><h2 id="calendar-heading">Smart <em>Calendar.</em></h2><p>Drag missions into a day and time slot, or schedule precisely with the form.</p></div>
+          <div class="calendar-nav">
+            <button id="calendar-prev" type="button" class="outline-btn" aria-label="Previous week">← PREV</button>
+            <button id="calendar-today" type="button" class="outline-btn">TODAY</button>
+            <button id="calendar-next" type="button" class="outline-btn" aria-label="Next week">NEXT →</button>
+          </div>
+        </header>
+        <div class="calendar-toolbar">
+          <label>MISSION<select id="calendar-task" aria-label="Mission to schedule"><option value="">Choose an unfinished task</option></select></label>
+          <label>DATE<input id="calendar-date" type="date" aria-label="Schedule date"/></label>
+          <label>START<input id="calendar-time" type="time" value="09:00" step="300" aria-label="Start time"/></label>
+          <label>MINUTES<input id="calendar-duration" type="number" min="5" max="480" step="5" value="30" aria-label="Block duration"/></label>
+          <button id="calendar-schedule" type="button" class="solid-btn">SCHEDULE ↗</button>
+        </div>
+        <p class="calendar-feedback" id="calendar-feedback" role="status" aria-live="polite">Select a mission and a time block. Existing missions and countdown timers remain unchanged.</p>
+        <div class="calendar-queue">
+          <span class="section-eyebrow">UNSCHEDULED · DRAG TO PLAN</span>
+          <div id="calendar-backlog" class="calendar-backlog" aria-label="Unscheduled missions"></div>
+        </div>
+        <div id="calendar-week-label" class="calendar-week-label" aria-live="polite">WEEK VIEW</div>
+        <div class="calendar-scroll" tabindex="0" aria-label="Seven day calendar, scroll horizontally if needed">
+          <div id="calendar-grid" class="calendar-grid" aria-label="Drop missions onto hourly slots"></div>
+        </div>
+      </section>
+      <section id="dependency-command" class="glass dependency-command" aria-labelledby="dependency-heading">
+        <div class="section-eyebrow">04 / MISSION DEPENDENCY NETWORK · V2.2</div>
+        <h2 id="dependency-heading">Dependency <em>Network.</em></h2>
+        <p>See what unlocks each objective. Edit a mission to choose up to eight prerequisite missions.</p>
+        <div id="dependency-network" class="dependency-network" aria-label="Mission dependency visualization"></div>
+      </section>
+
     <footer class="footer"><span>MASUM CHRONOS © 2026</span><span>STAY CURIOUS // STAY FOCUSED</span><span id="runtime-label">BROWSER EDITION</span></footer>
   </div>
   <aside id="ringtone-banner" class="ringtone-banner" role="status" aria-label="Timer finished, ringtone playing" hidden><span class="ringtone-pulse" aria-hidden="true">♪</span><span><strong id="ringtone-title">SOUND ALERT</strong><small id="ringtone-subtitle">LOOPING UNTIL YOU PRESS SILENCE</small></span><button id="silence-ringtone" type="button">SILENCE</button></aside>
@@ -316,7 +351,7 @@
   <dialog id="edit-task-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">TASK COMMAND CENTER / EDIT</div><h2>Modify your mission</h2></div><button class="icon-button" value="cancel" aria-label="Close task editor"><svg><use href="#i-close" /></svg></button></div><div class="task-editor"><label>MISSION TITLE<input id="edit-task-text" maxlength="120" required /></label><div class="form-grid"><label>PRIORITY<select id="edit-task-priority"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option></select></label><label>CATEGORY<select id="edit-task-category"><option value="Code">Code & Development</option><option value="Study">Study & Research</option><option value="Work">Work</option><option value="Personal">Personal</option></select></label><label>DUE DATE<input id="edit-task-due" type="date"/></label></div>
   <div class="mission-advanced-fields">
     <label>REPEAT<select id="edit-task-recurrence"><option value="none">One-time mission</option><option value="daily">Every day</option><option value="weekly">Every week</option><option value="monthly">Every month</option></select></label>
-    <label>DEPENDS ON<select id="edit-task-dependency"><option value="">No dependency</option></select></label>
+    <fieldset class="dependency-fieldset"><legend>PREREQUISITES · MAX 8</legend><div id="edit-task-dependency" class="dependency-picker" role="group" aria-label="Edit mission prerequisites"></div></fieldset>
     <label>REMIND AT<input id="edit-task-reminder-time" type="time" aria-label="Reminder time (optional)" /></label>
     <label>ESTIMATE (MIN)<input id="edit-task-estimate" type="number" min="0" max="480" value="0" /></label>
   </div>
