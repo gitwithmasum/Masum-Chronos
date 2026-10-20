@@ -39,7 +39,8 @@ function cleanTask(task) {
     recurrenceAnchor:typeof task.recurrenceAnchor==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.recurrenceAnchor)?task.recurrenceAnchor:'',
     planDate:typeof task.planDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.planDate)&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(task.planStart)?task.planDate:'',
     planStart:typeof task.planDate==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(task.planDate)&&/^([01][0-9]|2[0-3]):[0-5][0-9]$/.test(task.planStart)?task.planStart:'',
-    planDurationMins:Number.isInteger(task.planDurationMins)&&task.planDurationMins>=5&&task.planDurationMins<=480?task.planDurationMins:0
+    planDurationMins:Number.isInteger(task.planDurationMins)&&task.planDurationMins>=5&&task.planDurationMins<=480?task.planDurationMins:0,
+    focusSeconds:Number.isFinite(task.focusSeconds)&&task.focusSeconds>=0?Math.min(100000000,Math.floor(task.focusSeconds)):0
   };
 }
 function cleanDeleted(value) {
