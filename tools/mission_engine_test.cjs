@@ -26,6 +26,9 @@ feb.done=true;
 const mar=engine.nextOccurrence(feb,[jan,feb],'2026-02-28',2000);
 assert.equal(mar.dueDate,'2026-03-31','Do not drift recurring 31st to 28th');
 assert.equal(mar.id,'month~20260331');
+const febLegacy = {...feb,recurrenceAnchor:''};
+assert.equal(engine.nextOccurrence(febLegacy,[jan,febLegacy],'2026-02-28',3000).dueDate,'2026-03-31',
+  'Old beta recurring tasks should recover the original anchor from completed history');
 assert.equal(engine.nextOccurrence(feb,[jan,feb,mar],'2026-02-28',2100),null,'Avoid duplicate generated occurrences');
 // DST spring transition: 2026-03-07 to 2026-03-09 spans 47h
 // in New York, but this must still produce March 10 rather than March 9.
