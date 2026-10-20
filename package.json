@@ -1,8 +1,8 @@
 {
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
-  "description": "Galaxy Command Center with draggable Smart Calendar, conflict detection, up to eight mission dependencies, Pomodoro, Cloud Sync and local-first To-Do.",
-  "version": "2.2.0-beta.1",
+  "description": "Futuristic productivity intelligence, focus heatmap, reports, Smart Calendar, recurring missions, Pomodoro and local-first cloud sync.",
+  "version": "2.3.0-beta.1",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {
@@ -63,14 +63,15 @@
     ]
   },
   "scripts": {
-    "lint": "node --check ./vscode/extension.js && node --check ./vscode/sync-bridge.js && node --check ./web/mission-engine.js && node --check ./web/app.js && node --check ./web/sound-studio.js && node --check ./web/cloud-sync.js && node --check ./web/sw.js",
+    "lint": "node --check ./vscode/extension.js && node --check ./vscode/sync-bridge.js && node --check ./web/productivity-intelligence.js && node --check ./web/mission-engine.js && node --check ./web/app.js && node --check ./web/sound-studio.js && node --check ./web/cloud-sync.js && node --check ./web/sw.js",
     "package": "vsce package --no-dependencies",
     "marketplace:check": "python tools/marketplace_check.py",
     "test:sounds": "node tools/sound_studio_test.cjs",
     "test:cloud": "node tools/cloud_sync_test.cjs",
     "test:settings": "node tools/control_center_test.cjs",
     "test:missions": "node tools/mission_engine_test.cjs",
-    "test:calendar": "node tools/calendar_command_test.cjs"
+    "test:calendar": "node tools/calendar_command_test.cjs",
+    "test:intelligence": "node tools/intelligence_test.cjs"
   },
   "files": [
     "vscode/extension.js",
@@ -86,6 +87,8 @@
     "web/mission-engine.js",
     "web/mission-control.css",
     "web/calendar-command.css",
+    "web/intelligence.css",
+    "web/productivity-intelligence.js",
     "web/icon-192.png",
     "README.md",
     "CHANGELOG.md",
