@@ -1,8 +1,9 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '2.2.0-beta.1';
+  const VERSION = '2.3.0-beta.1';
   const mission = window.ChronosMissionEngine;
+  const intelligence = window.ChronosIntelligence;
   const STORAGE_KEY = 'masum-chronos-v1';
   const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
   const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
@@ -59,7 +60,8 @@
       createdAt: Number.isFinite(task.createdAt) ? task.createdAt : Date.now(),
       completedAt: Number.isFinite(task.completedAt) ? task.completedAt : null,
       modifiedAt: Number.isFinite(task.modifiedAt) ? task.modifiedAt : (Number.isFinite(task.completedAt) ? task.completedAt : (Number.isFinite(task.createdAt) ? task.createdAt : Date.now())),
-      ...mission.extras(task, String(task.id || ''))
+      ...mission.extras(task, String(task.id || '')),
+      focusSeconds:Number.isFinite(task.focusSeconds) && task.focusSeconds>=0 ? Math.min(100000000,Math.floor(task.focusSeconds)):0
     };
   }
   function isOverdue(task) { return !task.done && Boolean(task.dueDate) && task.dueDate < dateKey(); }
@@ -82,7 +84,7 @@
     const clean = text.trim().slice(0, 120);
     if (!clean) return safeToast('Enter a mission title first.');
     if (state.tasks.length >= 300) return safeToast('Maximum 300 missions supported. Clear completed missions to make space.');
-    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, recurrenceAnchor: options.recurrence && options.recurrence !== 'none' ? (options.dueDate || dateKey()) : '', dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins, planDate:'', planStart:'', planDurationMins:0 });
+    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, recurrenceAnchor: options.recurrence && options.recurrence !== 'none' ? (options.dueDate || dateKey()) : '', dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins, planDate:'', planStart:'', planDurationMins:0, focusSeconds:0 });
     state.tasks.unshift(task); persist(); renderTasks(); safeToast('Mission deployed.');
     return task;
   }
@@ -120,7 +122,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -398,6 +400,15 @@
         const day = state.stats.daily[today] || { sessions: 0, focusSeconds: 0 };
         day.sessions += 1; day.focusSeconds += seconds;
         state.stats.daily[today] = day;
+        // Attribute *completed* Pomodoro sessions to the selected mission.
+        // Historical sessions without an assigned mission stay in daily totals.
+        if(state.activeTaskId) {
+          const target=state.tasks.find(task=>task.id===state.activeTaskId);
+          if(target) {
+            target.focusSeconds=Math.min(100000000,(target.focusSeconds||0)+seconds);
+            target.modifiedAt=Date.now();
+          }
+        }
         const nextPhase = state.focus.rounds % state.focus.longEvery === 0 ? 'long' : 'short';
         message = nextPhase === 'long' ? 'Focus session complete! Enjoy your long break.' : 'Focus session complete! Take a short break.';
         setPhase(nextPhase, false);
@@ -733,6 +744,10 @@
     {title:'Open Settings',hint:'SETTINGS',terms:'settings preferences',act:()=>openSettings()},
     {title:'Cloud Sync & Backup',hint:'CLOUD',terms:'cloud sync backup login',act:()=>{openSettings();activateSettingsTab('cloud')}},
     {title:'Create New Mission',hint:'TASKS',terms:'create new mission task',act:()=>{switchWorkspace('tasks');$('todo-title').focus()}},
+    {title:'Open Productivity Intelligence',hint:'ANALYTICS',terms:'insights productivity analytics heatmap report statistics',act:()=>{
+      switchWorkspace('tasks');$('intelligence-panel').open=true;renderIntelligence();
+      $('intelligence-panel').scrollIntoView({behavior:'smooth',block:'start'});
+    }},
     {title:'Open Smart Calendar',hint:'PLANNING',terms:'calendar schedule time block week',act:()=>{
       switchWorkspace('tasks');$('calendar-command').scrollIntoView({behavior:'smooth',block:'start'});
     }},
@@ -884,6 +899,7 @@
     $('clear-completed').disabled=complete===0;
     renderCalendar();
     renderDependencyNetwork();
+    if($('intelligence-panel').open) renderIntelligence();
   }
   function renderStats() {
     const today = todayStats();
@@ -1307,7 +1323,7 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); soundStudio.render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);
