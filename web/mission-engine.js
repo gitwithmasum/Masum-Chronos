@@ -27,7 +27,9 @@
     const reminderTime = TIME_RE.test(t.reminderTime) ? t.reminderTime : '';
     const estimateMins = Number.isInteger(t.estimateMins) && t.estimateMins >= 0 && t.estimateMins <= 480 ? t.estimateMins : 0;
     const seriesId = typeof t.seriesId === 'string' && t.seriesId.length <= 100 ? t.seriesId : '';
-    return {recurrence,dependsOn,reminderTime,estimateMins,seriesId};
+    // Persist the calendar series' original date to avoid month-end drift.
+    const recurrenceAnchor = validDate(t.recurrenceAnchor) ? t.recurrenceAnchor : '';
+    return {recurrence,dependsOn,reminderTime,estimateMins,seriesId,recurrenceAnchor};
   }
   function dependencyStatus(tasks, task) {
     const byId = new Map(tasks.map(t=>[t.id,t]));
@@ -51,20 +53,19 @@
   }
   function nextDate(base, recurrence, today) {
     if (!validDate(today) || !RECURRENCE.includes(recurrence) || recurrence==='none') return '';
-    let date = validDate(base) ? base : today;
-    // Avoid unbounded catch-up; old missed occurrences are not materialized.
-    if (recurrence==='daily') {
-      const start = new Date(date+'T12:00:00');
-      const now = new Date(today+'T12:00:00');
-      const days = Math.max(1,Math.floor((now-start)/86400000)+1);
-      start.setDate(start.getDate()+days);
-      return localDay(start);
-    }
-    if (recurrence==='weekly') {
-      const start = new Date(date+'T12:00:00'), now = new Date(today+'T12:00:00');
-      const weeks = Math.max(1,Math.floor((now-start)/(7*86400000))+1);
-      start.setDate(start.getDate()+7*weeks);
-      return localDay(start);
+    const date = validDate(base) ? base : today;
+    // UTC calendar arithmetic for DATE-ONLY recurrence; using local elapsed
+    // milliseconds drifts on daylight-saving transitions (23/25-hour days).
+    if (recurrence==='daily' || recurrence==='weekly') {
+      const asDay = value => {
+        const [year, month, day] = value.split('-').map(Number);
+        return Date.UTC(year, month-1, day);
+      };
+      const interval = (recurrence === 'daily' ? 1 : 7)*86400000;
+      const start = asDay(date), now = asDay(today);
+      const steps = Math.max(1, Math.floor((now-start)/interval)+1);
+      const result = new Date(start+steps*interval);
+      return result.toISOString().slice(0,10);
     }
     // Monthly cadence uses the original day-of-month anchored to the series.
     const target = new Date(date+'T12:00:00');
@@ -79,12 +80,13 @@
   }
   function nextOccurrence(task, allTasks, today, now = Date.now()) {
     if (!task.done || !task.recurrence || task.recurrence==='none') return null;
-    const dueDate = nextDate(task.dueDate, task.recurrence, today);
+    const anchor = validDate(task.recurrenceAnchor) ? task.recurrenceAnchor : task.dueDate;
+    const dueDate = nextDate(anchor, task.recurrence, today);
     if (!dueDate) return null;
     const seriesId = (task.seriesId || task.id).slice(0,72);
     const id = seriesId+'~'+dueDate.replace(/-/g,'');
     if (allTasks.some(t=>t.id===id)) return null;
-    return { ...task, id, seriesId, dueDate, done:false, completedAt:null,
+    return { ...task, id, seriesId, recurrenceAnchor:anchor, dueDate, done:false, completedAt:null,
       createdAt:now, modifiedAt:now, dependsOn:[], reminderTime:task.reminderTime || '' };
   }
   function reminderCandidates(tasks, today, timeHHMM, receipts = {}) {
