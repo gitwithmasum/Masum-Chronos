@@ -10,7 +10,7 @@ Release candidate: **v1.2.2**, extension ID `gitwithmasum.masum-chronos`.
 4. `mkdir dist` (skip if it exists), then `npx --no-install vsce ls --no-dependencies`
 5. `npx --no-install vsce package --no-dependencies --out dist/masum-chronos-1.2.2.vsix`
 6. `python tools/marketplace_check.py dist/masum-chronos-1.2.2.vsix`
-7. Install and manually try `CHRONOS: Open Focus Command Center`, To-Do CRUD, countdown 10s ringtone, restart/resume, optional local sync (if used).
+7. Install and manually try `CHRONOS: Open Focus Command Center`, To-Do CRUD, countdown manual-loop ringtone with SILENCE and optional 10s auto-stop, event mutes and custom ringtone import, restart/resume, optional local sync (if used).
 
 CI automatically performs official packaging and uploads the resulting artifact; inspect GitHub Actions `CHRONOS Quality Checks` for its packaging and smoke-test results.
 
