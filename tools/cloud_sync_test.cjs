@@ -52,7 +52,7 @@ cloud.init();
 const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
 (async()=>{
  for(let t=0;t<30 && backups===0;t++)await sleep(10);
- assert.deepEqual(merged.tasks.map(t=>t.id),['remote'],'Cloud task should merge into local workspace');
+ assert.deepEqual(Array.from(merged.tasks, t => t.id), ['remote'], 'Cloud task should merge into local workspace');
  assert(fetchCalls.some(c=>c.path.includes('rpc/chronos_upsert_missions') && JSON.parse(c.body).p_rows[0].id==='loc'),'Local tasks must upload to cloud');
  assert(preferenceCalls>0,'Initial settings must be backed up');
  assert(backups===1,'A daily cloud backup should be made');
