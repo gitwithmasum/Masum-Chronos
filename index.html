@@ -12,7 +12,9 @@
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./sound-studio.css" />
+  <link rel="stylesheet" href="./cloud-sync.css" />
   <script defer src="./sound-studio.js"></script>
+  <script defer src="./cloud-sync.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body data-theme="nebula">
@@ -163,7 +165,26 @@
     <footer class="footer"><span>MASUM CHRONOS © 2026</span><span>STAY CURIOUS // STAY FOCUSED</span><span id="runtime-label">BROWSER EDITION</span></footer>
   </div>
   <aside id="ringtone-banner" class="ringtone-banner" role="status" aria-label="Timer finished, ringtone playing" hidden><span class="ringtone-pulse" aria-hidden="true">♪</span><span><strong id="ringtone-title">SOUND ALERT</strong><small id="ringtone-subtitle">LOOPING UNTIL YOU PRESS SILENCE</small></span><button id="silence-ringtone" type="button">SILENCE</button></aside>
-  <dialog id="settings-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">CONTROL CENTER / SETTINGS</div><h2>Fine-tune your focus</h2></div><button class="icon-button" value="cancel" aria-label="Close settings"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Focus duration (minutes)<input id="focus-mins" type="number" min="1" max="180" value="25" /></label><label>Short break (minutes)<input id="short-mins" type="number" min="1" max="60" value="5" /></label><label>Long break (minutes)<input id="long-mins" type="number" min="1" max="120" value="15" /></label><label>Long break after rounds<input id="long-every" type="number" min="2" max="12" value="4" /></label></div><div class="theme-select"><div class="section-eyebrow">INTERFACE THEME</div><div class="theme-buttons"><button type="button" data-theme-choice="nebula" class="theme-choice active"><span class="theme-dot nebula-dot"></span>NEBULA</button><button type="button" data-theme-choice="cyber" class="theme-choice"><span class="theme-dot cyber-dot"></span>CYBER</button><button type="button" data-theme-choice="aurora" class="theme-choice"><span class="theme-dot aurora-dot"></span>AURORA</button><button type="button" data-theme-choice="minimal" class="theme-choice"><span class="theme-dot minimal-dot"></span>MINIMAL</button><button type="button" data-theme-choice="pearl-waves" class="theme-choice" aria-label="Pearl Waves: white, pink and purple"><span class="theme-dot pearl-waves-dot"></span>PEARL WAVES</button></div></div><div class="setting-toggles"><label><input id="auto-break" type="checkbox" /><span>Automatically start breaks</span></label><label><input id="auto-focus" type="checkbox" /><span>Automatically start focus after breaks</span></label><label><input id="alert-sound" type="checkbox" checked /><span>Enable alert sounds (Smart Sound Studio)</span></label></div><section id="sound-studio-controls" class="sound-studio-controls" aria-label="Smart Sound Studio"></section><section class="local-sync-card" aria-label="Local Chrome and VS Code mission sync">
+  <dialog id="settings-dialog" class="settings-dialog"><form method="dialog" class="settings-window glass"><div class="modal-head"><div><div class="section-eyebrow">CONTROL CENTER / SETTINGS</div><h2>Fine-tune your focus</h2></div><button class="icon-button" value="cancel" aria-label="Close settings"><svg><use href="#i-close" /></svg></button></div><div class="form-grid"><label>Focus duration (minutes)<input id="focus-mins" type="number" min="1" max="180" value="25" /></label><label>Short break (minutes)<input id="short-mins" type="number" min="1" max="60" value="5" /></label><label>Long break (minutes)<input id="long-mins" type="number" min="1" max="120" value="15" /></label><label>Long break after rounds<input id="long-every" type="number" min="2" max="12" value="4" /></label></div><div class="theme-select"><div class="section-eyebrow">INTERFACE THEME</div><div class="theme-buttons"><button type="button" data-theme-choice="nebula" class="theme-choice active"><span class="theme-dot nebula-dot"></span>NEBULA</button><button type="button" data-theme-choice="cyber" class="theme-choice"><span class="theme-dot cyber-dot"></span>CYBER</button><button type="button" data-theme-choice="aurora" class="theme-choice"><span class="theme-dot aurora-dot"></span>AURORA</button><button type="button" data-theme-choice="minimal" class="theme-choice"><span class="theme-dot minimal-dot"></span>MINIMAL</button><button type="button" data-theme-choice="pearl-waves" class="theme-choice" aria-label="Pearl Waves: white, pink and purple"><span class="theme-dot pearl-waves-dot"></span>PEARL WAVES</button></div></div><div class="setting-toggles"><label><input id="auto-break" type="checkbox" /><span>Automatically start breaks</span></label><label><input id="auto-focus" type="checkbox" /><span>Automatically start focus after breaks</span></label><label><input id="alert-sound" type="checkbox" checked /><span>Enable alert sounds (Smart Sound Studio)</span></label></div><section id="sound-studio-controls" class="sound-studio-controls" aria-label="Smart Sound Studio"></section><section class="chronos-cloud" aria-label="Chronos shared Supabase Cloud Sync">
+  <div class="cloud-summary"><div><span class="section-eyebrow">CHRONOS CLOUD / V2.0</span><h3>Cloud Sync &amp; Backup</h3></div><span id="cloud-account" class="cloud-account">NOT SIGNED IN</span></div>
+  <p>Sync Chronos missions and settings across browsers with Google Login. Your missions work offline; cloud syncing resumes when online. The Supabase backend is shared with NovaStudy, but data tables are separate.</p>
+  <details><summary>Project connection (advanced)</summary>
+    <div class="cloud-fields">
+      <label>Supabase Project URL<input id="cloud-url" type="url" autocomplete="off" placeholder="https://project.supabase.co"/></label>
+      <label>Public Publishable Key (never a secret key)<input id="cloud-key" type="text" autocomplete="off" placeholder="sb_publishable_..."/></label>
+    </div>
+    <div class="cloud-actions"><button id="cloud-configure" type="button" class="secondary">SAVE PROJECT CONNECTION</button></div>
+  </details>
+  <div class="cloud-actions" style="margin-top:13px">
+    <button id="cloud-google-login" type="button">SIGN IN WITH GOOGLE</button>
+    <button id="cloud-sync-now" type="button" class="secondary">SYNC NOW</button>
+    <button id="cloud-backup-now" type="button" class="secondary">BACKUP NOW</button>
+    <button id="cloud-restore" type="button" class="secondary">RESTORE LATEST</button>
+    <button id="cloud-signout" type="button" class="secondary">SIGN OUT</button>
+  </div>
+  <div id="cloud-status" class="cloud-status" role="status" aria-live="polite">LOCAL MODE</div>
+  <p class="cloud-note">Cloud sync is optional. Custom uploaded ringtone files remain device-local; selecting a local-only sound on another device requires uploading it there. Restore needs two clicks to confirm and will replace saved mission data.</p>
+</section><section class="local-sync-card" aria-label="Local Chrome and VS Code mission sync">
     <div class="section-eyebrow">LOCAL LINK / V1.2</div>
     <h3>Chrome ↔ VS Code Task Sync</h3>
     <p>Pair these apps on the same laptop. No cloud, login, or internet needed. Tasks sync while VS Code is running with the bridge enabled; timer stats stay local.</p>
