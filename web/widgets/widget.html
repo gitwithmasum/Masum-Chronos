@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"/>
+  <title>MASUM CHRONOS · Universal Widget</title>
+  <link rel="stylesheet" href="./widget.css" />
+  <script defer src="./widget-core.js"></script>
+  <script defer src="./widget.js"></script>
+</head>
+<body class="cw-body" data-theme="nebula" data-size="regular">
+  <main class="cw-shell" aria-label="MASUM CHRONOS productivity widget">
+    <header class="cw-header"><span class="cw-mark" aria-hidden="true">◈</span><div><span class="cw-kicker">MASUM CHRONOS</span><h1 id="cw-title">Mission Widget</h1></div><span id="cw-indicator" class="cw-indicator">LOCAL</span></header>
+    <section id="cw-timer-panel" class="cw-panel" hidden aria-label="Focus or countdown timer">
+      <div class="cw-dial"><div class="cw-dial-ring" id="cw-ring"><div class="cw-readout"><time id="cw-time" aria-live="off">25:00</time><small id="cw-caption">READY TO FOCUS</small></div></div></div>
+      <div class="cw-controls"><button id="cw-toggle" type="button" class="cw-primary">START</button><button id="cw-reset" type="button" class="cw-secondary">RESET</button></div>
+      <label class="cw-duration">DURATION <input id="cw-minutes" type="number" min="1" max="180" value="25" aria-label="Timer duration in minutes"/><span>MIN</span></label>
+      <p class="cw-hint">Timer runs while this widget is open. Alerts stop automatically within 10 seconds.</p>
+    </section>
+    <section id="cw-tasks-panel" class="cw-panel" hidden aria-label="Mini task list">
+      <div class="cw-figures"><div><strong id="cw-active">0</strong><span>ACTIVE</span></div><div><strong id="cw-done">0</strong><span>DONE</span></div></div>
+      <form id="cw-task-form" class="cw-task-form"><label for="cw-task-input">NEXT MISSION</label><div><input id="cw-task-input" maxlength="100" placeholder="Name your next mission..." required/><button id="cw-task-add" type="submit">ADD ↗</button></div></form>
+      <ul id="cw-task-list" class="cw-task-list" aria-label="Your missions"></ul>
+    </section>
+    <section id="cw-stats-panel" class="cw-panel" hidden aria-label="Productivity statistics">
+      <div class="cw-figures cw-stat-grid"><div><strong id="cw-stat-sessions">0</strong><span>FOCUS SESSIONS</span></div><div><strong id="cw-stat-minutes">0</strong><span>FOCUS MINUTES</span></div><div><strong id="cw-stat-tasks">0</strong><span>MISSIONS DONE</span></div><div><strong id="cw-stat-progress">0%</strong><span>COMPLETION</span></div></div>
+      <div class="cw-progress-track"><div id="cw-progress"></div></div>
+      <p id="cw-stats-note" class="cw-hint">Only activity recorded in this standalone widget is shown.</p>
+    </section>
+    <p class="cw-status" role="status" aria-live="polite" id="cw-status">Ready.</p>
+    <footer class="cw-footer"><span>GALAXY PRODUCTIVITY SYSTEM</span><span>V2.4</span></footer>
+  </main>
+</body>
+</html>
