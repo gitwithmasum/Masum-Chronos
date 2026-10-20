@@ -1,0 +1,16 @@
+/* Chronos Cloud — theme-aware opt-in sync controls */
+.chronos-cloud { margin: 20px 0; border: 1px solid rgba(120,190,255,.27); padding: 18px; border-radius: 18px; background: rgba(59,123,194,.08); }
+.chronos-cloud h3 { margin: 7px 0 8px; font-size: 1.2rem; color: inherit; }
+.chronos-cloud p { line-height: 1.6; font-size: 12px; opacity: .84; }
+.chronos-cloud .cloud-summary { display: flex; align-items: start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.chronos-cloud .cloud-account { color: inherit; opacity: .78; font: 600 11px monospace; }
+.chronos-cloud .cloud-fields { display: grid; grid-template-columns: 1fr; gap: 11px; margin: 14px 0; }
+.chronos-cloud .cloud-fields label { font-size: 11px; color: inherit; font-weight: 700; display: grid; gap: 6px; }
+.chronos-cloud .cloud-fields input { width: 100%; padding: 12px; border: 1px solid rgba(140,171,242,.38); border-radius: 10px; background: rgba(16,27,51,.92); color: #fff; min-width: 0; font: 12px monospace; }
+.chronos-cloud .cloud-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.chronos-cloud .cloud-actions button { flex: 1 1 128px; cursor: pointer; padding: 10px 11px; border-radius: 9px; font-size: 11px; font-weight: 800; color: #07172a; background: linear-gradient(120deg,#8ce7ff,#b4a8ff); border: 0; }
+.chronos-cloud .cloud-actions button.secondary { color: inherit; background: rgba(104,151,200,.16); border: 1px solid rgba(143,188,230,.4); }
+.chronos-cloud .cloud-actions button:disabled { cursor:not-allowed; opacity: .42; }
+.chronos-cloud .cloud-status { margin-top: 13px; padding: 11px 12px; border: 1px solid rgba(123,175,228,.25); border-radius: 9px; font: 11px/1.65 monospace; overflow-wrap: anywhere; }
+.chronos-cloud .cloud-note { font-size: 11px; line-height: 1.6; opacity: .7; margin: 12px 0 0; }
+@media (max-width:560px) { .chronos-cloud { padding: 12px; } .chronos-cloud .cloud-actions button { flex-basis: 100%; } }
