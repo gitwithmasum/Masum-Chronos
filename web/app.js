@@ -21,7 +21,7 @@
   let lastTitle = '';
   let currentTaskFilter = 'all';
   let currentTaskSearch = '';
-  let calendarWeekAnchor = dateKey();
+  let calendarWeekAnchor = '';
   let editingTaskId = null;
   let syncKey = '';
   try { if(!inVSCode) syncKey = localStorage.getItem(SYNC_KEY_STORAGE) || ''; } catch {}
