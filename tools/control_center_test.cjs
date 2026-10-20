@@ -63,4 +63,45 @@ assert.match(css,/@media \(max-width: 810px\)/);
 assert.match(css,/data-theme="pearl-waves"/);
 assert.match(fs.readFileSync('web/sw.js','utf8'),/control-center\.css/);
 assert.match(fs.readFileSync('sw.js','utf8'),/control-center\.css/);
-console.log('CONTROL CENTER: five tabs, one instance per control, keyboard nav, responsive theme, PWA cache and VS Code bundle: PASS');
+
+// Regression: a mistaken single-element ID accessor on a [data-*] selector
+// throws before showModal() and makes clicking Settings appear to do nothing.
+assert.match(app, /\$\$\('\[data-settings-tab\]'\)\.forEach/);
+assert.match(app, /\$\$\('\[data-settings-panel\]'\)\.forEach/);
+assert.match(app, /const tabButtons = \$\$\('\[data-settings-tab\]'\)/);
+const from = app.indexOf('  const SETTINGS_TABS =');
+const to = app.indexOf('  function saveSettings()', from);
+assert(from > 0 && to > from, 'Settings controller source missing');
+const tabs = categories.map(name => ({
+  dataset:{settingsTab:name},classList:{toggle(){}},
+  setAttribute(key,val){if(key==='aria-selected')this.selected=val},
+  focus(){this.focused=true},tabIndex:-1
+}));
+const panels = categories.map(name => ({dataset:{settingsPanel:name},hidden:name!=='focus'}));
+const nodes = new Map();
+for (const id of ['focus-mins','short-mins','long-mins','long-every','auto-break','auto-focus','alert-sound','notification-note','notify-btn']) {
+ nodes.set(id,{value:'',checked:false,textContent:'',disabled:false});
+}
+nodes.set('settings-dialog',{open:false,showModal(){this.open=true},querySelector(){return {scrollTop:42}}});
+const getId = id => nodes.get(id) ?? null;
+const queryAll = selector => {
+  if(selector==='[data-settings-tab]')return tabs;
+  if(selector==='[data-settings-panel]')return panels;
+  if(selector==='[data-theme-choice]')return [];
+  throw Error('Unexpected selector: '+selector);
+};
+const vm = require('node:vm');
+const env = {
+  $:getId,$:queryAll,
+  state:{focus:{focusMins:25,shortMins:5,longMins:15,longEvery:4},settings:{autoBreak:false,autoFocus:true,alertSound:true},theme:'nebula'},
+  inVSCode:false,window:{Notification:{permission:'default'}},
+  Notification:{permission:'default'},soundStudio:{render(){this.count=(this.count||0)+1}},
+  console
+};
+vm.runInNewContext(app.slice(from,to)+"\nopenSettings(); activateSettingsTab('sound');",env,{timeout:1000,filename:'settings-ui-smoke.js'});
+assert.equal(nodes.get('settings-dialog').open,true,'Settings click handler must successfully show the modal');
+assert.equal(panels.filter(x=>!x.hidden).length,1,'Exactly one settings section must be visible');
+assert.equal(panels[2].hidden,false,'Sound Studio tab must be visible after navigation');
+assert.equal(tabs[2].selected,'true','Accessible active tab state must be updated');
+
+console.log('CONTROL CENTER: five tabs, one instance per control, keyboard nav, responsive theme, PWA cache and VS Code bundle: PASS (runtime click verified)');
