@@ -4,9 +4,22 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.0.0-beta.2 | Futuristic Control Center, Offline-First Productivity and Cloud Sync by Masum Billah.**
+**v2.1.0-beta.1 | Smart Mission Control, Futuristic HUD and Local-First Productivity by Masum Billah.**
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
+
+## v2.1 — Smart Mission Control (beta)
+
+Chronos grows into a reusable **Mission Productivity Engine** with:
+
+- **Dependency-aware Smart Tasks:** prerequisite mission locks, readiness checks, cycle detection and new **Blocked** queue.
+- **Recurring Missions:** daily, weekly and monthly repeats create deterministic next occurrences on completion, preserving completed task history.
+- **Reminder Scheduling:** optional local-time HH:MM reminder, estimated focus minutes and the original once-per-day guard. Alerts still require the browser/app to be running.
+- **Futuristic Mission HUD:** ready/blocked/due counters, total estimated focus load and next recommended task.
+- **Command Palette:** use **Ctrl+K / Cmd+K**, `task Finish report`, `timer 15`, or choose navigation and task actions.
+- **App Integration:** existing local data, Supabase JSONB cloud mission records, PWA, themes, ringtone studio, VS Code webview and local bridge preserve the new metadata.
+
+**Version:** `v2.1.0-beta.1`. The underlying dependency model supports multiple prerequisites, with one prerequisite editable per mission through the current UI. Advanced recurrence and closed-app push notifications are future phases. [Implementation details, security model and acceptance checklist](docs/smart-mission-control-v2.1.md).
 
 ## v2.0 Beta 2 — Futuristic Settings Control Center
 
