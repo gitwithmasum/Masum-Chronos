@@ -21,6 +21,7 @@
   let lastTitle = '';
   let currentTaskFilter = 'all';
   let currentTaskSearch = '';
+  let calendarWeekAnchor = dateKey();
   let editingTaskId = null;
   let syncKey = '';
   try { if(!inVSCode) syncKey = localStorage.getItem(SYNC_KEY_STORAGE) || ''; } catch {}
@@ -81,7 +82,7 @@
     const clean = text.trim().slice(0, 120);
     if (!clean) return safeToast('Enter a mission title first.');
     if (state.tasks.length >= 300) return safeToast('Maximum 300 missions supported. Clear completed missions to make space.');
-    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, recurrenceAnchor: options.recurrence && options.recurrence !== 'none' ? (options.dueDate || dateKey()) : '', dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins });
+    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, recurrenceAnchor: options.recurrence && options.recurrence !== 'none' ? (options.dueDate || dateKey()) : '', dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins, planDate:'', planStart:'', planDurationMins:0 });
     state.tasks.unshift(task); persist(); renderTasks(); safeToast('Mission deployed.');
     return task;
   }
@@ -494,7 +495,7 @@
     $('edit-task-recurrence').value = task.recurrence || 'none';
     $('edit-task-reminder-time').value = task.reminderTime || '';
     $('edit-task-estimate').value = task.estimateMins || 0;
-    populateDependencyOptions('edit-task-dependency',task.id,task.dependsOn?.[0] || '');
+    populateDependencyOptions('edit-task-dependency',task.id,task.dependsOn || []);
     $('edit-task-dialog').showModal();
   }
   function prettyDueDate(value) {
@@ -530,23 +531,34 @@
     return row;
   }
 
-  function populateDependencyOptions(selectId, ownId = '', preferred = '') {
-    const select = $(selectId);
-    if (!select) return;
-    const prior = preferred || select.value;
-    select.replaceChildren();
-    const empty = document.createElement('option');
-    empty.value = ''; empty.textContent = 'No dependency';
-    select.append(empty);
-    for (const task of state.tasks.filter(t => t.id !== ownId)) {
-      if (ownId && mission.hasCycle(state.tasks,ownId,[task.id])) continue;
-      const item = document.createElement('option');
-      item.value = task.id;
-      item.textContent = (task.done ? '✓ ' : '') + task.text.slice(0,55);
-      select.append(item);
+  function selectedDependencies(containerId) {
+    return [...$(containerId).querySelectorAll('input[type="checkbox"]:checked')].map(box=>box.value);
+  }
+  function populateDependencyOptions(containerId, ownId = '', preferred = null) {
+    const container = $(containerId);
+    if (!container) return;
+    const selected = new Set(Array.isArray(preferred) ? preferred : selectedDependencies(containerId));
+    container.replaceChildren();
+    const list = state.tasks.filter(task=>task.id !== ownId &&
+      (!ownId || !mission.hasCycle(state.tasks,ownId,[task.id])));
+    const unavailable = [...selected].filter(id=>!list.some(t=>t.id===id));
+    for (const item of [...list, ...unavailable.map(id=>({id,text:'Unavailable prerequisite: '+id,done:false}))]) {
+      const label=document.createElement('label'), input=document.createElement('input');
+      input.type='checkbox'; input.value=item.id; input.checked=selected.has(item.id);
+      input.addEventListener('change',()=>{
+        if(input.checked && selectedDependencies(containerId).length>8) {
+          input.checked=false;safeToast('A mission can have up to eight prerequisites.');
+        }
+      });
+      const name=document.createElement('span');
+      name.textContent=(item.done?'✓ ':'')+item.text.slice(0,95);
+      label.append(input,name);container.append(label);
     }
-    const stillValid = [...select.options].some(option=>option.value===prior);
-    select.value = stillValid ? prior : '';
+    if (!container.children.length) {
+      const hint=document.createElement('small');hint.className='dependency-hint';
+      hint.textContent='No prerequisites available yet. Create a mission first.';
+      container.append(hint);
+    }
   }
   function updateMissionHud(intelligence) {
     $('hud-ready').textContent = String(intelligence.ready).padStart(2,'0');
@@ -563,9 +575,9 @@
   function smartTaskOptions(prefix) {
     const reminderTime = $(prefix+'-reminder-time').value;
     const dueDate = $(prefix==='todo'?'todo-due':'edit-task-due').value;
-    const dependency=$(prefix+'-dependency').value;
+    const dependencies=selectedDependencies(prefix+'-dependency');
     return {recurrence:$(prefix+'-recurrence').value,
-      dependsOn:dependency?[dependency]:[],reminderTime,
+      dependsOn:dependencies,reminderTime,
       estimateMins:Number($(prefix==='todo'?'todo-estimate':'edit-task-estimate').value),
       dueDate};
   }
@@ -720,6 +732,8 @@
     for (const task of items) list.append(renderTaskRow(task));
     populateDependencyOptions('todo-dependency');
     $('clear-completed').disabled=complete===0;
+    renderCalendar();
+    renderDependencyNetwork();
   }
   function renderStats() {
     const today = todayStats();
@@ -1005,7 +1019,7 @@
       const field=$('todo-title'), extra=smartTaskOptions('todo');
       if (extra.reminderTime && !extra.dueDate) return safeToast('Set a due date before adding a reminder time.');
       if(addTask(field.value,{...extra,priority:$('todo-priority').value,category:$('todo-category').value})){
-        field.value='';$('todo-dependency').value='';field.focus();
+        field.value='';$$('#todo-dependency input[type="checkbox"]').forEach(input=>{input.checked=false;});field.focus();
       }
     });
     $('save-edited-task').addEventListener('click',()=>{
