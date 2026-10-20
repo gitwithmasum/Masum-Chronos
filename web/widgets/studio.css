@@ -20,6 +20,7 @@ button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible
 .section-heading>span{font-size:10px;color:#77bcd9}
 .section-heading h2{font-size:clamp(19px,2.4vw,25px);margin:9px 0 0}
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+[hidden]{display:none!important}
 .fields>label{display:grid;gap:7px;font:800 10px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.55px;color:#b2c6e8}
 .fields select{min-width:0;width:100%;padding:12px 10px;border-radius:10px;background:#122443;color:#ecf5ff;border:1px solid rgba(110,159,229,.4);font-size:12px}
 .fields label:first-child,.fields label:nth-child(2){grid-column:auto}
