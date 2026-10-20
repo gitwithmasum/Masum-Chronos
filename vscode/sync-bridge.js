@@ -29,7 +29,13 @@ function cleanTask(task) {
     category:CATEGORIES.has(task.category)?task.category:'Personal',
     dueDate:typeof task.dueDate==='string' && /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)?task.dueDate:'',
     createdAt, completedAt:safeTime(task.completedAt,null),
-    modifiedAt:safeTime(task.modifiedAt, safeTime(task.completedAt,createdAt))
+    modifiedAt:safeTime(task.modifiedAt, safeTime(task.completedAt,createdAt)),
+    recurrence:['daily','weekly','monthly'].includes(task.recurrence)?task.recurrence:'none',
+    dependsOn:Array.isArray(task.dependsOn) ? [...new Set(task.dependsOn
+      .filter(id=>typeof id==='string'&&id.length<=100&&id.length>0&&id!==task.id))].slice(0,8) : [],
+    reminderTime:typeof task.reminderTime==='string'&&/^([01]\\d|2[0-3]):[0-5]\\d$/.test(task.reminderTime)?task.reminderTime:'',
+    estimateMins:Number.isInteger(task.estimateMins)&&task.estimateMins>=0&&task.estimateMins<=480?task.estimateMins:0,
+    seriesId:typeof task.seriesId==='string'&&task.seriesId.length<=100?task.seriesId:''
   };
 }
 function cleanDeleted(value) {
