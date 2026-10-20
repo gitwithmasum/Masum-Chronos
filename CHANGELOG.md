@@ -1,3 +1,11 @@
+## v2.1.0-beta.2 — Final QA & Reliability
+
+- Fix calendar recurrences: monthly 31st stays anchored across short months and daily/weekly schedules use DST-safe date-only arithmetic.
+- Persist the original recurrence anchor in the browser task model, Supabase JSONB payload and Chrome ↔ VS Code local sync bridge without breaking earlier beta task states.
+- Reject Supabase service-role and unknown-role legacy JWTs in client configuration; accept publishable keys and legacy anon keys.
+- Expand automated regressions for month-end recurrence, DST in America/New_York, task deduplication, Cloud configuration safety and previous Settings/Command Palette functionality.
+- Refresh PWA caches and VSIX package version to 2.1.0-beta.2. Real-device behavior, Google OAuth and closed-app notification delivery remain outside automated QA.
+
 ## v2.1.0-beta.1 — Smart Mission Control
 
 - Add dependency-aware Task Engine with cycle protection, blocked mission tracking, ready queue and smart recommendation.
