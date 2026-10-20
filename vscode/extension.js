@@ -15,11 +15,11 @@ let lastNotifiedDeadline = 0;
 const SNAPSHOT_KEY = 'masumChronos.snapshot.v1';
 const ALERT_KEY = 'masumChronos.lastAlert.v1';
 const PAIR_KEY_STORAGE = 'masumChronos.localSyncKey.v1';
-const VERSION = '2.2.0-beta.1';
+const VERSION = '2.3.0-beta.1';
 let bridge = null;
 
 function activeTimer() {
-  if (!snapshot || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', VERSION].includes(snapshot.version)) return null;
+  if (!snapshot || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', VERSION].includes(snapshot.version)) return null;
   if (snapshot.mode === 'stopwatch' && Number.isFinite(snapshot.stopwatch?.startedAt)) {
     const elapsed = (snapshot.stopwatch?.elapsedMs || 0) + Date.now() - snapshot.stopwatch.startedAt;
     return { mode: 'stopwatch', seconds: Math.max(0, Math.floor(elapsed / 1000)) };
@@ -75,6 +75,8 @@ function getWebviewHTML(webview, extensionUri) {
   const controlCssUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'control-center.css'));
   const missionCssUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'mission-control.css'));
   const calendarCssUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'calendar-command.css'));
+  const intelligenceCssUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'intelligence.css'));
+  const intelligenceUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'productivity-intelligence.js'));
   const missionUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'mission-engine.js'));
   const nonce = crypto.randomBytes(18).toString('base64');
   let html = fs.readFileSync(path.join(extensionUri.fsPath, 'web', 'index.html'), 'utf8');
@@ -86,9 +88,11 @@ function getWebviewHTML(webview, extensionUri) {
   html = html.replace('href="./control-center.css"', `href="${controlCssUri}"`);
   html = html.replace('href="./mission-control.css"', `href="${missionCssUri}"`);
   html = html.replace('href="./calendar-command.css"', `href="${calendarCssUri}"`);
+  html = html.replace('href="./intelligence.css"', `href="${intelligenceCssUri}"`);
   html = html.replace('src="./sound-studio.js"', `nonce="${nonce}" src="${soundUri}"`);
   html = html.replace('src="./cloud-sync.js"', `nonce="${nonce}" src="${cloudUri}"`);
   html = html.replace('src="./mission-engine.js"', `nonce="${nonce}" src="${missionUri}"`);
+  html = html.replace('src="./productivity-intelligence.js"', `nonce="${nonce}" src="${intelligenceUri}"`);
   html = html.replace('src="./app.js"', `nonce="${nonce}" src="${jsUri}"`);
   html = html.replace('<title>', `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource}; font-src ${webview.cspSource}; connect-src 'none';" /><title>`);
   return html;
@@ -134,12 +138,12 @@ function bindPanel(panel, context) {
   const receiver = panel.webview.onDidReceiveMessage(async (message) => {
     if (!message || typeof message !== 'object') return;
     if (message.type === 'ready') {
-      if (['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
+      if (['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
       if(bridge) await panel.webview.postMessage({type:'sync-tasks',payload:bridge.getData()});
       announceBridgeStatus();
     } else if (message.type === 'snapshot') {
       const candidate = message.state;
-      if (!candidate || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
+      if (!candidate || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
       if (!snapshot || candidate.updatedAt >= snapshot.updatedAt) {
         snapshot = candidate;
         if(bridge) {
