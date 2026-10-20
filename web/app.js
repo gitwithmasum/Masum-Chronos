@@ -733,6 +733,12 @@
     {title:'Open Settings',hint:'SETTINGS',terms:'settings preferences',act:()=>openSettings()},
     {title:'Cloud Sync & Backup',hint:'CLOUD',terms:'cloud sync backup login',act:()=>{openSettings();activateSettingsTab('cloud')}},
     {title:'Create New Mission',hint:'TASKS',terms:'create new mission task',act:()=>{switchWorkspace('tasks');$('todo-title').focus()}},
+    {title:'Open Smart Calendar',hint:'PLANNING',terms:'calendar schedule time block week',act:()=>{
+      switchWorkspace('tasks');$('calendar-command').scrollIntoView({behavior:'smooth',block:'start'});
+    }},
+    {title:'Open Dependency Network',hint:'PLANNING',terms:'graph network prerequisites dependency',act:()=>{
+      switchWorkspace('tasks');$('dependency-command').scrollIntoView({behavior:'smooth',block:'start'});
+    }},
     {title:'Show Blocked Missions',hint:'TASKS',terms:'blocked dependencies locked',act:()=>setMissionFilter('blocked')},
     {title:'Show Overdue Missions',hint:'TASKS',terms:'due reminders overdue',act:()=>setMissionFilter('overdue')}
   ]);
@@ -1185,6 +1191,7 @@
       const extra=smartTaskOptions('edit-task');
       if(extra.reminderTime&&!extra.dueDate) return safeToast('Set a due date before adding a reminder time.');
       if(mission.hasCycle(state.tasks,task.id,extra.dependsOn))return safeToast('Dependency cycle detected: choose a different prerequisite.');
+      if(task.planDate && extra.dueDate && task.planDate>extra.dueDate) return safeToast('This mission is scheduled after the new due date. Move its calendar block first.');
       task.text=title.slice(0,120);task.priority=$('edit-task-priority').value;
       task.category=$('edit-task-category').value;task.dueDate=extra.dueDate;
       const anchor = task.recurrence === extra.recurrence && task.dueDate === extra.dueDate
