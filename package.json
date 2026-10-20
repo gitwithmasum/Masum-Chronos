@@ -1,8 +1,8 @@
 {
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
-  "description": "Futuristic mission control: Pomodoro, recurring tasks, dependency-aware planning, Command Palette, Galaxy HUD, and offline-first cloud sync.",
-  "version": "2.1.0-beta.2",
+  "description": "Galaxy Command Center with draggable Smart Calendar, conflict detection, up to eight mission dependencies, Pomodoro, Cloud Sync and local-first To-Do.",
+  "version": "2.2.0-beta.1",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {
@@ -69,7 +69,8 @@
     "test:sounds": "node tools/sound_studio_test.cjs",
     "test:cloud": "node tools/cloud_sync_test.cjs",
     "test:settings": "node tools/control_center_test.cjs",
-    "test:missions": "node tools/mission_engine_test.cjs"
+    "test:missions": "node tools/mission_engine_test.cjs",
+    "test:calendar": "node tools/calendar_command_test.cjs"
   },
   "files": [
     "vscode/extension.js",
@@ -84,6 +85,7 @@
     "web/control-center.css",
     "web/mission-engine.js",
     "web/mission-control.css",
+    "web/calendar-command.css",
     "web/icon-192.png",
     "README.md",
     "CHANGELOG.md",
