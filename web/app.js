@@ -560,6 +560,150 @@
       container.append(hint);
     }
   }
+
+  function calendarFeedback(message, error=false) {
+    const el=$('calendar-feedback');
+    el.textContent=message; el.dataset.error=String(error);
+  }
+  function scheduleMission(id,day,time,duration) {
+    const target=state.tasks.find(t=>t.id===id && !t.done);
+    if(!target) return calendarFeedback('Choose an unfinished mission to schedule.',true);
+    const result=mission.planConflicts(state.tasks,id,day,time,duration);
+    if(!result.valid) return calendarFeedback(result.reason,true);
+    target.planDate=day;target.planStart=time;target.planDurationMins=duration;
+    target.modifiedAt=Date.now();
+    persist();renderTasks();
+    calendarFeedback('Scheduled '+target.text+' for '+day+' at '+time+' ('+duration+'m).');
+  }
+  function clearScheduledMission(id) {
+    const task=state.tasks.find(t=>t.id===id);
+    if(!task)return;
+    task.planDate='';task.planStart='';task.planDurationMins=0;task.modifiedAt=Date.now();
+    persist();renderTasks();
+    calendarFeedback('Removed time block for '+task.text+'.');
+  }
+  function makeDraggable(el,task) {
+    el.draggable=true;
+    el.addEventListener('dragstart',event=>{
+      if(!event.dataTransfer)return;
+      event.dataTransfer.setData('text/plain',task.id);
+      event.dataTransfer.effectAllowed='move';
+    });
+  }
+  function renderCalendar() {
+    const picker=$('calendar-task');
+    const selected=picker.value;
+    picker.replaceChildren();
+    const empty=document.createElement('option');empty.value='';empty.textContent='Choose an unfinished mission';
+    picker.append(empty);
+    const open=state.tasks.filter(task=>!task.done).sort((a,b)=>mission.score(b,dateKey())-mission.score(a,dateKey()));
+    for(const task of open) {
+      const option=document.createElement('option');option.value=task.id;option.textContent=task.text.slice(0,90);
+      picker.append(option);
+    }
+    if(open.some(t=>t.id===selected))picker.value=selected;
+    const dateField=$('calendar-date');
+    if(!mission.validDate(dateField.value))dateField.value=dateKey();
+    if(!calendarWeekAnchor)calendarWeekAnchor=dateKey();
+    const days=mission.weekDates(calendarWeekAnchor);
+    const weekday=date=>new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short'});
+    const shortDay=date=>new Date(date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    $('calendar-week-label').textContent=shortDay(days[0])+' – '+shortDay(days[6])+' · DRAG TASKS TO HOURS / KEYBOARD FORM ABOVE';
+    const backlog=$('calendar-backlog');backlog.replaceChildren();
+    const unscheduled=open.filter(task=>!task.planDate);
+    for(const task of unscheduled.slice(0,60)) {
+      const chip=document.createElement('button');chip.type='button';chip.className='calendar-chip';
+      chip.textContent=task.text;
+      const meta=document.createElement('small');
+      meta.textContent=(task.estimateMins||30)+' min'+(task.dueDate?' · due '+task.dueDate:'');
+      chip.append(meta);
+      chip.addEventListener('click',()=>{picker.value=task.id;dateField.focus();});
+      makeDraggable(chip,task);backlog.append(chip);
+    }
+    if(!unscheduled.length){
+      const emptyState=document.createElement('span');emptyState.className='calendar-empty';
+      emptyState.textContent='No unscheduled missions.';backlog.append(emptyState);
+    } else if(unscheduled.length>60) {
+      const more=document.createElement('span');more.className='calendar-empty';
+      more.textContent='Use the mission selector to schedule the remaining '+(unscheduled.length-60)+' missions.';backlog.append(more);
+    }
+    const grid=$('calendar-grid');grid.replaceChildren();
+    for(const day of days) {
+      const column=document.createElement('div');column.className='calendar-day'+(day===dateKey()?' today':'');
+      const header=document.createElement('div');header.className='calendar-day-head';
+      const name=document.createElement('strong');name.textContent=weekday(day);
+      const desc=document.createElement('small');desc.textContent=shortDay(day);
+      header.append(name,desc);column.append(header);
+      for(let hour=0;hour<24;hour++) {
+        const start=String(hour).padStart(2,'0')+':00';
+        const cell=document.createElement('div');cell.className='calendar-hour';
+        cell.dataset.day=day;cell.dataset.hour=start;
+        const label=document.createElement('span');label.className='calendar-hour-label';label.textContent=start;
+        cell.append(label);
+        cell.addEventListener('dragover',event=>{event.preventDefault();cell.classList.add('drag-over');});
+        cell.addEventListener('dragleave',()=>cell.classList.remove('drag-over'));
+        cell.addEventListener('drop',event=>{
+          event.preventDefault();cell.classList.remove('drag-over');
+          const id=event.dataTransfer?.getData('text/plain');
+          const task=state.tasks.find(t=>t.id===id && !t.done);
+          if(!task)return;
+          const duration=task.planDurationMins||task.estimateMins||30;
+          scheduleMission(id,day,start,duration);
+        });
+        for(const task of open.filter(t=>t.planDate===day && mission.minutesOfDay(t.planStart)!==null && Math.floor(mission.minutesOfDay(t.planStart)/60)===hour)) {
+          const item=document.createElement('div');item.className='calendar-card';
+          const blockMins=task.planDurationMins||task.estimateMins||30;
+          const conflicts=mission.planConflicts(state.tasks,task.id,task.planDate,task.planStart,blockMins);
+          if(!conflicts.valid)item.classList.add('conflict');
+          const title=document.createElement('span');title.textContent=task.text;
+          const details=document.createElement('small');details.textContent=task.planStart+' · '+blockMins+'m'+(!conflicts.valid?' · CONFLICT':'');
+          if(!conflicts.valid)item.title=conflicts.reason;
+          const clear=document.createElement('button');clear.type='button';clear.textContent='REMOVE BLOCK';
+          clear.setAttribute('aria-label','Remove time block for '+task.text);
+          clear.addEventListener('click',()=>clearScheduledMission(task.id));
+          item.append(title,details,clear);makeDraggable(item,task);cell.append(item);
+        }
+        column.append(cell);
+      }
+      grid.append(column);
+    }
+  }
+  function renderDependencyNetwork() {
+    const container=$('dependency-network');container.replaceChildren();
+    const links=mission.dependencyLinks(state.tasks,60);
+    if(!links.length) {
+      const empty=document.createElement('p');empty.className='calendar-empty';
+      empty.textContent='No active missions to map yet.';container.append(empty);return;
+    }
+    for(const node of links) {
+      const card=document.createElement('article');card.className='dependency-node'+(node.blocked?' blocked':'');
+      const head=document.createElement('div');head.className='dependency-node-head';
+      const title=document.createElement('strong');title.textContent=node.text;
+      const badge=document.createElement('small');badge.textContent=node.blocked?'LOCKED':'READY';
+      head.append(title,badge);card.append(head);
+      if(node.prerequisites.length) for(const dep of node.prerequisites) {
+        const edge=document.createElement('div');
+        edge.className='dependency-edge'+(dep.done?' done':dep.text==='Missing prerequisite'?' missing':'');
+        edge.textContent=(dep.done?'✓ ': '↳ ')+dep.text+(dep.done?' · COMPLETED':'');
+        card.append(edge);
+      }else{
+        const note=document.createElement('div');note.className='dependency-edge';
+        note.textContent='◉ Independent mission';card.append(note);
+      }
+      const edit=document.createElement('button');edit.type='button';edit.className='dependency-open';
+      edit.textContent='EDIT PREREQUISITES →';edit.addEventListener('click',()=>{
+        const task=state.tasks.find(t=>t.id===node.id);
+        if(task)openTaskEditor(task);
+      });
+      card.append(edit);container.append(card);
+    }
+    if(state.tasks.filter(t=>!t.done).length>60) {
+      const note=document.createElement('p');note.className='calendar-empty';
+      note.textContent='Showing first 60 active missions. Edit the remaining missions through the task queue.';
+      container.append(note);
+    }
+  }
+
   function updateMissionHud(intelligence) {
     $('hud-ready').textContent = String(intelligence.ready).padStart(2,'0');
     $('hud-blocked').textContent = String(intelligence.blocked).padStart(2,'0');
