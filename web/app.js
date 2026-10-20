@@ -813,7 +813,8 @@
   // Due dates are date-only, so a task is announced once per calendar day while
   // the app is open and the user has interacted with audio. No background alarm.
   function checkTaskReminders() {
-    if (!soundInteractionReady || !state.settings.alertSound) return;
+    // Visual reminders/desktop notifications are independent of the optional sound toggle.
+    // Audio still respects the sound permission and browser interaction unlock.
     const minute = Math.floor(Date.now() / 60000);
     if (minute === reminderCheckMinute) return;
     reminderCheckMinute = minute;
@@ -834,7 +835,7 @@
     } catch {}
     const overdue = candidates.some(t => t.dueDate < today);
     const kind = overdue ? 'overdue' : 'taskReminder';
-    void soundStudio.play(kind);
+    if (soundInteractionReady && state.settings.alertSound) void soundStudio.play(kind);
     const message = overdue ? `${candidates.length} mission(s) need attention.` : `${candidates.length} mission(s) due today.`;
     notify(message); safeToast(message);
   }
