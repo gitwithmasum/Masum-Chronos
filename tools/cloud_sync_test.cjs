@@ -59,7 +59,7 @@ const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
  assert.equal(items.get('cloud-account').textContent,'tester@example.test');
  assert.match(items.get('cloud-status').textContent,/SYNCED/);
  cloud.preferencesChanged();
- assert(Number(store.get('chronos-cloud-preferences-changed-v2'))>0,'Preference timestamp must persist');
+ assert(Number(store.get('chronos-cloud-preferences-changed-v2:00000000-0000-4000-8000-000000000001'))>0,'Preference timestamp must persist');
  assert.match(code,/cloud\?\.init\(\)/,'Cloud panel should initialize inside app');
  assert.match(html,/id="cloud-google-login"/,'Login must be accessible');
  assert.match(html,/id="cloud-sync-now"/,'Manual sync must be accessible');
