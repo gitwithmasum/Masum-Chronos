@@ -27,6 +27,8 @@ jobs:
         run: node tools/pages_smoke.cjs
       - name: Smart Sound Studio manual and auto-stop tests
         run: node tools/ringtone_test.cjs
+      - name: Cloud Sync integration regression
+        run: node tools/cloud_sync_test.cjs
       - name: Local sync protocol and security tests
         run: node tools/sync_test.cjs
       - name: VS Code to Chrome sync integration test
@@ -38,12 +40,12 @@ jobs:
       - name: Official Marketplace VSIX package
         run: |
           mkdir -p dist
-          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-1.3.0.vsix
+          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-2.0.0-beta.1.vsix
       - name: Verify Marketplace VSIX content
-        run: python tools/marketplace_check.py dist/masum-chronos-1.3.0.vsix
+        run: python tools/marketplace_check.py dist/masum-chronos-2.0.0-beta.1.vsix
       - name: Upload marketplace release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: masum-chronos-marketplace-v1.3.0
-          path: dist/masum-chronos-1.3.0.vsix
+          name: masum-chronos-marketplace-v2.0.0-beta.1
+          path: dist/masum-chronos-2.0.0-beta.1.vsix
           if-no-files-found: error
