@@ -11,6 +11,7 @@ assert.match(root,/<link\s+rel="manifest"\s+href="\.\/manifest\.webmanifest"/);
 assert(!root.includes('http-equiv="refresh"') && !root.includes('location.replace('),'Root site must render app, not redirect');
 for(const id of ['timer-display','todo-items','ringtone-banner']) assert(root.includes(`id="${id}"`),`Missing ${id} at root`);
 for(const asset of ['app.js','styles.css','sound-studio.js','sound-studio.css','cloud-sync.js','cloud-sync.css','manifest.webmanifest','sw.js','icon.svg']) assert(fs.existsSync('web/'+asset));
+assert(fs.existsSync('sw.js'), 'Root service worker missing');
 assert(app.includes('<title>MASUM CHRONOS'), 'Direct /web app missing');
 assert(!fs.existsSync('.github/workflows/pages.yml'), 'Conflicting Pages Actions publisher must be absent');
 console.log('PAGES: root app, /web/ asset paths and manifest, no redirect, single branch publisher: PASS');
