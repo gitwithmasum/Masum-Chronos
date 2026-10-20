@@ -735,6 +735,10 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden) draw(); });
   }
   function bind() {
+    // Audio authorization normally requires a user gesture. This also enables
+    // due-date sound checks in the To-Do workspace without starting a timer.
+    document.addEventListener('pointerdown', unlockAudio, { once: true });
+    document.addEventListener('keydown', unlockAudio, { once: true });
     $$('[data-mode]').forEach((b) => b.addEventListener('click', () => switchMode(b.dataset.mode)));
     $$('[data-workspace]').forEach((b) => b.addEventListener('click', () => switchWorkspace(b.dataset.workspace)));
     $('todo-jump-timer').addEventListener('click', () => switchWorkspace('timer'));
