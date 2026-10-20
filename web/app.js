@@ -595,7 +595,7 @@
     if(countdown && Number(countdown[1])>=1 && Number(countdown[1])<=180) {
       const minutes=Number(countdown[1]);
       items.push({title:'Start '+minutes+' minute countdown',hint:'START TIMER',act:()=>{
-        setCountdown(minutes*60);switchWorkspace('timer');
+        switchMode('countdown'); setCountdown(minutes*60); switchWorkspace('timer');
         if(!isRunning()) toggleTimer();
       }});
     }
