@@ -1,5 +1,5 @@
 /* Root GitHub Pages offline cache. Root and /web/ pages use separate SW scopes. */
-const CACHE = 'masum-chronos-root-v2.0.0-beta.1';
+const CACHE = 'chronos-root-v2.0.0-beta.1';
 const ASSETS = [
   './', './index.html', './web/index.html',
   './web/styles.css', './web/app.js',
@@ -13,7 +13,7 @@ self.addEventListener('install', event => {
 });
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(
-    keys.filter(key => key.startsWith('masum-chronos-root-') && key !== CACHE).map(key => caches.delete(key))
+    keys.filter(key => key.startsWith('chronos-root-') && key !== CACHE).map(key => caches.delete(key))
   )).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
