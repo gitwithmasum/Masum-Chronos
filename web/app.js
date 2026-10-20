@@ -776,7 +776,10 @@
   }
   function registerServiceWorker() {
     if (!inVSCode && 'serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      // Root GitHub Pages entry uses <base href="./web/"> but needs a root-scope
+      // service worker; direct /web/ entry keeps its own scoped worker.
+      const directWebPage = /\/web\/(?:index\.html)?$/.test(location.pathname);
+      navigator.serviceWorker.register(directWebPage ? './sw.js' : '../sw.js').catch(() => {});
     }
   }
   function initStars() {
