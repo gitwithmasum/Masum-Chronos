@@ -14,9 +14,11 @@
   <link rel="stylesheet" href="./control-center.css" />
   <link rel="stylesheet" href="./mission-control.css" />
   <link rel="stylesheet" href="./calendar-command.css" />
+  <link rel="stylesheet" href="./intelligence.css" />
   <script defer src="./sound-studio.js"></script>
   <script defer src="./cloud-sync.js"></script>
   <script defer src="./mission-engine.js"></script>
+  <script defer src="./productivity-intelligence.js"></script>
   <script defer src="./app.js"></script>
 </head>
 <body data-theme="nebula">
@@ -48,7 +50,7 @@
   <div class="ambient-halo halo-two" aria-hidden="true"></div>
   <div class="app-shell">
     <header class="topbar glass">
-      <div class="brand"><div class="brand-mark"><span class="brand-mark-core"></span></div><div><strong>MASUM<span class="brand-accent">.CHRONOS</span></strong><small>FOCUS + TASK COMMAND CENTER <span class="version">/ V2.2 BETA</span></small></div></div>
+      <div class="brand"><div class="brand-mark"><span class="brand-mark-core"></span></div><div><strong>MASUM<span class="brand-accent">.CHRONOS</span></strong><small>FOCUS + TASK COMMAND CENTER <span class="version">/ V2.3 BETA</span></small></div></div>
       <div class="header-links" role="navigation" aria-label="Workspaces">
         <button class="header-tab active" data-workspace="timer"><svg><use href="#i-clock" /></svg> Focus Timer</button>
         <button class="header-tab" data-workspace="tasks"><svg><use href="#i-check" /></svg> To-Do Missions <span id="nav-pending" class="nav-count">0</span></button>
@@ -215,6 +217,35 @@
         <p>See what unlocks each objective. Edit a mission to choose up to eight prerequisite missions.</p>
         <div id="dependency-network" class="dependency-network" aria-label="Mission dependency visualization"></div>
       </section>
+
+
+      <details id="intelligence-panel" class="glass intelligence-panel" aria-labelledby="intelligence-heading">
+        <summary class="intelligence-toggle"><span class="intelligence-toggle-copy"><span class="section-eyebrow">05 / PRODUCTIVITY INTELLIGENCE · V2.3</span><strong id="intelligence-heading">Galaxy <em>Intelligence.</em></strong><small>Focus analytics, mission trends & secure local reporting</small></span><span class="intelligence-open">EXPAND INSIGHTS ↗</span></summary>
+        <div class="intelligence-content">
+          <div class="intelligence-tools"><label for="intelligence-range">ANALYSIS WINDOW<select id="intelligence-range" aria-label="Analytics time window"><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select></label><div class="intelligence-actions"><button id="intelligence-csv" class="outline-btn" type="button">EXPORT CSV ↓</button><button id="intelligence-pdf" class="solid-btn" type="button">PRINT / SAVE PDF ↗</button></div></div>
+          <div class="intelligence-metrics" aria-label="Productivity metrics">
+            <div class="intelligence-metric"><span>COMPLETED FOCUS</span><strong id="intelligence-focus">0m</strong><small>Recorded session time</small></div>
+            <div class="intelligence-metric"><span>SESSIONS</span><strong id="intelligence-sessions">0</strong><small>Completed Pomodoros</small></div>
+            <div class="intelligence-metric"><span>MISSIONS DONE</span><strong id="intelligence-completed">0</strong><small>Retained task history</small></div>
+            <div class="intelligence-metric"><span>ACTIVE DAYS</span><strong id="intelligence-active">0</strong><small>Days with recorded activity</small></div>
+          </div>
+          <div class="intelligence-visuals">
+            <section class="intelligence-tile" aria-labelledby="intelligence-trend-title">
+              <header><h3 id="intelligence-trend-title">Focus Momentum</h3><small>Minutes per day</small></header><div id="intelligence-trend" class="intelligence-trend" role="img" aria-label="Daily recorded focus minutes"></div>
+            </section>
+            <section class="intelligence-tile" aria-labelledby="intelligence-heatmap-title">
+              <header><h3 id="intelligence-heatmap-title">Mission Activity Heatmap</h3><small>Last 84 days</small></header><div id="intelligence-heatmap" class="intelligence-heatmap" role="group" aria-label="Daily sessions and completed missions"></div>
+              <div class="intelligence-legend"><span>LESS</span><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i><span>MORE</span></div>
+            </section>
+          </div>
+          <section class="intelligence-tile intelligence-comparisons" aria-labelledby="intelligence-estimate-title">
+            <header><h3 id="intelligence-estimate-title">Estimated vs Recorded Focus</h3><small>Mission-level tracking</small></header>
+            <p class="intelligence-note">Only completed Focus sessions assigned to a mission are tracked. Old tasks without recorded focus are excluded rather than shown as 0 actual time. Paused sessions are not counted.</p>
+            <div id="intelligence-comparison-list" class="intelligence-comparison-list"></div>
+          </section>
+          <p class="intelligence-note">Reports use device-local dates and retained mission history. Browser printing provides the Save as PDF option; downloads stay on your device. No AI or external analytics service is required.</p>
+        </div>
+      </details>
 
     </section>
 
