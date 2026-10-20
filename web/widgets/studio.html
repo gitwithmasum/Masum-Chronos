@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="theme-color" content="#090f27"/>
+  <title>CHRONOS / Universal Widget Studio</title>
+  <meta name="description" content="Build and preview portable focus, countdown, task and productivity widgets for your apps."/>
+  <link rel="stylesheet" href="./studio.css"/>
+  <script defer src="./chronos-widgets.js"></script>
+  <script defer src="./studio.js"></script>
+</head>
+<body>
+  <main class="studio">
+    <header class="masthead">
+      <a class="back" href="../../">← BACK TO CHRONOS</a>
+      <p class="eyebrow"><span class="orb"></span> GALAXY PRODUCTIVITY ECOSYSTEM / PHASE 2.4</p>
+      <h1>Universal <em>Widget Studio.</em></h1>
+      <p>Design, preview and embed a portable Chronos tool. Each widget is independent, and no host app data is accessed automatically.</p>
+    </header>
+    <div class="layout">
+      <section class="panel builder" aria-labelledby="builder-heading">
+        <header class="section-heading"><span>01 / CONFIGURATION</span><h2 id="builder-heading">Configure a module</h2></header>
+        <div class="fields">
+          <label>WIDGET TYPE<select id="studio-type">
+            <option value="focus">Focus Timer</option><option value="countdown">Countdown</option>
+            <option value="tasks">Mini To-Do Board</option><option value="stats">Productivity Stats</option>
+          </select></label>
+          <label>GALAXY THEME<select id="studio-theme">
+            <option value="nebula">Nebula</option><option value="cyber">Cyber</option>
+            <option value="aurora">Aurora</option><option value="black-gold">Black & Gold</option>
+            <option value="pearl-waves">Pearl Waves</option>
+          </select></label>
+          <label>WIDGET WIDTH<select id="studio-size">
+            <option value="compact">Compact / 310px</option><option value="regular" selected>Regular / 390px</option>
+            <option value="wide">Wide / 620px</option>
+          </select></label>
+          <label id="studio-minutes-wrap">TIMER DURATION<select id="studio-minutes">
+            <option value="5">5 minutes</option><option value="10">10 minutes</option>
+            <option value="15">15 minutes</option><option value="25" selected>25 minutes</option>
+            <option value="45">45 minutes</option><option value="60">60 minutes</option>
+          </select></label>
+          <label class="studio-source" id="studio-source-wrap">DATA MODE<select id="studio-source">
+            <option value="local">Independent / Local</option>
+            <option value="host">Host-provided / Read only</option>
+          </select></label>
+        </div>
+        <p class="note" id="studio-mode-note">Independent widgets keep their own data separate from the main Chronos app. Browser storage may be restricted for embedded frames.</p>
+        <div class="studio-actions"><button type="button" id="studio-update" class="primary">UPDATE PREVIEW ↗</button></div>
+      </section>
+      <section class="panel preview" aria-labelledby="preview-heading">
+        <header class="section-heading"><span>02 / LIVE PREVIEW</span><h2 id="preview-heading">Your Galaxy Module</h2></header>
+        <div id="studio-preview" class="preview-stage" aria-label="Live widget preview"></div>
+        <p class="note">This preview uses the same embed loader as external websites and apps.</p>
+      </section>
+    </div>
+    <section class="panel install" aria-labelledby="install-heading">
+      <header class="section-heading"><span>03 / INTEGRATION</span><h2 id="install-heading">Copy the embed code</h2></header>
+      <p>Paste this snippet into your HTML page. It loads a small iframe from the Chronos GitHub Pages domain. Your existing application layout and database do not need to change.</p>
+      <textarea id="studio-code" rows="8" readonly spellcheck="false" aria-label="Copyable widget embed code"></textarea>
+      <div class="studio-actions"><button type="button" id="studio-copy" class="primary">COPY EMBED CODE <span>⧉</span></button>
+        <a href="https://github.com/gitwithmasum/Masum-Chronos/blob/main/docs/universal-widget-engine-v2.4.md" target="_blank" rel="noopener noreferrer" class="secondary">INTEGRATION GUIDE ↗</a>
+      </div>
+      <p class="copy-message" id="studio-copy-status" role="status" aria-live="polite"></p>
+    </section>
+    <footer>MASUM CHRONOS · UNIVERSAL WIDGET ENGINE · LOCAL-FIRST / V2.4</footer>
+  </main>
+</body>
+</html>
