@@ -1,7 +1,8 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '2.0.0-beta.2';
+  const VERSION = '2.1.0-beta.1';
+  const mission = window.ChronosMissionEngine;
   const STORAGE_KEY = 'masum-chronos-v1';
   const SYNC_KEY_STORAGE = 'masum-chronos.local-sync-key.v1';
   const SYNC_URL = 'http://127.0.0.1:46469/v1/sync';
@@ -56,16 +57,31 @@
       dueDate: typeof task.dueDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate) && !Number.isNaN(new Date(task.dueDate+'T12:00:00').getTime()) ? task.dueDate : '',
       createdAt: Number.isFinite(task.createdAt) ? task.createdAt : Date.now(),
       completedAt: Number.isFinite(task.completedAt) ? task.completedAt : null,
-      modifiedAt: Number.isFinite(task.modifiedAt) ? task.modifiedAt : (Number.isFinite(task.completedAt) ? task.completedAt : (Number.isFinite(task.createdAt) ? task.createdAt : Date.now()))
+      modifiedAt: Number.isFinite(task.modifiedAt) ? task.modifiedAt : (Number.isFinite(task.completedAt) ? task.completedAt : (Number.isFinite(task.createdAt) ? task.createdAt : Date.now())),
+      ...mission.extras(task, String(task.id || ''))
     };
   }
   function isOverdue(task) { return !task.done && Boolean(task.dueDate) && task.dueDate < dateKey(); }
-  function completeTask(task) { task.done = !task.done; task.completedAt = task.done ? Date.now() : null; task.modifiedAt = Date.now(); persist(); renderTasks(); if (task.done) void soundStudio.play('taskComplete'); }
+  function completeTask(task) {
+    if (!task.done) {
+      const status=mission.dependencyStatus(state.tasks,task);
+      if(status.blocked) return safeToast('Mission locked: finish '+status.names.join(', ')+' first.');
+    }
+    task.done=!task.done;
+    task.completedAt=task.done?Date.now():null;
+    task.modifiedAt=Date.now();
+    if(task.done && state.tasks.length < 300) {
+      const next=mission.nextOccurrence(task,state.tasks,dateKey());
+      if(next) state.tasks.unshift(sanitizeTask(next));
+    }
+    persist(); renderTasks();
+    if(task.done) void soundStudio.play('taskComplete');
+  }
   function addTask(text, options = {}) {
     const clean = text.trim().slice(0, 120);
     if (!clean) return safeToast('Enter a mission title first.');
     if (state.tasks.length >= 300) return safeToast('Maximum 300 missions supported. Clear completed missions to make space.');
-    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now() });
+    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins });
     state.tasks.unshift(task); persist(); renderTasks(); safeToast('Mission deployed.');
     return task;
   }
@@ -76,6 +92,7 @@
     persist(); renderTasks();
   }
   function selectMission(task) {
+    if (mission.dependencyStatus(state.tasks,task).blocked) return safeToast('Complete prerequisite missions before focusing this task.');
     if (state.mode !== 'focus') pauseActive();
     state.activeTaskId = task.id; state.mode = 'focus'; state.workspace = 'timer';
     // Preserve the Focus timer deadline; pause another active timer mode before switching.
@@ -95,7 +112,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -467,6 +484,10 @@
     $('edit-task-priority').value = task.priority;
     $('edit-task-category').value = task.category;
     $('edit-task-due').value = task.dueDate;
+    $('edit-task-recurrence').value = task.recurrence || 'none';
+    $('edit-task-reminder-time').value = task.reminderTime || '';
+    $('edit-task-estimate').value = task.estimateMins || 0;
+    populateDependencyOptions('edit-task-dependency',task.id,task.dependsOn?.[0] || '');
     $('edit-task-dialog').showModal();
   }
   function prettyDueDate(value) {
@@ -477,18 +498,25 @@
   }
   function renderTaskRow(task, compact = false) {
     const row = document.createElement('article');
-    row.className = `mission-row ${task.done ? 'is-done' : ''} ${isOverdue(task) ? 'is-overdue' : ''}`;
+    const waiting = mission.dependencyStatus(state.tasks,task);
+    row.className = `mission-row ${task.done ? 'is-done' : ''} ${isOverdue(task) ? 'is-overdue' : ''} ${waiting.blocked&&!task.done?'is-blocked':''}`;
     const check = createIconButton('check', task.done ? `Reopen ${task.text}` : `Complete ${task.text}`, 'mission-check', () => completeTask(task));
+    check.disabled = !task.done && waiting.blocked;
     const info = document.createElement('div'); info.className = 'mission-info';
     const name = document.createElement('h3'); name.textContent = task.text;
     const tags = document.createElement('div'); tags.className = 'mission-tags';
     const cat = document.createElement('span'); cat.className = 'mission-category'; cat.textContent = task.category.toUpperCase();
     const prio = document.createElement('span'); prio.className = `mission-priority priority-${task.priority}`; prio.textContent = `◆ ${task.priority.toUpperCase()}`;
     tags.append(cat, prio);
+    if (task.recurrence && task.recurrence !== 'none') {
+      const repeat=document.createElement('span');repeat.className='mission-recurrence';repeat.textContent='↻ '+task.recurrence.toUpperCase();tags.append(repeat);
+    }
+    if(task.estimateMins) {const duration=document.createElement('span');duration.className='mission-recurrence';duration.textContent=task.estimateMins+' MIN';tags.append(duration);}
+    if(waiting.blocked&&!task.done) {const lock=document.createElement('span');lock.className='mission-blocked';lock.textContent='LOCKED · '+waiting.names.join(', ');tags.append(lock);}
     if (task.dueDate) { const due = document.createElement('span'); due.className = `mission-due ${isOverdue(task) ? 'late' : ''}`; due.textContent = `${isOverdue(task) ? '⚠ ' : ''}${prettyDueDate(task.dueDate)}`; tags.append(due); }
     info.append(name,tags);
     const actions = document.createElement('div'); actions.className = 'mission-actions';
-    if (!task.done) { const focus = document.createElement('button'); focus.type = 'button'; focus.className = 'mission-focus'; focus.textContent = '◉ FOCUS'; focus.addEventListener('click', () => selectMission(task)); actions.append(focus); }
+    if (!task.done) { const focus = document.createElement('button'); focus.type = 'button'; focus.className = 'mission-focus'; focus.textContent = waiting.blocked ? '◈ LOCKED':'◉ FOCUS'; focus.disabled=waiting.blocked; focus.addEventListener('click', () => selectMission(task)); actions.append(focus); }
     actions.append(createIconButton('pencil',`Edit ${task.text}`,'mission-icon-btn',()=>openTaskEditor(task)));
     actions.append(createIconButton('trash',`Delete ${task.text}`,'mission-icon-btn danger',()=>removeTask(task)));
     row.append(check,info,actions);
@@ -501,6 +529,7 @@
       if (currentTaskFilter === 'upcoming') return !t.done && t.dueDate > dateKey();
       if (currentTaskFilter === 'overdue') return isOverdue(t);
       if (currentTaskFilter === 'completed') return t.done;
+      if (currentTaskFilter === 'blocked') return !t.done && mission.dependencyStatus(state.tasks,t).blocked;
       return true;
     });
     const sortBy = $('todo-sort').value;
@@ -518,7 +547,7 @@
     const active = state.tasks.length - complete;
     $('task-count').textContent = `${complete}/${state.tasks.length}`;
     $('nav-pending').textContent = String(active);
-    const quick = state.tasks.filter(t => !t.done).sort((a,b) => PRIORITIES[b.priority] - PRIORITIES[a.priority]).slice(0, 5);
+    const quick = state.tasks.filter(t => !t.done && !mission.dependencyStatus(state.tasks,t).blocked).sort((a,b) => PRIORITIES[b.priority] - PRIORITIES[a.priority]).slice(0, 5);
     if (!quick.length) {
       const p = document.createElement('p'); p.className='no-tasks'; p.textContent = state.tasks.length ? 'All objectives cleared. Open Mission Control for history.' : 'The mission queue is empty. Add your first objective below.'; parent.append(p);
     }
@@ -540,7 +569,9 @@
     $('todo-progress-fraction').textContent=`${complete} / ${state.tasks.length}`;
     $('todo-progress-title').textContent=pct===100 && state.tasks.length ? 'All missions cleared' : active ? 'Your future is in motion' : 'Ready to launch';
     $('todo-progress-message').textContent=active ? `${active} active mission${active === 1 ? '' : 's'}. Keep moving forward.` : 'Every great project begins with one action.';
-    const next = state.tasks.filter(t=>!t.done).sort((a,b)=>PRIORITIES[b.priority]-PRIORITIES[a.priority] || (a.dueDate || '9999').localeCompare(b.dueDate || '9999'))[0];
+    const insight = mission.overview(state.tasks,dateKey());
+    updateMissionHud(insight);
+    const next = insight.recommended;
     $('todo-next-content').replaceChildren();
     const nextBtn=$('todo-focus-next'); nextBtn.disabled=!next;
     nextBtn.onclick= next ? ()=>selectMission(next) : null;
@@ -665,7 +696,7 @@
     const key = 'masum-chronos.task-alerts.' + today;
     let already = {};
     try { already = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
-    const candidates = state.tasks.filter(t => !t.done && t.dueDate && t.dueDate <= today && !already[t.id]);
+    const candidates = mission.reminderCandidates(state.tasks,today,new Date().toTimeString().slice(0,5),already);
     if (!candidates.length) return;
     for (const task of candidates) already[task.id] = true;
     try {
@@ -922,7 +953,7 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', '2.0.0-beta.1', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); soundStudio.render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);
