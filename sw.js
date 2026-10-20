@@ -1,5 +1,5 @@
 /* Root GitHub Pages offline cache. Root and /web/ pages use separate SW scopes. */
-const CACHE = 'chronos-root-v2.1.0-beta.1-mission';
+const CACHE = 'chronos-root-v2.1.0-beta.2-mission';
 const ASSETS = [
   './', './index.html', './web/index.html',
   './web/styles.css', './web/app.js',
