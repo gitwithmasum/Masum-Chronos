@@ -17,4 +17,8 @@ for(const asset of ['app.js','styles.css','sound-studio.js','sound-studio.css','
 assert(fs.existsSync('sw.js'), 'Root service worker missing');
 assert(app.includes('<title>MASUM CHRONOS'), 'Direct /web app missing');
 assert(!fs.existsSync('.github/workflows/pages.yml'), 'Conflicting Pages Actions publisher must be absent');
+
+for (const file of ["widget.html","widget.css","widget.js","widget-core.js","chronos-widgets.js","studio.html","studio.css","studio.js"]) assert(fs.existsSync('web/widgets/'+file),'Required widget asset missing: '+file);
+assert.match(root,/web\/widgets\/studio\.html/,'Widget Studio entry missing from GitHub Pages root');
+assert.match(web,/web\/widgets\/studio\.html/,'Widget Studio entry missing from web page');
 console.log('PAGES: root app, /web/ asset paths and manifest, no redirect, single branch publisher: PASS');
