@@ -17,6 +17,6 @@ assert(css.includes('#d632a2') && css.includes('#6d49b4'), 'Theme colors changed
 assert(app.includes("'pearl-waves'].includes(s.theme)"), 'Pearl Waves not accepted in persisted state');
 assert(app.includes("'1.2.2', '1.2.3', '1.3.0', VERSION"), 'Existing v1.2.2 user state may be discarded');
 assert(app.includes('persist();'), 'Local persistence removed');
-assert(read('web/sw.js').includes('v2.0.0-beta.1-cloud'), 'PWA cache version not updated');
-assert(read('vscode/extension.js').includes("const VERSION = '2.0.0-beta.1'"), 'VS Code extension version mismatch');
+assert(read('web/sw.js').includes('v2.0.0-beta.2-control-center'), 'PWA cache version not updated');
+assert(read('vscode/extension.js').includes("const VERSION = '2.0.0-beta.2'"), 'VS Code extension version mismatch');
 console.log('THEMES: Pearl Waves, original themes, stored preferences, migration and PWA cache: PASS');
