@@ -1,3 +1,11 @@
+## v2.0.0-beta.2 — Futuristic Settings Control Center
+
+- Replace crowded Settings overlay with five clearly separated modules and a visual galaxy command rail.
+- Add responsive horizontal navigation for narrow screens and themed Pearl Waves light mode.
+- Support accessible tab semantics, arrow/Home/End keyboard navigation and pinned Save/Close controls.
+- Preserve sound studio, Supabase Cloud panel, Chrome ↔ VS Code pairing, timer options, previous beta user data.
+- Refresh PWA caches and Marketplace VSIX packaging to include the new Control Center stylesheet and regression test.
+
 ## v2.0.0-beta.1 — Shared Supabase Cloud Foundation
 
 - Installed `chronos_missions`, `chronos_preferences`, `chronos_backups`, RLS and authenticated security-invoker sync RPCs in the existing NovaStudy Supabase project. No `ns_*` tables changed.
