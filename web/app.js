@@ -81,7 +81,7 @@
     const clean = text.trim().slice(0, 120);
     if (!clean) return safeToast('Enter a mission title first.');
     if (state.tasks.length >= 300) return safeToast('Maximum 300 missions supported. Clear completed missions to make space.');
-    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins });
+    const task = sanitizeTask({ id: `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`, text: clean, done: false, priority: options.priority || 'medium', category: options.category || 'Personal', dueDate: options.dueDate || '', createdAt: Date.now(), modifiedAt: Date.now(), recurrence:options.recurrence, recurrenceAnchor: options.recurrence && options.recurrence !== 'none' ? (options.dueDate || dateKey()) : '', dependsOn:options.dependsOn, reminderTime:options.reminderTime, estimateMins:options.estimateMins });
     state.tasks.unshift(task); persist(); renderTasks(); safeToast('Mission deployed.');
     return task;
   }
@@ -1017,7 +1017,10 @@
       if(mission.hasCycle(state.tasks,task.id,extra.dependsOn))return safeToast('Dependency cycle detected: choose a different prerequisite.');
       task.text=title.slice(0,120);task.priority=$('edit-task-priority').value;
       task.category=$('edit-task-category').value;task.dueDate=extra.dueDate;
-      Object.assign(task,mission.extras(extra,task.id));
+      const anchor = task.recurrence === extra.recurrence && task.dueDate === extra.dueDate
+        ? (task.recurrenceAnchor || task.dueDate || dateKey())
+        : (extra.dueDate || dateKey());
+      Object.assign(task,mission.extras({...extra,recurrenceAnchor:extra.recurrence==='none'?'':anchor},task.id));
       task.modifiedAt=Date.now();editingTaskId=null;persist();renderTasks();
       $('edit-task-dialog').close();safeToast('Mission updated.');
     });
