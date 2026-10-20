@@ -1158,6 +1158,18 @@
     $$('[data-task-filter]').forEach(b => b.addEventListener('click', () => {currentTaskFilter=b.dataset.taskFilter;$$('[data-task-filter]').forEach(x=>x.classList.toggle('active',x===b));renderTasks();}));
     $('todo-search').addEventListener('input', e => {currentTaskSearch=e.target.value.trim().toLowerCase();renderTasks();});
     $('todo-sort').addEventListener('change',renderTasks);
+    $('calendar-prev').addEventListener('click',()=>{calendarWeekAnchor=mission.shiftWeek(calendarWeekAnchor||dateKey(),-1);renderCalendar();});
+    $('calendar-next').addEventListener('click',()=>{calendarWeekAnchor=mission.shiftWeek(calendarWeekAnchor||dateKey(),1);renderCalendar();});
+    $('calendar-today').addEventListener('click',()=>{calendarWeekAnchor=dateKey();$('calendar-date').value=dateKey();renderCalendar();});
+    $('calendar-task').addEventListener('change',()=>{
+      const task=state.tasks.find(t=>t.id===$('calendar-task').value);
+      if(task) $('calendar-duration').value=task.planDurationMins||task.estimateMins||30;
+    });
+    $('calendar-schedule').addEventListener('click',()=>{
+      const minutes=Number($('calendar-duration').value);
+      scheduleMission($('calendar-task').value,$('calendar-date').value,$('calendar-time').value,minutes);
+    });
+
     $('todo-form').addEventListener('submit', event=>{
       event.preventDefault();
       const field=$('todo-title'), extra=smartTaskOptions('todo');
@@ -1178,7 +1190,8 @@
       const anchor = task.recurrence === extra.recurrence && task.dueDate === extra.dueDate
         ? (task.recurrenceAnchor || task.dueDate || dateKey())
         : (extra.dueDate || dateKey());
-      Object.assign(task,mission.extras({...extra,recurrenceAnchor:extra.recurrence==='none'?'':anchor},task.id));
+      Object.assign(task,mission.extras({...extra,recurrenceAnchor:extra.recurrence==='none'?'':anchor,
+        planDate:task.planDate,planStart:task.planStart,planDurationMins:task.planDurationMins},task.id));
       task.modifiedAt=Date.now();editingTaskId=null;persist();renderTasks();
       $('edit-task-dialog').close();safeToast('Mission updated.');
     });
