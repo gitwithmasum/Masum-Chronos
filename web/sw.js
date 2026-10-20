@@ -1,6 +1,6 @@
 /* Minimal offline cache for local PWA; no external requests. */
-const CACHE = 'masum-chronos-v2.1.0-beta.2-reliability-final';
-const ASSETS = ['./', './index.html', './styles.css', './app.js', './sound-studio.js', './sound-studio.css', './cloud-sync.js', './cloud-sync.css', './control-center.css', './mission-control.css', './mission-engine.js', './icon.svg', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
+const CACHE = 'masum-chronos-v2.2.0-beta.1-smart-calendar';
+const ASSETS = ['./', './index.html', './styles.css', './app.js', './sound-studio.js', './sound-studio.css', './cloud-sync.js', './cloud-sync.css', './control-center.css', './mission-control.css', './calendar-command.css', './mission-engine.js', './icon.svg', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
