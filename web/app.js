@@ -696,6 +696,22 @@
       if (thisSecond % 60 === 0) renderStats();
     }
   }
+  const SETTINGS_TABS = ['focus','appearance','sound','cloud','link'];
+  let activeSettingsTab = 'focus';
+  function activateSettingsTab(next, focusButton = false) {
+    if (!SETTINGS_TABS.includes(next)) return;
+    activeSettingsTab = next;
+    $('[data-settings-tab]').forEach(button => {
+      const chosen = button.dataset.settingsTab === next;
+      button.classList.toggle('active', chosen);
+      button.setAttribute('aria-selected', String(chosen));
+      button.tabIndex = chosen ? 0 : -1;
+      if (chosen && focusButton) button.focus();
+    });
+    $('[data-settings-panel]').forEach(panel => { panel.hidden = panel.dataset.settingsPanel !== next; });
+    const pane = $('settings-dialog').querySelector('.cc-main');
+    if (pane) pane.scrollTop = 0;
+  }
   function openSettings() {
     $('focus-mins').value = state.focus.focusMins;
     $('short-mins').value = state.focus.shortMins;
@@ -709,6 +725,7 @@
     $('notify-btn').textContent = inVSCode ? 'VS CODE ALERTS ENABLED' : ('Notification' in window && Notification.permission === 'granted') ? 'NOTIFICATIONS ENABLED' : 'ENABLE NOTIFICATIONS';
     $$('[data-theme-choice]').forEach((b) => b.classList.toggle('active', b.dataset.themeChoice === state.theme));
     soundStudio.render();
+    activateSettingsTab(activeSettingsTab);
     $('settings-dialog').showModal();
   }
   function saveSettings() {
@@ -719,7 +736,12 @@
       ['long-every', 2, 12, state.focus.longEvery]
     ];
     const valid = vals.map(([id, low, high, fallback]) => boundedInt($(id).value, low, high, fallback));
-    if (vals.some(([id, low, high], i) => String(valid[i]) !== String($(id).value))) return safeToast('Please enter whole numbers within the allowed ranges.');
+    const invalidIndex = vals.findIndex(([id], i) => String(valid[i]) !== String($(id).value));
+    if (invalidIndex !== -1) {
+      activateSettingsTab('focus');
+      $(vals[invalidIndex][0]).focus();
+      return safeToast('Enter whole numbers within the allowed ranges.');
+    }
     [state.focus.focusMins, state.focus.shortMins, state.focus.longMins, state.focus.longEvery] = valid;
     state.settings.autoBreak = $('auto-break').checked;
     state.settings.autoFocus = $('auto-focus').checked;
@@ -834,6 +856,22 @@
     $('configure-btn').addEventListener('click', () => state.mode === 'countdown' ? $('custom-dialog').showModal() : openSettings());
     $('custom-countdown-btn').addEventListener('click', () => $('custom-dialog').showModal());
     $('open-settings').addEventListener('click', openSettings);
+    $('cc-close-settings').addEventListener('click', () => $('settings-dialog').close());
+    const tabButtons = $('[data-settings-tab]');
+    tabButtons.forEach((button, index) => {
+      button.addEventListener('click', () => activateSettingsTab(button.dataset.settingsTab));
+      button.addEventListener('keydown', event => {
+        const n = tabButtons.length;
+        let next = -1;
+        if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = n - 1;
+        else if (event.key === 'ArrowRight' || event.key === 'ArrowDown')
+          next = (index + 1) % n;
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp')
+          next = (index + n - 1) % n;
+        if (next !== -1) { event.preventDefault(); activateSettingsTab(tabButtons[next].dataset.settingsTab, true); }
+      });
+    });
     $('sync-connect').addEventListener('click', async () => {
       if(inVSCode){sendHost('start-sync');return;}
       const candidate=$('sync-key').value.trim();
