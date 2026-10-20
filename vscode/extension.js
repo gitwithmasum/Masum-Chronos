@@ -15,11 +15,11 @@ let lastNotifiedDeadline = 0;
 const SNAPSHOT_KEY = 'masumChronos.snapshot.v1';
 const ALERT_KEY = 'masumChronos.lastAlert.v1';
 const PAIR_KEY_STORAGE = 'masumChronos.localSyncKey.v1';
-const VERSION = '1.3.0';
+const VERSION = '2.0.0-beta.1';
 let bridge = null;
 
 function activeTimer() {
-  if (!snapshot || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', VERSION].includes(snapshot.version)) return null;
+  if (!snapshot || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', VERSION].includes(snapshot.version)) return null;
   if (snapshot.mode === 'stopwatch' && Number.isFinite(snapshot.stopwatch?.startedAt)) {
     const elapsed = (snapshot.stopwatch?.elapsedMs || 0) + Date.now() - snapshot.stopwatch.startedAt;
     return { mode: 'stopwatch', seconds: Math.max(0, Math.floor(elapsed / 1000)) };
@@ -70,13 +70,17 @@ function getWebviewHTML(webview, extensionUri) {
   const jsUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'app.js'));
   const soundUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'sound-studio.js'));
   const studioCssUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'sound-studio.css'));
+  const cloudUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'cloud-sync.js'));
+  const cloudCssUri = webview.asWebviewUri(vscode.Uri.joinPath(folder, 'cloud-sync.css'));
   const nonce = crypto.randomBytes(18).toString('base64');
   let html = fs.readFileSync(path.join(extensionUri.fsPath, 'web', 'index.html'), 'utf8');
   // Webviews use asWebviewUri and cannot install service workers. Icon/manifest are PWA-only.
   html = html.replace(/\s*<link rel="icon"[^>]+>/, '').replace(/\s*<link rel="manifest"[^>]+>/, '');
   html = html.replace('href="./styles.css"', `href="${styleUri}"`);
   html = html.replace('href="./sound-studio.css"', `href="${studioCssUri}"`);
+  html = html.replace('href="./cloud-sync.css"', `href="${cloudCssUri}"`);
   html = html.replace('src="./sound-studio.js"', `nonce="${nonce}" src="${soundUri}"`);
+  html = html.replace('src="./cloud-sync.js"', `nonce="${nonce}" src="${cloudUri}"`);
   html = html.replace('src="./app.js"', `nonce="${nonce}" src="${jsUri}"`);
   html = html.replace('<title>', `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' ${webview.cspSource}; font-src ${webview.cspSource}; connect-src 'none';" /><title>`);
   return html;
@@ -122,12 +126,12 @@ function bindPanel(panel, context) {
   const receiver = panel.webview.onDidReceiveMessage(async (message) => {
     if (!message || typeof message !== 'object') return;
     if (message.type === 'ready') {
-      if (['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
+      if (['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', VERSION].includes(snapshot?.version)) await panel.webview.postMessage({ type: 'hydrate', state: snapshot });
       if(bridge) await panel.webview.postMessage({type:'sync-tasks',payload:bridge.getData()});
       announceBridgeStatus();
     } else if (message.type === 'snapshot') {
       const candidate = message.state;
-      if (!candidate || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
+      if (!candidate || !['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2', '1.2.3', '1.3.0', VERSION].includes(candidate.version) || !Number.isFinite(candidate.updatedAt)) return;
       if (!snapshot || candidate.updatedAt >= snapshot.updatedAt) {
         snapshot = candidate;
         if(bridge) {
