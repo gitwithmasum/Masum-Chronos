@@ -2,7 +2,7 @@
   "name": "masum-chronos",
   "displayName": "MASUM CHRONOS — Futuristic Timer & To-Do",
   "description": "Futuristic mission control: Pomodoro, recurring tasks, dependency-aware planning, Command Palette, Galaxy HUD, and offline-first cloud sync.",
-  "version": "2.1.0-beta.1",
+  "version": "2.1.0-beta.2",
   "publisher": "gitwithmasum",
   "license": "MIT",
   "engines": {
