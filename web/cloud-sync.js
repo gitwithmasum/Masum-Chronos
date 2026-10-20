@@ -25,7 +25,7 @@
   function messageFrom(data, fallback) {
     return data?.message || data?.msg || data?.error_description || data?.error || fallback;
   }
-  window.createChronosCloud = function createChronosCloud({ getSnapshot, mergeMissions, applyPreferences, restoreSnapshot, toast, inVSCode }) {
+  window.createChronosCloud = function createChronosCloud({ getSnapshot, mergeMissions, applyPreferences, restoreSnapshot, onAccountChanged, toast, inVSCode }) {
     let config = safeRead(CFG_KEY, null) || DEFAULT_CONFIG, session = null, user = null;
     let busy = false, lastStatus = defaultStatus, confirmRestoreUntil = 0, remoteRows = [];
     let syncInterval = null;
@@ -81,7 +81,15 @@
       if (!config || !session) return;
       const data = await authenticatedRequest('GET', '/auth/v1/user');
       if (!data?.id) throw Error('Cloud sign-in was not verified.');
+      const lastId = (() => { try { return localStorage.getItem('chronos-cloud-bound-account-v2'); } catch { return null; } })();
+      if (lastId && lastId !== data.id && typeof onAccountChanged === 'function') onAccountChanged(data.id, lastId);
+      try { localStorage.setItem('chronos-cloud-bound-account-v2', data.id); } catch {}
       user = { id: data.id, email: data.email };
+      try {
+        const pending = Number(localStorage.getItem(PREF_KEY + ':pending')) || 0;
+        if (pending && !lastId) localStorage.setItem(PREF_KEY + ':' + user.id, String(pending));
+        localStorage.removeItem(PREF_KEY + ':pending');
+      } catch {}
       setStatus('SIGNED IN — ' + (user.email || 'account') + ' · Ready to sync');
       controls();
       await sync();
@@ -153,7 +161,8 @@
       }
     }
     function localPreferenceStamp() {
-      try { return Number(localStorage.getItem(PREF_KEY)) || 0; } catch { return 0; }
+      if (!user) return 0;
+      try { return Number(localStorage.getItem(PREF_KEY + ':' + user.id)) || 0; } catch { return 0; }
     }
     async function syncPreferences() {
       const values = await authenticatedRequest('GET',
@@ -162,7 +171,7 @@
       const localStamp = localPreferenceStamp();
       if (remote && Number(remote.modified_at) >= localStamp && remote.payload) {
         applyPreferences(remote.payload);
-        try { localStorage.setItem(PREF_KEY, String(remote.modified_at)); } catch {}
+        try { localStorage.setItem(PREF_KEY + ':' + user.id, String(remote.modified_at)); } catch {}
         return;
       }
       if (localStamp || !remote) {
@@ -173,7 +182,7 @@
             focusMins: snapshot.focus.focusMins, shortMins: snapshot.focus.shortMins,
             longMins: snapshot.focus.longMins, longEvery: snapshot.focus.longEvery
           }}, p_modified_at: stamp });
-        try { localStorage.setItem(PREF_KEY, String(stamp)); } catch {}
+        try { localStorage.setItem(PREF_KEY + ':' + user.id, String(stamp)); } catch {}
       }
     }
     async function createBackup(automatic = false) {
@@ -233,7 +242,12 @@
       await sync();
     }
     function preferencesChanged() {
-      try { localStorage.setItem(PREF_KEY, String(Date.now())); } catch {}
+      // If offline before first login, this stamp is adopted for the first
+      // account only. Already signed-in accounts keep their own preference timestamps.
+      try {
+        if (user) localStorage.setItem(PREF_KEY + ':' + user.id, String(Date.now()));
+        else localStorage.setItem(PREF_KEY + ':pending', String(Date.now()));
+      } catch {}
     }
     async function signout() {
       if (session && config) {
