@@ -666,7 +666,7 @@
     $('nav-pending').textContent = String(active);
     const quick = state.tasks.filter(t => !t.done && !mission.dependencyStatus(state.tasks,t).blocked).sort((a,b) => PRIORITIES[b.priority] - PRIORITIES[a.priority]).slice(0, 5);
     if (!quick.length) {
-      const p = document.createElement('p'); p.className='no-tasks'; p.textContent = state.tasks.length ? 'All objectives cleared. Open Mission Control for history.' : 'The mission queue is empty. Add your first objective below.'; parent.append(p);
+      const p = document.createElement('p'); p.className='no-tasks'; p.textContent = state.tasks.some(t=>!t.done) ? 'Remaining missions are locked. Open Mission Control to resolve prerequisites.' : state.tasks.length ? 'All objectives cleared. Open Mission Control for history.' : 'The mission queue is empty. Add your first objective below.'; parent.append(p);
     }
     quick.forEach(task => {
       const el = document.createElement('div'); el.className = 'task-item';
@@ -696,7 +696,7 @@
       const h=document.createElement('h3');h.textContent=next.text;
       const meta=document.createElement('p');meta.textContent=`${next.priority.toUpperCase()} PRIORITY · ${next.category.toUpperCase()}${next.dueDate ? ` · ${prettyDueDate(next.dueDate)}` : ''}`;
       $('todo-next-content').append(h,meta);
-    } else {const p=document.createElement('p');p.textContent='No active missions. Deploy a new objective to begin.';$('todo-next-content').append(p);}
+    } else {const p=document.createElement('p');p.textContent=insight.blocked ? 'All open missions are locked. Complete or edit their prerequisites.' : 'No active missions. Deploy a new objective to begin.';$('todo-next-content').append(p);}
     const target=state.tasks.find(t=>t.id === state.activeTaskId);
     $('focus-target').classList.toggle('hidden', !target);
     if(target) $('focus-target').textContent=`◉ CURRENT MISSION / ${target.text}`;
