@@ -522,6 +522,123 @@
     row.append(check,info,actions);
     return row;
   }
+
+  function populateDependencyOptions(selectId, ownId = '', preferred = '') {
+    const select = $(selectId);
+    if (!select) return;
+    const prior = preferred || select.value;
+    select.replaceChildren();
+    const empty = document.createElement('option');
+    empty.value = ''; empty.textContent = 'No dependency';
+    select.append(empty);
+    for (const task of state.tasks.filter(t => !t.done && t.id !== ownId)) {
+      if (ownId && mission.hasCycle(state.tasks,ownId,[task.id])) continue;
+      const item = document.createElement('option');
+      item.value = task.id;
+      item.textContent = task.text.slice(0,55);
+      select.append(item);
+    }
+    const stillValid = [...select.options].some(option=>option.value===prior);
+    select.value = stillValid ? prior : '';
+  }
+  function updateMissionHud(intelligence) {
+    $('hud-ready').textContent = String(intelligence.ready).padStart(2,'0');
+    $('hud-blocked').textContent = String(intelligence.blocked).padStart(2,'0');
+    $('hud-due').textContent = String(intelligence.due).padStart(2,'0');
+    const m = intelligence.planned;
+    $('hud-estimate').textContent = m>=60? Math.floor(m/60)+'h '+(m%60)+'m':m+'m';
+    const recommendation = intelligence.recommended;
+    $('hud-next-task').textContent = recommendation
+      ? '◉ RECOMMENDED NEXT / '+recommendation.text + (recommendation.dueDate ? ' · '+prettyDueDate(recommendation.dueDate):'')
+      : intelligence.blocked ? 'All remaining missions are locked. Complete or edit prerequisites to continue.'
+      : 'Deploy a mission to initialize your intelligent queue.';
+  }
+  function smartTaskOptions(prefix) {
+    const reminderTime = $(prefix+'-reminder-time').value;
+    const dueDate = $(prefix==='todo'?'todo-due':'edit-task-due').value;
+    const dependency=$(prefix+'-dependency').value;
+    return {recurrence:$(prefix+'-recurrence').value,
+      dependsOn:dependency?[dependency]:[],reminderTime,
+      estimateMins:Number($(prefix==='todo'?'todo-estimate':'edit-task-estimate').value),
+      dueDate};
+  }
+  const COMMAND_HINTS = Object.freeze([
+    {title:'Open Mission Control',hint:'TASKS',terms:'mission tasks todo board',act:()=>switchWorkspace('tasks')},
+    {title:'Open Focus Timer',hint:'TIMER',terms:'pomodoro timer focus',act:()=>{switchWorkspace('timer');switchMode('focus')}},
+    {title:'Open Stopwatch',hint:'TIMER',terms:'stopwatch',act:()=>{switchWorkspace('timer');switchMode('stopwatch')}},
+    {title:'Open Countdown',hint:'TIMER',terms:'countdown',act:()=>{switchWorkspace('timer');switchMode('countdown')}},
+    {title:'Open Settings',hint:'SETTINGS',terms:'settings preferences',act:()=>openSettings()},
+    {title:'Cloud Sync & Backup',hint:'CLOUD',terms:'cloud sync backup login',act:()=>{openSettings();activateSettingsTab('cloud')}},
+    {title:'Create New Mission',hint:'TASKS',terms:'create new mission task',act:()=>{switchWorkspace('tasks');$('todo-title').focus()}},
+    {title:'Show Blocked Missions',hint:'TASKS',terms:'blocked dependencies locked',act:()=>setMissionFilter('blocked')},
+    {title:'Show Overdue Missions',hint:'TASKS',terms:'due reminders overdue',act:()=>setMissionFilter('overdue')}
+  ]);
+  let commandItems = [], selectedCommand = 0;
+  function setMissionFilter(filter) {
+    currentTaskFilter = filter;
+    switchWorkspace('tasks');
+    $('[data-task-filter]').forEach(item=>item.classList.toggle('active',item.dataset.taskFilter===filter));
+    renderTasks();
+  }
+  function closeCommandPalette() {
+    if ($('command-dialog').open) $('command-dialog').close();
+  }
+  function runCommand(item) { closeCommandPalette(); item.act(); }
+  function renderCommands() {
+    const raw=$('command-query').value.trim(), query=raw.toLowerCase();
+    const items=[];
+    if(/^task\s+\S/i.test(raw)) {
+      const name=raw.replace(/^task\s+/i,'').slice(0,120);
+      items.push({title:'Create mission: '+name,hint:'NEW TASK',act:()=>{const t=addTask(name);if(t)switchWorkspace('tasks')}});
+    }
+    const countdown=raw.match(/^(?:timer|countdown)\s+(\d{1,3})$/i);
+    if(countdown && Number(countdown[1])>=1 && Number(countdown[1])<=180) {
+      const minutes=Number(countdown[1]);
+      items.push({title:'Start '+minutes+' minute countdown',hint:'START TIMER',act:()=>{
+        setCountdown(minutes*60);switchWorkspace('timer');
+        if(!isRunning()) toggleTimer();
+      }});
+    }
+    for (const item of COMMAND_HINTS) if(!query || (item.title+' '+item.terms).toLowerCase().includes(query)) items.push(item);
+    for(const task of state.tasks.filter(x=>!x.done && !mission.dependencyStatus(state.tasks,x).blocked)) {
+      if(!query || task.text.toLowerCase().includes(query))
+        items.push({title:'Focus: '+task.text,hint:'MISSION',act:()=>selectMission(task)});
+      if(items.length >= 12) break;
+    }
+    commandItems=items.slice(0,10);
+    selectedCommand=0;
+    const container=$('command-results');container.replaceChildren();
+    if(!commandItems.length){const empty=document.createElement('p');empty.className='command-empty';empty.textContent='No matching actions. Try "task My goal" or "timer 15".';container.append(empty);return;}
+    commandItems.forEach((item,index)=>{
+      const button=document.createElement('button');
+      button.type='button';button.className='command-result'+(index===0?' active':'');
+      button.setAttribute('role','option');button.setAttribute('aria-selected',String(index===0));
+      const title=document.createElement('span');title.textContent=item.title;
+      const category=document.createElement('small');category.textContent=item.hint;
+      button.append(title,category);
+      button.addEventListener('click',()=>runCommand(item));
+      container.append(button);
+    });
+  }
+  function highlightCommand(next) {
+    if(!commandItems.length)return;
+    selectedCommand=(next+commandItems.length)%commandItems.length;
+    [...$('command-results').querySelectorAll('.command-result')].forEach((el,i)=>{
+      el.classList.toggle('active',i===selectedCommand);
+      el.setAttribute('aria-selected',String(i===selectedCommand));
+      if(i===selectedCommand)el.scrollIntoView({block:'nearest'});
+    });
+  }
+  function openCommandPalette() {
+    if ($('command-dialog').open) return;
+    const otherDialogs=['settings-dialog','custom-dialog','edit-task-dialog','clear-task-dialog'];
+    if(otherDialogs.some(id=>$(id).open))return;
+    $('command-query').value='';
+    renderCommands();
+    $('command-dialog').showModal();
+    $('command-query').focus();
+  }
+
   function sortedFilteredTasks() {
     let items = state.tasks.filter(t => {
       if (currentTaskSearch && !`${t.text} ${t.category} ${t.priority}`.toLowerCase().includes(currentTaskSearch)) return false;
@@ -594,6 +711,7 @@
       empty.append(symbol,title,desc);list.append(empty);
     }
     for (const task of items) list.append(renderTaskRow(task));
+    populateDependencyOptions('todo-dependency');
     $('clear-completed').disabled=complete===0;
   }
   function renderStats() {
