@@ -701,14 +701,14 @@
   function activateSettingsTab(next, focusButton = false) {
     if (!SETTINGS_TABS.includes(next)) return;
     activeSettingsTab = next;
-    $('[data-settings-tab]').forEach(button => {
+    $$('[data-settings-tab]').forEach(button => {
       const chosen = button.dataset.settingsTab === next;
       button.classList.toggle('active', chosen);
       button.setAttribute('aria-selected', String(chosen));
       button.tabIndex = chosen ? 0 : -1;
       if (chosen && focusButton) button.focus();
     });
-    $('[data-settings-panel]').forEach(panel => { panel.hidden = panel.dataset.settingsPanel !== next; });
+    $$('[data-settings-panel]').forEach(panel => { panel.hidden = panel.dataset.settingsPanel !== next; });
     const pane = $('settings-dialog').querySelector('.cc-main');
     if (pane) pane.scrollTop = 0;
   }
@@ -858,7 +858,7 @@
     $('open-settings').addEventListener('click', openSettings);
     $('cc-close-settings').addEventListener('click', () => $('settings-dialog').close());
     $('cc-dismiss-header').addEventListener('click', () => $('settings-dialog').close());
-    const tabButtons = $('[data-settings-tab]');
+    const tabButtons = $$('[data-settings-tab]');
     tabButtons.forEach((button, index) => {
       button.addEventListener('click', () => activateSettingsTab(button.dataset.settingsTab));
       button.addEventListener('keydown', event => {
