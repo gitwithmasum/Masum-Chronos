@@ -83,6 +83,6 @@ assert.equal(tree.get('intelligence-trend').children.length,30);
 assert.match(fs.readFileSync('web/intelligence.css','utf8'),/body\.print-intelligence/);
 assert.match(app,/window\.print\(\)/);
 const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
-assert.equal(pkg.version,'2.4.0-beta.1');
+assert.equal(pkg.version,'2.6.0-beta.1');
 assert(pkg.files.includes('web/productivity-intelligence.js')&&pkg.files.includes('web/intelligence.css'));
 console.log('INTELLIGENCE: 7/30-day analytics, 84-day heatmap, completed task attribution, CSV formula safety, PDF print and migration PASS');
