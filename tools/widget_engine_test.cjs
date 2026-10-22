@@ -76,6 +76,8 @@ assert.equal(handle.iframe.attributes.sandbox,'allow-scripts allow-forms');
 assert.equal(typeof handle.ready.then,'function');
 assert(parent.children.length===1);
 const mounted=new URL(handle.iframe.src);
+const frameToken=mounted.searchParams.get('bridgeToken');
+assert.match(frameToken,/^[a-f0-9]{48}$/);
 assert.equal(mounted.pathname,'/Masum-Chronos/web/widgets/widget.html');
 assert.equal(mounted.searchParams.get('hostOrigin'),'https://novastudy.example');
 assert.equal(mounted.searchParams.get('type'),'tasks');
@@ -84,16 +86,14 @@ assert.equal(mounted.searchParams.get('size'),'compact');
 assert.equal(sent.length,0,'Host snapshot must wait until iframe is loaded');
 frameLoad();
 assert.equal(sent.length,1);
-win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:ready',version:1,bridgeToken}});
+win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:ready',version:1,bridgeToken:frameToken}});
 assert.equal(readyCalled,true,'SDK must expose iframe readiness');
-win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:resize',version:1,bridgeToken,height:620}});
+win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:resize',version:1,bridgeToken:frameToken,height:620}});
 assert.equal(handle.iframe.style.height,'620px');
 assert.equal(resized,620);
 win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:resize',version:1,bridgeToken:'f'.repeat(48),height:700}});
 assert.equal(handle.iframe.style.height,'620px','Wrong-origin resize must be ignored');
 assert.equal(sent[0].target,'*','Opaque sandbox target must use wildcard with receiver-side validation');
-const bridgeToken=mounted.searchParams.get('bridgeToken');
-assert.match(bridgeToken,/^[a-f0-9]{48}$/);
 assert.equal(sent[0].data.type,'chronos:widget:data');
 assert.equal(handle.update({tasks:[],stats:{sessions:0,focusSeconds:0}}),true);
 assert.equal(sent.length,2);
@@ -115,13 +115,13 @@ function element(){
   focus(){},classList:{add(){}}};
 }
 for(const match of frame.matchAll(/id="(cw-[a-z-]+)"/g))elements.set(match[1],element());
-const mainStorage={},bridgeToken='a'.repeat(48);
+const mainStorage={},hostToken='a'.repeat(48);
 const storage={
  getItem(k){if(k==='masum-chronos-v1')throw Error('Unauthorized main state access');return mainStorage[k]||null;},
  setItem(k,v){if(k==='masum-chronos-v1')throw Error('Unauthorized main state write');mainStorage[k]=v;}
 };
 let cb=null;
-const w={ChronosWidgetCore:core,location:{search:'?type=tasks&source=host&hostOrigin=https%3A%2F%2Fhost.example&bridgeToken='+bridgeToken},parent:{},
+const w={ChronosWidgetCore:core,location:{search:'?type=tasks&source=host&hostOrigin=https%3A%2F%2Fhost.example&bridgeToken='+hostToken},parent:{},
  addEventListener(name,fn){if(name==='message')cb=fn;},
  crypto:{randomUUID:()=> 'new-id'}};
 vm.runInNewContext(widgetCode,{window:w,document:{body:{dataset:{}},
@@ -130,7 +130,7 @@ vm.runInNewContext(widgetCode,{window:w,document:{body:{dataset:{}},
  ChronosWidgetCore:core,console},{timeout:1000});
 assert.equal(elements.get('cw-task-form').hidden,true);
 assert(elements.get('cw-task-list').children.length===1,'Host mode should start empty');
-cb({source:w.parent,origin:'https://hostile.example',data:{type:'chronos:widget:data',version:1,bridgeToken,payload:bad}});
+cb({source:w.parent,origin:'https://hostile.example',data:{type:'chronos:widget:data',version:1,bridgeToken:hostToken,payload:bad}});
 assert.equal(String(elements.get('cw-active').textContent),'0','Wrong-origin data must be ignored');
 cb({source:w.parent,origin:'https://host.example',data:{type:'chronos:widget:data',version:1,bridgeToken,payload:bad}});
 assert.equal(String(elements.get('cw-active').textContent),'1','Approved host payload should be rendered');
