@@ -50,9 +50,9 @@ The existing `ChronosWidgets.mount(element, options)`, `update(data)` and `destr
 
 ## Security and privacy
 
-- The iframe uses `sandbox="allow-scripts allow-same-origin"`. It can run the Chronos widget and use its own origin's storage, but it is not granted top-navigation or popup permissions.
-- The loader sends host snapshots only in explicit `source: "host"` mode, only to the Chronos iframe origin, after JSON serialization and a 64 KB limit.
-- The receiver validates the exact host origin and `event.source === window.parent`; the loader validates the exact Chronos origin and `event.source === iframe.contentWindow`.
+- The iframe uses `sandbox="allow-scripts allow-forms"` without `allow-same-origin`, giving it an opaque origin so it cannot read the host DOM or storage even when embedded on the same site. Embedded widgets may therefore use ephemeral in-memory state; opening the widget directly on the Chronos origin allows its standalone storage behavior.
+- The loader sends host snapshots only in explicit `source: "host"` mode, after JSON serialization and a 64 KB limit. Because an opaque sandbox has origin `null`, the iframe message uses `targetOrigin: "*"` only for that exact iframe reference; the receiver validates `event.source === window.parent`, the exact host origin, and a per-frame 192-bit bridge token. Parent-side messages validate `event.source === iframe.contentWindow`, origin `null`, and the same token.
+- The receiver validates the exact host origin and `event.source === window.parent`; the loader validates the opaque origin, exact iframe reference, protocol version and per-frame token.
 - Readiness and resize messages contain no task data. Resize requests outside 220–720px are ignored.
 - Host widgets are read-only. The SDK never reads host localStorage, DOM, database, auth token, or app state. The host chooses exactly which fields to share.
 - Browsers may partition or block third-party iframe storage. The timer works while the iframe is open; background timer alarms are not guaranteed.
