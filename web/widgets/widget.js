@@ -1,4 +1,4 @@
-/* MASUM CHRONOS v2.4 — standalone widget runtime.
+/* MASUM CHRONOS v2.6 — sandbox-isolated widget runtime.
  * Separate storage namespace; NEVER reads main Chronos/NovaStudy keys.
  */
 (()=>{
@@ -154,11 +154,28 @@
  }
  function acceptHostData(event){
    // Parent explicitly supplies a snapshot; nothing is read from the parent.
-   if(config.source!=='host'||!config.hostOrigin||event.source!==window.parent||event.origin!==config.hostOrigin)return;
-   if(!event.data||event.data.type!=='chronos:widget:data'||event.data.version!==1)return;
+   if(config.source!=='host'||!config.hostOrigin||!config.bridgeToken||event.source!==window.parent||event.origin!==config.hostOrigin)return;
+   if(!event.data||event.data.type!=='chronos:widget:data'||event.data.version!==1||event.data.bridgeToken!==config.bridgeToken)return;
    supplied=core.snapshot(event.data.payload);
    if(config.type==='tasks')tasksPaint();
    else if(config.type==='stats')statsPaint();
+ }
+ function postParent(type,fields={}){
+   if(!config.hostOrigin||window.parent===window)return false;
+   if(!config.bridgeToken)return false;
+   try{window.parent.postMessage({type,version:1,bridgeToken:config.bridgeToken,...fields},config.hostOrigin);return true;}catch{return false;}
+ }
+ let resizeTimer=null,lastReportedHeight=0;
+ function reportSize(){
+   const height=Math.ceil(Math.max(document.documentElement?.scrollHeight||0,document.body?.scrollHeight||0));
+   const bounded=Math.max(220,Math.min(720,height));
+   if(Math.abs(bounded-lastReportedHeight)<4)return;
+   lastReportedHeight=bounded;
+   postParent('chronos:widget:resize',{height:bounded});
+ }
+ function scheduleResize(){
+   if(resizeTimer!==null)return;
+   resizeTimer=setTimeout(()=>{resizeTimer=null;reportSize();},80);
  }
  function init(){
    document.body.dataset.theme=config.theme;
@@ -188,6 +205,13 @@
    if(config.type==='stats')statsPaint();
    status(config.source==='host'&&['tasks','stats'].includes(config.type)
      ?'Waiting for the host to share data…':'Ready · Independent Chronos widget.');
+   postParent('chronos:widget:ready');
+   window.addEventListener('resize',scheduleResize,{passive:true});
+   if(typeof window.ResizeObserver==='function'){
+     try{const observer=new window.ResizeObserver(scheduleResize);observer.observe(document.documentElement);}catch{}
+   }
+   scheduleResize();
  }
+ window.addEventListener('error',()=>postParent('chronos:widget:error'),{once:true});
  init();
 })();

@@ -1,4 +1,4 @@
-/* MASUM CHRONOS v2.4 / Universal Widget Core
+/* MASUM CHRONOS v2.6 / Universal Widget Core
  * Pure functions for independent, embeddable widgets; no access to main app data.
  */
 (function(root,factory){
@@ -25,7 +25,8 @@
       size:choose(q.get('size'),SIZES,'regular'),
       minutes:bounds(q.get('minutes'),1,180,25),
       source:q.get('source')==='host'?'host':'local',
-      hostOrigin:origin(q.get('hostOrigin'))||''
+      hostOrigin:origin(q.get('hostOrigin'))||'',
+      bridgeToken:/^[a-f0-9]{48}$/.test(q.get('bridgeToken')||'')?(q.get('bridgeToken')||''):''
     });
   }
   function origin(raw){

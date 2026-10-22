@@ -4,7 +4,13 @@
 
 **[Launch Chrome App](https://gitwithmasum.github.io/Masum-Chronos/)** · **[Source Code](https://github.com/gitwithmasum/Masum-Chronos)** · **[Report an Issue](https://github.com/gitwithmasum/Masum-Chronos/issues)**
 
-**v2.4.0-beta.1 | Universal Galaxy Productivity Widgets & Integration Studio.**
+**v2.6.0-beta.1 | Secure Universal Widget SDK & Cross-App Reliability.**
+
+## v2.6 — Secure Widget SDK (beta)
+
+The universal loader now creates a sandboxed Chronos iframe, validates widget-to-host messages by exact origin and frame identity, and exposes `ready`, `onReady`, `onResize`, `onError`, `update(data)` and `destroy()`. Dynamic height is clamped to a safe range; host snapshots remain explicit, read-only and capped at 64 KB. Existing `ChronosWidgets.mount()` calls remain compatible.
+
+[Read the v2.6 SDK guide and integration examples](docs/widget-sdk-v2.6.md).
 
 One project, two workspaces: a **Focus Timer** (Pomodoro, Countdown, Stopwatch) and a full **To-Do Mission Command Center**, available both as a **Chrome-installable Progressive Web App** and a **VS Code extension**. No account is required for local use. Optional cross-device Chrome/PWA sync uses a shared Supabase project; local timers and To-Do continue offline.
 

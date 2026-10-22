@@ -15,7 +15,7 @@ let lastNotifiedDeadline = 0;
 const SNAPSHOT_KEY = 'masumChronos.snapshot.v1';
 const ALERT_KEY = 'masumChronos.lastAlert.v1';
 const PAIR_KEY_STORAGE = 'masumChronos.localSyncKey.v1';
-const VERSION = '2.4.0-beta.1';
+const VERSION = '2.6.0-beta.1';
 let bridge = null;
 
 function activeTimer() {
