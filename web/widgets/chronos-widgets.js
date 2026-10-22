@@ -40,7 +40,7 @@
    const iframe=document.createElement('iframe');
    iframe.src=url.href;
    iframe.title=String(options.title||('MASUM CHRONOS '+type+' widget')).slice(0,120);
-   iframe.loading=options.loading==='eager'?'eager':'lazy';
+   iframe.loading=options.loading==='lazy'?'lazy':'eager';
    iframe.referrerPolicy='strict-origin-when-cross-origin';
    iframe.setAttribute('aria-label',iframe.title);
    // Opaque-origin sandbox prevents the widget from reading the host DOM/storage, even when both pages share a domain.
