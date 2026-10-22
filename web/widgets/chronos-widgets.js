@@ -17,8 +17,9 @@
    stats:{compact:275,regular:345,wide:355}};
  const safeNumber=value=>Number.isInteger(Number(value))&&Number(value)>=1&&Number(value)<=180?Number(value):25;
  function makeBridgeToken(){
-   try{if(root.crypto&&typeof root.crypto.getRandomValues==='function'){const bytes=new Uint8Array(24);root.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}}catch{}
-   return Array.from({length:24},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
+   if(!root.crypto||typeof root.crypto.getRandomValues!=='function')throw new Error('Secure randomness is unavailable; the widget bridge was not opened.');
+   const bytes=new Uint8Array(24);root.crypto.getRandomValues(bytes);
+   return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
  }
  const safeCall=(callback,...args)=>{if(typeof callback==='function')try{callback(...args);}catch{}};
  function mount(element,options={}){
