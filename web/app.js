@@ -122,7 +122,7 @@
   }
   function normalize(raw) {
     const def = initial();
-    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', '2.3.0-beta.1', VERSION].includes(raw.version)) return def;
+    if (!raw || typeof raw !== 'object' || !['1.0.0', '1.1.0', '1.2.0', '1.2.1', '1.2.2', '1.2.3', '1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', '2.3.0-beta.1', '2.4.0-beta.1', VERSION].includes(raw.version)) return def;
     const s = {
       ...def, ...raw,
       focus: { ...def.focus, ...raw.focus },
@@ -1409,7 +1409,7 @@
       else if (event.key.toLowerCase() === 'l' && !event.repeat && state.mode === 'stopwatch') lap();
     });
     window.addEventListener('message', (event) => {
-      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', '2.3.0-beta.1', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
+      if (event.data?.type === 'hydrate' && ['1.0.0','1.1.0','1.2.0','1.2.1','1.2.2','1.2.3','1.3.0', '2.0.0-beta.1', '2.0.0-beta.2', '2.1.0-beta.1', '2.1.0-beta.2', '2.2.0-beta.1', '2.3.0-beta.1', '2.4.0-beta.1', VERSION].includes(event.data.state?.version) && Number(event.data.state.updatedAt) > state.updatedAt) {
         state = normalize(event.data.state); persist(); render(); soundStudio.render(); tick();
       } else if (event.data?.type === 'sync-tasks' && inVSCode) {
         applySyncedMissions(event.data.payload);
