@@ -1,3 +1,12 @@
+## v2.6.0-beta.1 — Secure Widget SDK & Reliability
+
+- Added a sandboxed cross-app iframe (`allow-scripts allow-same-origin`) that cannot top-navigate the host by default.
+- Added exact-origin `ready`, `resize` and runtime-error messages with a readiness Promise, bounded 220–720px dynamic height, callback hooks and timeout/error handling.
+- Preserved the v2.4 API (`mount`, `update`, `destroy`) and added optional title, eager loading and readiness timeout configuration.
+- Kept host data opt-in, direct-parent-only and capped at 64 KB; existing local widget storage remains isolated from host apps.
+- Added SDK readiness, sandbox, resize-origin and teardown regression checks; refreshed both root and `/web/` PWA cache versions and VSIX metadata.
+- [Widget SDK v2.6 guide](docs/widget-sdk-v2.6.md) documents integration, host payload shape and reliability behavior.
+
 ## v2.4.0-beta.1 — Universal Productivity Widget Engine
 
 - Created self-contained Focus Timer, Countdown, Mini Tasks and Productivity Pulse iframe widgets with a tiny embeddable `ChronosWidgets.mount()` loader.
