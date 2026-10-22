@@ -134,7 +134,7 @@ assert.equal(elements.get('cw-task-form').hidden,true);
 assert(elements.get('cw-task-list').children.length===1,'Host mode should start empty');
 cb({source:w.parent,origin:'https://hostile.example',data:{type:'chronos:widget:data',version:1,bridgeToken:hostToken,payload:bad}});
 assert.equal(String(elements.get('cw-active').textContent),'0','Wrong-origin data must be ignored');
-cb({source:w.parent,origin:'https://host.example',data:{type:'chronos:widget:data',version:1,bridgeToken,payload:bad}});
+cb({source:w.parent,origin:'https://host.example',data:{type:'chronos:widget:data',version:1,bridgeToken:hostToken,payload:bad}});
 assert.equal(String(elements.get('cw-active').textContent),'1','Approved host payload should be rendered');
 assert.equal(elements.get('cw-task-list').children[0].children[0].textContent,'<img src=x onerror=alert(1)>');
 assert.equal(elements.get('cw-task-form').hidden,true,'Host list stays read-only');
