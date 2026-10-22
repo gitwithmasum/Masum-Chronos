@@ -34,6 +34,7 @@ const frame=read('web/widgets/widget.html'),main=read('web/index.html'),index=re
 for(const id of ['cw-timer-panel','cw-tasks-panel','cw-stats-panel','cw-toggle','cw-task-form','cw-stat-minutes','cw-task-list'])
  assert(frame.includes('id="'+id+'"'),id+' missing');
 assert(frame.includes('connect-src &#39;none&#39;')||frame.includes("connect-src 'none'"),'widget CSP must deny network');
+assert(frame.includes('https://gitwithmasum.github.io')&&frame.includes('https://*.vercel.app'),'Opaque sandbox CSP must explicitly allow trusted widget asset hosts');
 for(const app of [main,index]){
  assert(app.includes('widget-engine-launch')&&app.includes('web/widgets/studio.html'),'Main app must link the studio');
  assert(app.includes('V2.6 BETA'),'Main app version label missing');
