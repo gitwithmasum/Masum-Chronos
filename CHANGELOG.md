@@ -1,7 +1,7 @@
 ## v2.6.0-beta.1 — Secure Widget SDK & Reliability
 
 - Added a sandboxed cross-app iframe (`allow-scripts allow-same-origin`) that cannot top-navigate the host by default.
-- Added exact-origin `ready`, `resize` and runtime-error messages with a readiness Promise, bounded 220–720px dynamic height, callback hooks and timeout/error handling.
+- Added readiness, resize and runtime-error messages authenticated by direct iframe identity, host origin and a per-frame 192-bit token; the readiness Promise has bounded 220–720px dynamic height, callback hooks and timeout/error handling.
 - Preserved the v2.4 API (`mount`, `update`, `destroy`) and added optional title, eager loading and readiness timeout configuration.
 - Kept host data opt-in, direct-parent-only and capped at 64 KB; existing local widget storage remains isolated from host apps.
 - Added SDK readiness, sandbox, resize-origin and teardown regression checks; refreshed both root and `/web/` PWA cache versions and VSIX metadata.
