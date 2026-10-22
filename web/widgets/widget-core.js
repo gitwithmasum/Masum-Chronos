@@ -1,4 +1,4 @@
-/* MASUM CHRONOS v2.4 / Universal Widget Core
+/* MASUM CHRONOS v2.6 / Universal Widget Core
  * Pure functions for independent, embeddable widgets; no access to main app data.
  */
 (function(root,factory){
