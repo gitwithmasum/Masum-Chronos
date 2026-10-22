@@ -154,15 +154,16 @@
  }
  function acceptHostData(event){
    // Parent explicitly supplies a snapshot; nothing is read from the parent.
-   if(config.source!=='host'||!config.hostOrigin||event.source!==window.parent||event.origin!==config.hostOrigin)return;
-   if(!event.data||event.data.type!=='chronos:widget:data'||event.data.version!==1)return;
+   if(config.source!=='host'||!config.hostOrigin||!config.bridgeToken||event.source!==window.parent||event.origin!==config.hostOrigin)return;
+   if(!event.data||event.data.type!=='chronos:widget:data'||event.data.version!==1||event.data.bridgeToken!==config.bridgeToken)return;
    supplied=core.snapshot(event.data.payload);
    if(config.type==='tasks')tasksPaint();
    else if(config.type==='stats')statsPaint();
  }
  function postParent(type,fields={}){
    if(!config.hostOrigin||window.parent===window)return false;
-   try{window.parent.postMessage({type,version:1,...fields},config.hostOrigin);return true;}catch{return false;}
+   if(!config.bridgeToken)return false;
+   try{window.parent.postMessage({type,version:1,bridgeToken:config.bridgeToken,...fields},config.hostOrigin);return true;}catch{return false;}
  }
  let resizeTimer=null,lastReportedHeight=0;
  function reportSize(){
