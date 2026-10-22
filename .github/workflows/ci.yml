@@ -52,12 +52,12 @@ jobs:
       - name: Official Marketplace VSIX package
         run: |
           mkdir -p dist
-          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-2.4.0-beta.1.vsix
+          npx --no-install vsce package --no-dependencies --out dist/masum-chronos-2.6.0-beta.1.vsix
       - name: Verify Marketplace VSIX content
-        run: python tools/marketplace_check.py dist/masum-chronos-2.4.0-beta.1.vsix
+        run: python tools/marketplace_check.py dist/masum-chronos-2.6.0-beta.1.vsix
       - name: Upload marketplace release candidate
         uses: actions/upload-artifact@v4
         with:
-          name: masum-chronos-marketplace-v2.4.0-beta.1
-          path: dist/masum-chronos-2.4.0-beta.1.vsix
+          name: masum-chronos-marketplace-v2.6.0-beta.1
+          path: dist/masum-chronos-2.6.0-beta.1.vsix
           if-no-files-found: error
