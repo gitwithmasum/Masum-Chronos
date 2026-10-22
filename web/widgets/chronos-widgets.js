@@ -16,6 +16,10 @@
    tasks:{compact:368,regular:455,wide:465},
    stats:{compact:275,regular:345,wide:355}};
  const safeNumber=value=>Number.isInteger(Number(value))&&Number(value)>=1&&Number(value)<=180?Number(value):25;
+ function makeBridgeToken(){
+   try{if(root.crypto&&typeof root.crypto.getRandomValues==='function'){const bytes=new Uint8Array(24);root.crypto.getRandomValues(bytes);return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');}}catch{}
+   return Array.from({length:24},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join('');
+ }
  const safeCall=(callback,...args)=>{if(typeof callback==='function')try{callback(...args);}catch{}};
  function mount(element,options={}){
    options=options&&typeof options==='object'?options:{};
@@ -27,7 +31,8 @@
       minutes=safeNumber(options.minutes),
       source=options.source==='host'?'host':'local';
    const url=new URL(asset.href);
-   const query=new URLSearchParams({type,theme,size,minutes:String(minutes),source});
+   const bridgeToken=makeBridgeToken();
+   const query=new URLSearchParams({type,theme,size,minutes:String(minutes),source,bridgeToken});
    // Used only for exact-origin readiness/resize messages; host data is still accepted only in host mode.
    if(typeof location.origin==='string'&&location.origin!=='null')query.set('hostOrigin',location.origin);
    url.search=query.toString();
@@ -37,7 +42,8 @@
    iframe.loading=options.loading==='eager'?'eager':'lazy';
    iframe.referrerPolicy='strict-origin-when-cross-origin';
    iframe.setAttribute('aria-label',iframe.title);
-   iframe.setAttribute('sandbox','allow-scripts allow-same-origin');
+   // Opaque-origin sandbox prevents the widget from reading the host DOM/storage, even when both pages share a domain.
+   iframe.setAttribute('sandbox','allow-scripts allow-forms');
    iframe.style.display='block';
    iframe.style.border='0';
    iframe.style.width='100%';
@@ -69,12 +75,13 @@
      try{
        const json=JSON.stringify(data);
        if(!json||json.length>64000)throw new RangeError('Host widget data exceeds 64 KB.');
-       iframe.contentWindow.postMessage({type:'chronos:widget:data',version:1,payload:JSON.parse(json)},asset.origin);
+       // Opaque sandbox origins require '*'; direct-frame identity, host origin and bridge token are checked by the receiver.
+       iframe.contentWindow.postMessage({type:'chronos:widget:data',version:1,bridgeToken,payload:JSON.parse(json)},'*');
        return true;
      }catch{return false;}
    }
    function onMessage(event){
-     if(event.source!==iframe.contentWindow||event.origin!==asset.origin||!event.data||event.data.version!==1)return;
+     if(event.source!==iframe.contentWindow||event.origin!=='null'||!event.data||event.data.version!==1||event.data.bridgeToken!==bridgeToken)return;
      if(event.data.type==='chronos:widget:ready'){finishReady();return;}
      if(event.data.type==='chronos:widget:error'){reportError(new Error('Chronos widget runtime reported an error.'));return;}
      if(event.data.type==='chronos:widget:resize'){
