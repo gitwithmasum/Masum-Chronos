@@ -45,7 +45,7 @@ The existing `ChronosWidgets.mount(element, options)`, `update(data)` and `destr
 - `data`: optional initial host snapshot. It is sent only when `source: "host"`.
 - `onReady(iframe)`, `onResize(height)`, `onError(error)`: optional callbacks.
 - `readyTimeoutMs`: optional integer from 1,000 to 30,000; defaults to 10,000.
-- `loading`: `"eager"` or the default lazy loading.
+- `loading`: `"lazy"` to defer an offscreen widget; default is eager once `mount()` is called so readiness timeouts remain predictable.
 - `title`: optional accessible iframe title.
 
 ## Security and privacy
