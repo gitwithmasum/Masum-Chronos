@@ -36,7 +36,7 @@ for(const id of ['cw-timer-panel','cw-tasks-panel','cw-stats-panel','cw-toggle',
 assert(frame.includes('connect-src &#39;none&#39;')||frame.includes("connect-src 'none'"),'widget CSP must deny network');
 for(const app of [main,index]){
  assert(app.includes('widget-engine-launch')&&app.includes('web/widgets/studio.html'),'Main app must link the studio');
- assert(app.includes('V2.4 BETA'),'Main app version label missing');
+ assert(app.includes('V2.6 BETA'),'Main app version label missing');
 }
 for(const f of ['widget.js','chronos-widgets.js','studio.js'])new Function(read('web/widgets/'+f));
 const widgetCode=read('web/widgets/widget.js');
@@ -51,22 +51,28 @@ assert(widgetCode.includes('setTimeout(stopChime,10000)'),'Chime must automatica
 const scriptURL='https://gitwithmasum.github.io/Masum-Chronos/web/widgets/chronos-widgets.js';
 const parent={children:[],appendChild(x){this.children.push(x);}};
 let frameLoad=null,sent=[],removed=false;
-const win={location:{origin:'https://novastudy.example'}};
+const win={location:{origin:'https://novastudy.example'},listeners:{},addEventListener(type,cb){this.listeners[type]=cb;},removeEventListener(type,cb){if(this.listeners[type]===cb)delete this.listeners[type];}};
 const doc={
  currentScript:{src:scriptURL},
  querySelector(selector){return selector==='#host'?parent:null;},
  createElement(tag){
   assert.equal(tag,'iframe');
+  const attributes={};
   return {
-   style:{},setAttribute(){},addEventListener(type,cb){if(type==='load')frameLoad=cb;},
+   style:{},attributes,setAttribute(name,value){attributes[name]=value;},
+   addEventListener(type,cb){if(type==='load')frameLoad=cb;},removeEventListener(){},
    contentWindow:{postMessage(data,target){sent.push({data,target});}},
    remove(){removed=true;}
   };
  }
 };
-vm.runInNewContext(read('web/widgets/chronos-widgets.js'),{window:win,location:win.location,document:doc,URL,URLSearchParams,Number,Array,Object,TypeError,JSON},{timeout:1000});
+vm.runInNewContext(read('web/widgets/chronos-widgets.js'),{window:win,location:win.location,document:doc,URL,URLSearchParams,Number,Array,Object,TypeError,JSON,setTimeout:(fn,ms)=>({fn,ms}),clearTimeout(){}},{timeout:1000});
 assert.equal(typeof win.ChronosWidgets.mount,'function');
-const handle=win.ChronosWidgets.mount('#host',{type:'tasks',theme:'black-gold',size:'compact',source:'host',data:bad});
+assert.equal(win.ChronosWidgets.version,'2.6.0-beta.1');
+let readyCalled=false,resized=null;
+const handle=win.ChronosWidgets.mount('#host',{type:'tasks',theme:'black-gold',size:'compact',source:'host',data:bad,onReady(){readyCalled=true;},onResize(height){resized=height;}});
+assert.equal(handle.iframe.attributes.sandbox,'allow-scripts allow-same-origin');
+assert.equal(typeof handle.ready.then,'function');
 assert(parent.children.length===1);
 const mounted=new URL(handle.iframe.src);
 assert.equal(mounted.pathname,'/Masum-Chronos/web/widgets/widget.html');
@@ -77,6 +83,13 @@ assert.equal(mounted.searchParams.get('size'),'compact');
 assert.equal(sent.length,0,'Host snapshot must wait until iframe is loaded');
 frameLoad();
 assert.equal(sent.length,1);
+win.listeners.message({source:handle.iframe.contentWindow,origin:'https://gitwithmasum.github.io',data:{type:'chronos:widget:ready',version:1}});
+assert.equal(readyCalled,true,'SDK must expose iframe readiness');
+win.listeners.message({source:handle.iframe.contentWindow,origin:'https://gitwithmasum.github.io',data:{type:'chronos:widget:resize',version:1,height:620}});
+assert.equal(handle.iframe.style.height,'620px');
+assert.equal(resized,620);
+win.listeners.message({source:handle.iframe.contentWindow,origin:'https://evil.example',data:{type:'chronos:widget:resize',version:1,height:700}});
+assert.equal(handle.iframe.style.height,'620px','Wrong-origin resize must be ignored');
 assert.equal(sent[0].target,'https://gitwithmasum.github.io');
 assert.equal(sent[0].data.type,'chronos:widget:data');
 assert.equal(handle.update({tasks:[],stats:{sessions:0,focusSeconds:0}}),true);
@@ -88,6 +101,8 @@ const local=win.ChronosWidgets.mount('#host',{type:'countdown',theme:'malicious'
 assert.equal(new URL(local.iframe.src).searchParams.get('source'),'local');
 assert.equal(new URL(local.iframe.src).searchParams.get('theme'),'nebula');
 assert.equal(local.update({tasks:bad.tasks}),false);
+assert.equal(local.iframe.attributes.sandbox,'allow-scripts allow-same-origin');
+local.destroy();
 // Simulate hostile parent origin and confirm the iframe ignores its data.
 const elements=new Map();
 function element(){
@@ -119,8 +134,9 @@ assert.equal(String(elements.get('cw-active').textContent),'1','Approved host pa
 assert.equal(elements.get('cw-task-list').children[0].children[0].textContent,'<img src=x onerror=alert(1)>');
 assert.equal(elements.get('cw-task-form').hidden,true,'Host list stays read-only');
 const pkg=JSON.parse(read('package.json'));
-assert.equal(pkg.version,'2.4.0-beta.1');
+assert.equal(pkg.version,'2.6.0-beta.1');
 assert(pkg.files.includes('web/widgets/widget.html'));
 const sw=read('web/sw.js'),rsw=read('sw.js');
 assert(sw.includes("'./widgets/studio.html'")&&rsw.includes("'./web/widgets/widget.html'"),'Offline precache must include studio & widget iframe');
+assert(sw.includes('masum-chronos-v2.6.0-beta.1-secure-widgets'),'PWA cache version must be refreshed');
 console.log('WIDGET ENGINE: 4 types, themes, sizes, storage separation, exact-origin snapshots, loader, Studio, PWA cache and VSIX assets PASS');
