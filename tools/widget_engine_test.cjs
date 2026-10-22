@@ -44,6 +44,7 @@ assert(!widgetCode.includes('innerHTML'),'Widget runtime must use textContent fo
 assert(!widgetCode.includes('masum-chronos-v1'),'Widget must never read main Chronos storage key');
 assert(widgetCode.includes("event.source!==window.parent||event.origin!==config.hostOrigin"),
  'Host messages must check direct parent and exact origin');
+assert(widgetCode.includes("event.data.bridgeToken!==config.bridgeToken"),'Host messages must also validate the per-iframe bridge token');
 assert(widgetCode.includes("config.source==='host' ? (supplied||core.snapshot({})) : local"),
  'Host mode must not fall back to local private widget data');
 assert(widgetCode.includes('setTimeout(stopChime,10000)'),'Chime must automatically stop at 10 seconds');
@@ -71,7 +72,7 @@ assert.equal(typeof win.ChronosWidgets.mount,'function');
 assert.equal(win.ChronosWidgets.version,'2.6.0-beta.1');
 let readyCalled=false,resized=null;
 const handle=win.ChronosWidgets.mount('#host',{type:'tasks',theme:'black-gold',size:'compact',source:'host',data:bad,onReady(){readyCalled=true;},onResize(height){resized=height;}});
-assert.equal(handle.iframe.attributes.sandbox,'allow-scripts allow-same-origin');
+assert.equal(handle.iframe.attributes.sandbox,'allow-scripts allow-forms');
 assert.equal(typeof handle.ready.then,'function');
 assert(parent.children.length===1);
 const mounted=new URL(handle.iframe.src);
@@ -83,14 +84,16 @@ assert.equal(mounted.searchParams.get('size'),'compact');
 assert.equal(sent.length,0,'Host snapshot must wait until iframe is loaded');
 frameLoad();
 assert.equal(sent.length,1);
-win.listeners.message({source:handle.iframe.contentWindow,origin:'https://gitwithmasum.github.io',data:{type:'chronos:widget:ready',version:1}});
+win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:ready',version:1,bridgeToken}});
 assert.equal(readyCalled,true,'SDK must expose iframe readiness');
-win.listeners.message({source:handle.iframe.contentWindow,origin:'https://gitwithmasum.github.io',data:{type:'chronos:widget:resize',version:1,height:620}});
+win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:resize',version:1,bridgeToken,height:620}});
 assert.equal(handle.iframe.style.height,'620px');
 assert.equal(resized,620);
-win.listeners.message({source:handle.iframe.contentWindow,origin:'https://evil.example',data:{type:'chronos:widget:resize',version:1,height:700}});
+win.listeners.message({source:handle.iframe.contentWindow,origin:'null',data:{type:'chronos:widget:resize',version:1,bridgeToken:'f'.repeat(48),height:700}});
 assert.equal(handle.iframe.style.height,'620px','Wrong-origin resize must be ignored');
-assert.equal(sent[0].target,'https://gitwithmasum.github.io');
+assert.equal(sent[0].target,'*','Opaque sandbox target must use wildcard with receiver-side validation');
+const bridgeToken=mounted.searchParams.get('bridgeToken');
+assert.match(bridgeToken,/^[a-f0-9]{48}$/);
 assert.equal(sent[0].data.type,'chronos:widget:data');
 assert.equal(handle.update({tasks:[],stats:{sessions:0,focusSeconds:0}}),true);
 assert.equal(sent.length,2);
@@ -101,7 +104,7 @@ const local=win.ChronosWidgets.mount('#host',{type:'countdown',theme:'malicious'
 assert.equal(new URL(local.iframe.src).searchParams.get('source'),'local');
 assert.equal(new URL(local.iframe.src).searchParams.get('theme'),'nebula');
 assert.equal(local.update({tasks:bad.tasks}),false);
-assert.equal(local.iframe.attributes.sandbox,'allow-scripts allow-same-origin');
+assert.equal(local.iframe.attributes.sandbox,'allow-scripts allow-forms');
 local.destroy();
 // Simulate hostile parent origin and confirm the iframe ignores its data.
 const elements=new Map();
@@ -112,13 +115,13 @@ function element(){
   focus(){},classList:{add(){}}};
 }
 for(const match of frame.matchAll(/id="(cw-[a-z-]+)"/g))elements.set(match[1],element());
-const mainStorage={};
+const mainStorage={},bridgeToken='a'.repeat(48);
 const storage={
  getItem(k){if(k==='masum-chronos-v1')throw Error('Unauthorized main state access');return mainStorage[k]||null;},
  setItem(k,v){if(k==='masum-chronos-v1')throw Error('Unauthorized main state write');mainStorage[k]=v;}
 };
 let cb=null;
-const w={ChronosWidgetCore:core,location:{search:'?type=tasks&source=host&hostOrigin=https%3A%2F%2Fhost.example'},parent:{},
+const w={ChronosWidgetCore:core,location:{search:'?type=tasks&source=host&hostOrigin=https%3A%2F%2Fhost.example&bridgeToken='+bridgeToken},parent:{},
  addEventListener(name,fn){if(name==='message')cb=fn;},
  crypto:{randomUUID:()=> 'new-id'}};
 vm.runInNewContext(widgetCode,{window:w,document:{body:{dataset:{}},
@@ -127,9 +130,9 @@ vm.runInNewContext(widgetCode,{window:w,document:{body:{dataset:{}},
  ChronosWidgetCore:core,console},{timeout:1000});
 assert.equal(elements.get('cw-task-form').hidden,true);
 assert(elements.get('cw-task-list').children.length===1,'Host mode should start empty');
-cb({source:w.parent,origin:'https://hostile.example',data:{type:'chronos:widget:data',version:1,payload:bad}});
+cb({source:w.parent,origin:'https://hostile.example',data:{type:'chronos:widget:data',version:1,bridgeToken,payload:bad}});
 assert.equal(String(elements.get('cw-active').textContent),'0','Wrong-origin data must be ignored');
-cb({source:w.parent,origin:'https://host.example',data:{type:'chronos:widget:data',version:1,payload:bad}});
+cb({source:w.parent,origin:'https://host.example',data:{type:'chronos:widget:data',version:1,bridgeToken,payload:bad}});
 assert.equal(String(elements.get('cw-active').textContent),'1','Approved host payload should be rendered');
 assert.equal(elements.get('cw-task-list').children[0].children[0].textContent,'<img src=x onerror=alert(1)>');
 assert.equal(elements.get('cw-task-form').hidden,true,'Host list stays read-only');
