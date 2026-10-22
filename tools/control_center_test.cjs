@@ -57,7 +57,7 @@ assert.match(app,/const VERSION = '2\.4\.0-beta\.1'/);
 assert.match(host,/controlCssUri/);
 assert.match(host,/href="\.\/control-center\.css"/);
 assert(pkg.files.includes('web/control-center.css'));
-assert.equal(pkg.version,'2.4.0-beta.1');
+assert.equal(pkg.version,'2.6.0-beta.1');
 assert.match(css,/\.cc-panel\[hidden\]/);
 assert.match(css,/@media \(max-width: 810px\)/);
 assert.match(css,/data-theme="pearl-waves"/);
