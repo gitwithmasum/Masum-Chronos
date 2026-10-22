@@ -46,7 +46,7 @@ assert(root.includes('src="./productivity-intelligence.js"'));
 assert(html.includes('href="./intelligence.css"'));
 assert(app.includes("focusSeconds:Number.isFinite(task.focusSeconds)"));
 assert(app.includes("target.focusSeconds=Math.min("));
-assert(app.includes("'2.2.0-beta.1', '2.3.0-beta.1', VERSION"),'v2.2/v2.3 user states must migrate without a reset');
+assert(app.includes("'2.2.0-beta.1', '2.3.0-beta.1', '2.4.0-beta.1', VERSION"),'v2.2/v2.3 user states must migrate without a reset');
 assert(fs.readFileSync('vscode/sync-bridge.js','utf8').includes('focusSeconds:'),'VS Code local bridge must retain tracked focus');
 const mission=require('../web/mission-engine.js');
 const recurring=mission.nextOccurrence({...state.tasks[0],recurrence:'daily',recurrenceAnchor:'2026-10-20',dueDate:'2026-10-20',done:true},state.tasks,'2026-10-21',200);
