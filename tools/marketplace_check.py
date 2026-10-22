@@ -5,7 +5,7 @@ from zipfile import ZipFile
 
 root=Path(__file__).resolve().parents[1]
 package=json.loads((root/'package.json').read_text(encoding='utf8'))
-assert package['version']=='2.4.0-beta.1' and package['publisher']=='gitwithmasum'
+assert package['version']=='2.6.0-beta.1' and package['publisher']=='gitwithmasum'
 assert package['repository']['url'].startswith('https://github.com/gitwithmasum/Masum-Chronos')
 assert package['galleryBanner']=={'color':'#080E21','theme':'dark'}
 assert not (root/'.vscodeignore').exists(), 'VSCE does not allow package.json files and .vscodeignore together'
@@ -14,7 +14,7 @@ for u in re.findall(r'!\[[^\]]*\]\(([^)]+)\)',readme):
     assert u.startswith('https://') and not u.endswith('.svg'), f'unsafe README image: {u}'
 for item in ['vscode/extension.js','vscode/sync-bridge.js','web/index.html','web/styles.css','web/app.js','web/sound-studio.js','web/sound-studio.css','web/cloud-sync.js','web/cloud-sync.css','web/control-center.css','web/mission-control.css','web/calendar-command.css','web/intelligence.css','web/mission-engine.js','web/productivity-intelligence.js','web/widgets/widget.html','web/widgets/widget.css','web/widgets/widget.js','web/widgets/widget-core.js','web/widgets/chronos-widgets.js','web/widgets/studio.html','web/widgets/studio.css','web/widgets/studio.js','web/icon-192.png']:
     assert (root/item).exists(), f'missing source {item}'
-vsix=Path(sys.argv[1] if len(sys.argv)>1 else root/'dist/masum-chronos-2.4.0-beta.1.vsix')
+vsix=Path(sys.argv[1] if len(sys.argv)>1 else root/'dist/masum-chronos-2.6.0-beta.1.vsix')
 with ZipFile(vsix) as z:
     paths=set(z.namelist())
     required={'extension.vsixmanifest','extension/package.json','extension/SUPPORT.md',
