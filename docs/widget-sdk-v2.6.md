@@ -50,7 +50,7 @@ The existing `ChronosWidgets.mount(element, options)`, `update(data)` and `destr
 
 ## Security and privacy
 
-- The iframe uses `sandbox="allow-scripts allow-forms"` without `allow-same-origin`, giving it an opaque origin so it cannot read the host DOM or storage even when embedded on the same site. Embedded widgets may therefore use ephemeral in-memory state; opening the widget directly on the Chronos origin allows its standalone storage behavior.
+- The iframe uses `sandbox="allow-scripts allow-forms"` without `allow-same-origin`, giving it an opaque origin so it cannot read the host DOM or storage even when embedded on the same site. The widget CSP explicitly allows static scripts/styles only from the GitHub Pages and Vercel widget hosts (plus local development hosts); network connections remain blocked. Embedded widgets may therefore use ephemeral in-memory state; opening the widget directly on the Chronos origin allows its standalone storage behavior.
 - The loader sends host snapshots only in explicit `source: "host"` mode, after JSON serialization and a 64 KB limit. Because an opaque sandbox has origin `null`, the iframe message uses `targetOrigin: "*"` only for that exact iframe reference; the receiver validates `event.source === window.parent`, the exact host origin, and a per-frame 192-bit bridge token. Parent-side messages validate `event.source === iframe.contentWindow`, origin `null`, and the same token.
 - The receiver validates the exact host origin and `event.source === window.parent`; the loader validates the opaque origin, exact iframe reference, protocol version and per-frame token.
 - Readiness and resize messages contain no task data. Resize requests outside 220–720px are ignored.
