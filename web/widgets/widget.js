@@ -160,6 +160,22 @@
    if(config.type==='tasks')tasksPaint();
    else if(config.type==='stats')statsPaint();
  }
+ function postParent(type,fields={}){
+   if(!config.hostOrigin||window.parent===window)return false;
+   try{window.parent.postMessage({type,version:1,...fields},config.hostOrigin);return true;}catch{return false;}
+ }
+ let resizeTimer=null,lastReportedHeight=0;
+ function reportSize(){
+   const height=Math.ceil(Math.max(document.documentElement?.scrollHeight||0,document.body?.scrollHeight||0));
+   const bounded=Math.max(220,Math.min(720,height));
+   if(Math.abs(bounded-lastReportedHeight)<4)return;
+   lastReportedHeight=bounded;
+   postParent('chronos:widget:resize',{height:bounded});
+ }
+ function scheduleResize(){
+   if(resizeTimer!==null)return;
+   resizeTimer=setTimeout(()=>{resizeTimer=null;reportSize();},80);
+ }
  function init(){
    document.body.dataset.theme=config.theme;
    document.body.dataset.size=config.size;
@@ -188,6 +204,13 @@
    if(config.type==='stats')statsPaint();
    status(config.source==='host'&&['tasks','stats'].includes(config.type)
      ?'Waiting for the host to share data…':'Ready · Independent Chronos widget.');
+   postParent('chronos:widget:ready');
+   window.addEventListener('resize',scheduleResize,{passive:true});
+   if(typeof window.ResizeObserver==='function'){
+     try{const observer=new window.ResizeObserver(scheduleResize);observer.observe(document.documentElement);}catch{}
+   }
+   scheduleResize();
  }
+ window.addEventListener('error',()=>postParent('chronos:widget:error'),{once:true});
  init();
 })();
