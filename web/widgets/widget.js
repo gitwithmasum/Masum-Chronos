@@ -1,4 +1,4 @@
-/* MASUM CHRONOS v2.4 — standalone widget runtime.
+/* MASUM CHRONOS v2.6 — sandbox-isolated widget runtime.
  * Separate storage namespace; NEVER reads main Chronos/NovaStudy keys.
  */
 (()=>{
