@@ -52,7 +52,8 @@ assert(widgetCode.includes('setTimeout(stopChime,10000)'),'Chime must automatica
 const scriptURL='https://gitwithmasum.github.io/Masum-Chronos/web/widgets/chronos-widgets.js';
 const parent={children:[],appendChild(x){this.children.push(x);}};
 let frameLoad=null,sent=[],removed=false;
-const win={location:{origin:'https://novastudy.example'},listeners:{},addEventListener(type,cb){this.listeners[type]=cb;},removeEventListener(type,cb){if(this.listeners[type]===cb)delete this.listeners[type];}};
+let tokenSeed=0;
+const win={location:{origin:'https://novastudy.example'},crypto:{getRandomValues(bytes){tokenSeed++;bytes.fill(tokenSeed);return bytes;}},listeners:{},addEventListener(type,cb){this.listeners[type]=cb;},removeEventListener(type,cb){if(this.listeners[type]===cb)delete this.listeners[type];}};
 const doc={
  currentScript:{src:scriptURL},
  querySelector(selector){return selector==='#host'?parent:null;},
@@ -103,6 +104,7 @@ handle.destroy();assert.equal(removed,true);
 const local=win.ChronosWidgets.mount('#host',{type:'countdown',theme:'malicious',minutes:181});
 assert.equal(new URL(local.iframe.src).searchParams.get('source'),'local');
 assert.equal(new URL(local.iframe.src).searchParams.get('theme'),'nebula');
+assert.notEqual(new URL(local.iframe.src).searchParams.get('bridgeToken'),frameToken,'Each iframe must receive a distinct bridge token');
 assert.equal(local.update({tasks:bad.tasks}),false);
 assert.equal(local.iframe.attributes.sandbox,'allow-scripts allow-forms');
 local.destroy();
