@@ -1,7 +1,7 @@
 /* MASUM CHRONOS — shared Chrome/PWA + VS Code webview client. No dependencies. */
 (() => {
   'use strict';
-  const VERSION = '2.4.0-beta.1';
+  const VERSION = '2.6.0-beta.1';
   const mission = window.ChronosMissionEngine;
   const intelligence = window.ChronosIntelligence;
   const STORAGE_KEY = 'masum-chronos-v1';
